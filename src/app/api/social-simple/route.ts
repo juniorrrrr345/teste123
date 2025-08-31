@@ -15,7 +15,7 @@ export async function GET() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        sql: 'SELECT id, name, url, icon, is_active, sort_order, created_at, updated_at FROM social_links WHERE (is_active = 1 OR is_active = \"true\" OR is_active IS NULL) ORDER BY sort_order ASC'
+        sql: 'SELECT id, platform as name, url, icon, is_available, created_at FROM social_links WHERE (is_available = 1 OR is_available = \"true\" OR is_available IS NULL) ORDER BY created_at ASC'
       })
     });
     

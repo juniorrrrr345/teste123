@@ -15,7 +15,7 @@ export async function GET() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        sql: 'SELECT id, name, description, location, contact, created_at, updated_at FROM farms ORDER BY name ASC'
+        sql: 'SELECT id, name, description, location, contact, created_at FROM farms ORDER BY name ASC'
       })
     });
     
