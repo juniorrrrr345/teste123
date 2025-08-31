@@ -43,10 +43,14 @@ export async function GET() {
         backgroundImage: settings.background_image,
         backgroundOpacity: settings.background_opacity || 20,
         backgroundBlur: settings.background_blur || 5,
-        shopTitle: 'OGLEGACY',
-        shopName: 'OGLEGACY',
+        shopTitle: settings.shop_title || 'OGLEGACY',
+        shopName: settings.shop_title || 'OGLEGACY',
         infoContent: settings.info_content,
-        contactContent: settings.contact_content
+        contactContent: settings.contact_content,
+        whatsappLink: settings.whatsapp_link || '',
+        whatsappNumber: settings.whatsapp_number || '',
+        scrollingText: settings.scrolling_text || '',
+        titleStyle: settings.theme_color || 'glow'
       };
       
       return NextResponse.json(mappedSettings);
@@ -99,7 +103,17 @@ export async function PUT(request: NextRequest) {
       info_content,
       infoContent,
       contact_content,
-      contactContent
+      contactContent,
+      shop_title,
+      shopTitle,
+      whatsapp_link,
+      whatsappLink,
+      whatsapp_number,
+      whatsappNumber,
+      scrolling_text,
+      scrollingText,
+      theme_color,
+      titleStyle
     } = body;
 
     // Utiliser les champs avec priorité aux versions snake_case
@@ -108,6 +122,11 @@ export async function PUT(request: NextRequest) {
     const finalBackgroundBlur = background_blur ?? backgroundBlur ?? 5;
     const finalInfoContent = info_content || infoContent || 'Bienvenue chez OGLEGACY';
     const finalContactContent = contact_content || contactContent || 'Contactez OGLEGACY';
+    const finalShopTitle = shop_title || shopTitle || 'OGLEGACY';
+    const finalWhatsappLink = whatsapp_link || whatsappLink || '';
+    const finalWhatsappNumber = whatsapp_number || whatsappNumber || '';
+    const finalScrollingText = scrolling_text || scrollingText || '';
+    const finalThemeColor = theme_color || titleStyle || 'glow';
 
     // Vérifier si un enregistrement existe
     const checkResult = await executeSqlOnD1('SELECT id FROM settings WHERE id = 1');
@@ -120,29 +139,45 @@ export async function PUT(request: NextRequest) {
           background_opacity = ?, 
           background_blur = ?,
           info_content = ?,
-          contact_content = ?
+          contact_content = ?,
+          shop_title = ?,
+          whatsapp_link = ?,
+          whatsapp_number = ?,
+          scrolling_text = ?,
+          theme_color = ?
         WHERE id = 1
       `, [
         finalBackgroundImage,
         finalBackgroundOpacity,
         finalBackgroundBlur,
         finalInfoContent,
-        finalContactContent
+        finalContactContent,
+        finalShopTitle,
+        finalWhatsappLink,
+        finalWhatsappNumber,
+        finalScrollingText,
+        finalThemeColor
       ]);
     } else {
       // INSERT
       await executeSqlOnD1(`
         INSERT INTO settings (
           id, background_image, background_opacity, background_blur, 
-          info_content, contact_content
-        ) VALUES (?, ?, ?, ?, ?, ?)
+          info_content, contact_content, shop_title, whatsapp_link,
+          whatsapp_number, scrolling_text, theme_color
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         1,
         finalBackgroundImage,
         finalBackgroundOpacity,
         finalBackgroundBlur,
         finalInfoContent,
-        finalContactContent
+        finalContactContent,
+        finalShopTitle,
+        finalWhatsappLink,
+        finalWhatsappNumber,
+        finalScrollingText,
+        finalThemeColor
       ]);
     }
 
