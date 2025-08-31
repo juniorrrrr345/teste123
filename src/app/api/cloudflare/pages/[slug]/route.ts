@@ -45,16 +45,16 @@ export async function GET(
       
       switch (params.slug) {
         case 'info':
-          defaultTitle = 'À propos d\'LANATIONDULAIT';
-          defaultContent = 'Bienvenue chez LANATIONDULAIT - Votre boutique premium de produits d\'exception.';
+          defaultTitle = 'À propos de LANATION DU LAIT';
+          defaultContent = 'Bienvenue chez LANATION DU LAIT - Votre boutique premium de produits d\'exception.';
           break;
         case 'contact':
-          defaultTitle = 'Contact LANATIONDULAIT';
-          defaultContent = 'Contactez-nous pour toute question concernant nos produits LANATIONDULAIT.';
+          defaultTitle = 'Contact LANATION DU LAIT';
+          defaultContent = 'Contactez-nous pour toute question concernant nos produits LANATION DU LAIT.';
           break;
         default:
-          defaultTitle = 'Page LANATIONDULAIT';
-          defaultContent = 'Contenu de la page LANATIONDULAIT.';
+          defaultTitle = 'Page LANATION DU LAIT';
+          defaultContent = 'Contenu de la page LANATION DU LAIT.';
       }
       
       const defaultPage = {

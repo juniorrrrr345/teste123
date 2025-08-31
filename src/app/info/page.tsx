@@ -21,12 +21,12 @@ export default function InfoPageClient() {
       
       if (response.ok) {
         const pageData = await response.json();
-        setContent(pageData.content || 'Bienvenue dans notre boutique FAS !');
+        setContent(pageData.content || 'Bienvenue chez LANATION DU LAIT !');
       } else {
-        setContent('Bienvenue dans notre boutique FAS !');
+        setContent('Bienvenue chez LANATION DU LAIT !');
       }
     } catch (error) {
-      setContent('Bienvenue dans notre boutique FAS !');
+      setContent('Bienvenue chez LANATION DU LAIT !');
     } finally {
       setLoading(false);
     }
