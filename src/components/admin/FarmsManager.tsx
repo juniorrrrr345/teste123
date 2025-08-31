@@ -66,7 +66,7 @@ export default function FarmsManager() {
     }
 
     try {
-      const url = editingFarm ? `/api/farms-simple/${editingFarm._id}` : '/api/farms-simple';
+      const url = editingFarm ? `/api/cloudflare/farms/${editingFarm._id}` : '/api/cloudflare/farms';
       const method = editingFarm ? 'PUT' : 'POST';
       
       console.log('💾 Sauvegarde farm:', { url, method, data: formData });
@@ -118,7 +118,7 @@ export default function FarmsManager() {
 
         console.log('🗑️ Suppression farm:', farmId);
         
-        const response = await fetch(`/api/farms-simple/${farmId}`, {
+        const response = await fetch(`/api/cloudflare/farms/${farmId}`, {
           method: 'DELETE',
         });
 

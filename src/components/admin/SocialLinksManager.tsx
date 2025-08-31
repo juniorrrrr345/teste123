@@ -78,7 +78,7 @@ export default function SocialLinksManager() {
         return;
       }
 
-      const url = editingLink ? `/api/social-simple/${editingLink._id}` : '/api/social-simple';
+      const url = editingLink ? `/api/cloudflare/social-links/${editingLink._id}` : '/api/cloudflare/social-links';
       const method = editingLink ? 'PUT' : 'POST';
       
       const response = await fetch(url, {
@@ -141,7 +141,7 @@ export default function SocialLinksManager() {
         const originalLinks = [...socialLinks];
         setSocialLinks(prev => prev.filter(link => link._id !== linkId));
 
-        const response = await fetch(`/api/social-simple/${linkId}`, {
+        const response = await fetch(`/api/cloudflare/social-links/${linkId}`, {
           method: 'DELETE',
         });
 

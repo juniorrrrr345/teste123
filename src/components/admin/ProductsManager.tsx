@@ -309,7 +309,7 @@ export default function ProductsManager() {
         promotions: finalPromotions
       };
 
-      const url = editingProduct ? `/api/products-simple/${editingProduct._id}` : '/api/products-simple';
+      const url = editingProduct ? `/api/cloudflare/products/${editingProduct._id}` : '/api/cloudflare/products';
       const method = editingProduct ? 'PUT' : 'POST';
       
       // Vérifier la taille de la requête avant envoi
@@ -422,7 +422,7 @@ export default function ProductsManager() {
       document.body.appendChild(loadingMsg);
 
       // Envoyer la requête de suppression AVANT de mettre à jour l'interface
-      const response = await fetch(`/api/products-simple/${productId}`, {
+      const response = await fetch(`/api/cloudflare/products/${productId}`, {
         method: 'DELETE',
       });
 
