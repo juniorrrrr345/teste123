@@ -58,7 +58,7 @@ export const d1Simple = {
 
   // Récupérer tous les réseaux sociaux
   async getSocialLinks() {
-    const result = await executeD1Query('SELECT * FROM social_links ORDER BY sort_order ASC');
+    const result = await executeD1Query('SELECT * FROM social_links ORDER BY created_at ASC');
     return result.result?.[0]?.results || [];
   },
 
