@@ -1,12 +1,11 @@
 import { NextResponse } from 'next/server';
-import d1Client from '../../../../lib/cloudflare-d1';
 
 // GET - Récupérer tous les liens sociaux
 export async function GET() {
   try {
-    const ACCOUNT_ID = process.env.CLOUDFLARE_ACCOUNT_ID || '7979421604bd07b3bd34d3ed96222512';
-    const DATABASE_ID = process.env.CLOUDFLARE_DATABASE_ID || '78d6725a-cd0f-46f9-9fa4-25ca4faa3efb';
-    const API_TOKEN = process.env.CLOUDFLARE_API_TOKEN || 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
+    const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
+    const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434';
+    const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
     
     const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
     
@@ -17,7 +16,7 @@ export async function GET() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        sql: 'SELECT * FROM social_links ORDER BY sort_order ASC'
+        sql: 'SELECT * FROM social_links WHERE is_available = 1 ORDER BY created_at ASC'
       })
     });
     
@@ -41,25 +40,42 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, url, icon = '🔗', is_active = true, sort_order = 0 } = body;
+    const { platform, url, icon = '🔗', is_available = true } = body;
 
-    if (!name || !url) {
+    if (!platform || !url) {
       return NextResponse.json(
-        { error: 'Le nom et l\'URL sont requis' },
+        { error: 'La plateforme et l\'URL sont requis' },
         { status: 400 }
       );
     }
 
-    const socialLinkData = {
-      name,
-      url,
-      icon,
-      is_active: Boolean(is_active),
-      sort_order: parseInt(sort_order),
-    };
-
-    const newSocialLink = await d1Client.create('social_links', socialLinkData);
-    return NextResponse.json(newSocialLink, { status: 201 });
+    const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
+    const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434';
+    const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
+    
+    const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
+    
+    const response = await fetch(baseUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        sql: 'INSERT INTO social_links (platform, url, icon, is_available) VALUES (?, ?, ?, ?)',
+        params: [platform, url, icon, is_available ? 1 : 0]
+      })
+    });
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      return NextResponse.json({ success: true, message: 'Lien social créé avec succès' }, { status: 201 });
+    } else {
+      throw new Error('Erreur D1');
+    }
   } catch (error) {
     console.error('Erreur création lien social:', error);
     return NextResponse.json(

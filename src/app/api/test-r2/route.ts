@@ -16,7 +16,7 @@ export async function GET() {
       config: {
         bucketName: process.env.CLOUDFLARE_R2_BUCKET_NAME || 'boutique-images',
         publicUrl: process.env.CLOUDFLARE_R2_PUBLIC_URL || 'https://pub-b38679a01a274648827751df94818418.r2.dev',
-        accountId: process.env.CLOUDFLARE_ACCOUNT_ID || '7979421604bd07b3bd34d3ed96222512',
+        accountId: '7979421604bd07b3bd34d3ed96222512',
         hasApiToken: !!process.env.CLOUDFLARE_API_TOKEN,
         hasAccessKeys: !!(process.env.CLOUDFLARE_R2_ACCESS_KEY_ID && process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY)
       },

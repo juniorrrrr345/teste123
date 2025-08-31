@@ -1,9 +1,9 @@
 // Client D1 simple qui fonctionne VRAIMENT avec les données
 
 const CLOUDFLARE_CONFIG = {
-  accountId: process.env.CLOUDFLARE_ACCOUNT_ID || '7979421604bd07b3bd34d3ed96222512',
-  databaseId: process.env.CLOUDFLARE_DATABASE_ID || '78d6725a-cd0f-46f9-9fa4-25ca4faa3efb',
-  apiToken: process.env.CLOUDFLARE_API_TOKEN || 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
+  accountId: '7979421604bd07b3bd34d3ed96222512',
+  databaseId: '732dfabe-3e2c-4d65-8fdc-bc39eb989434',
+  apiToken: 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
 };
 
 export async function executeD1Query(sql: string, params: any[] = []) {

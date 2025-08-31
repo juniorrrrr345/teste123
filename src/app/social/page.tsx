@@ -74,7 +74,7 @@ export default function SocialPageClient() {
                   className="bg-gray-900 border border-white/20 rounded-xl p-6 text-center hover:bg-gray-800 transition-all"
                 >
                   <div className="text-3xl mb-3">{link.icon}</div>
-                  <h3 className="text-white font-semibold mb-2">{link.name}</h3>
+                  <h3 className="text-white font-semibold mb-2">{link.platform || link.name}</h3>
                   <div className="w-8 h-1 bg-blue-500 mx-auto rounded-full"></div>
                 </a>
               ))}

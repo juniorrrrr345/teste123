@@ -20,7 +20,7 @@ export async function GET() {
     
     const debugInfo = {
       timestamp: new Date().toISOString(),
-      database_id: process.env.CLOUDFLARE_DATABASE_ID || '78d6725a-cd0f-46f9-9fa4-25ca4faa3efb',
+      database_id: '732dfabe-3e2c-4d65-8fdc-bc39eb989434',
       counts: {
         products: products.length,
         categories: categories.length,

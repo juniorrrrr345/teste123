@@ -1,5 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import d1Client from '../../../../../lib/cloudflare-d1';
+
+// Configuration Cloudflare D1 hardcodée
+const CLOUDFLARE_CONFIG = {
+  accountId: '7979421604bd07b3bd34d3ed96222512',
+  databaseId: '732dfabe-3e2c-4d65-8fdc-bc39eb989434',
+  apiToken: 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
+};
+
+async function executeSqlOnD1(sql: string, params: any[] = []) {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_CONFIG.accountId}/d1/database/${CLOUDFLARE_CONFIG.databaseId}/query`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${CLOUDFLARE_CONFIG.apiToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ sql, params })
+  });
+  
+  if (!response.ok) {
+    throw new Error(`D1 Error: ${response.status} ${response.statusText}`);
+  }
+  
+  return await response.json();
+}
 
 // GET - Récupérer un lien social par ID
 export async function GET(
@@ -8,16 +33,16 @@ export async function GET(
 ) {
   try {
     const id = parseInt(params.id);
-    const socialLink = await d1Client.findOne('social_links', { id });
+    const result = await executeSqlOnD1('SELECT * FROM social_links WHERE id = ?', [id]);
     
-    if (!socialLink) {
+    if (!result.result?.[0]?.results?.length) {
       return NextResponse.json(
         { error: 'Lien social non trouvé' },
         { status: 404 }
       );
     }
     
-    return NextResponse.json(socialLink);
+    return NextResponse.json(result.result[0].results[0]);
   } catch (error) {
     console.error('Erreur récupération lien social:', error);
     return NextResponse.json(
@@ -35,17 +60,17 @@ export async function PUT(
   try {
     const id = parseInt(params.id);
     const body = await request.json();
-    const { name, url, icon, is_active, sort_order } = body;
+    const { platform, url, icon, is_available } = body;
 
-    const updatedSocialLink = await d1Client.update('social_links', id, {
-      name,
-      url,
-      icon,
-      is_active: Boolean(is_active),
-      sort_order: parseInt(sort_order),
-    });
+    await executeSqlOnD1(
+      'UPDATE social_links SET platform = ?, url = ?, icon = ?, is_available = ? WHERE id = ?',
+      [platform, url, icon || '🔗', is_available ? 1 : 0, id]
+    );
 
-    return NextResponse.json(updatedSocialLink);
+    // Récupérer le lien social mis à jour
+    const result = await executeSqlOnD1('SELECT * FROM social_links WHERE id = ?', [id]);
+    
+    return NextResponse.json(result.result[0].results[0]);
   } catch (error) {
     console.error('Erreur mise à jour lien social:', error);
     return NextResponse.json(
@@ -62,20 +87,15 @@ export async function DELETE(
 ) {
   try {
     const id = parseInt(params.id);
-    const success = await d1Client.delete('social_links', id);
     
-    if (success) {
-      return NextResponse.json({ success: true });
-    } else {
-      return NextResponse.json(
-        { error: 'Impossible de supprimer le lien social' },
-        { status: 500 }
-      );
-    }
+    // Supprimer le lien social
+    await executeSqlOnD1('DELETE FROM social_links WHERE id = ?', [id]);
+    
+    return NextResponse.json({ success: true, message: 'Lien social supprimé avec succès' });
   } catch (error) {
     console.error('Erreur suppression lien social:', error);
     return NextResponse.json(
-      { error: 'Erreur serveur' },
+      { error: 'Erreur serveur lors de la suppression' },
       { status: 500 }
     );
   }

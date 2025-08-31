@@ -145,7 +145,7 @@ class CloudflareR2Client {
 
 // Instance globale
 const r2Client = new CloudflareR2Client({
-  accountId: process.env.CLOUDFLARE_ACCOUNT_ID || '7979421604bd07b3bd34d3ed96222512',
+  accountId: '7979421604bd07b3bd34d3ed96222512',
   accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || '',
   secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || '',
   bucketName: process.env.CLOUDFLARE_R2_BUCKET_NAME || 'boutique-images',
