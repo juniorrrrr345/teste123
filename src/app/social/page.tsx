@@ -10,8 +10,8 @@ export default function SocialPageClient() {
 
   useEffect(() => {
     loadData();
-    // Synchronisation temps réel INSTANTANÉE
-    const interval = setInterval(loadData, 1000); // 1 seconde pour instantané
+    // Synchronisation optimisée
+    const interval = setInterval(loadData, 30000); // 30 secondes - Optimisé
     return () => clearInterval(interval);
   }, []);
 

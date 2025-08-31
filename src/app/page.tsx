@@ -132,7 +132,10 @@ export default function HomePage() {
         setFarms(['Toutes les farms', ...farmsData.map((f: any) => f.name)]);
       }
     } catch (error) {
-      console.error('❌ Erreur rechargement:', error);
+      console.error('❌ Erreur chargement OGLEGACY:', error);
+      setProducts([]);
+      setCategories(['Toutes les catégories']);
+      setFarms(['Toutes les farms']);
     }
   };
 
