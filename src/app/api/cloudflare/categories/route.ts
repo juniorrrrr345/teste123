@@ -55,7 +55,16 @@ export async function POST(request: NextRequest) {
     
     if (data.success) {
       console.log('✅ Catégorie créée avec succès');
-      return NextResponse.json({ success: true, id: data.result[0].meta.last_row_id }, { status: 201 });
+      
+      // Récupérer la catégorie créée
+      const newId = data.result[0].meta.last_row_id;
+      const result = await executeSqlOnD1('SELECT * FROM categories WHERE id = ?', [newId]);
+      
+      if (result.success && result.result?.[0]?.results?.[0]) {
+        return NextResponse.json(result.result[0].results[0], { status: 201 });
+      } else {
+        return NextResponse.json({ success: true, id: newId }, { status: 201 });
+      }
     } else {
       throw new Error('Erreur création catégorie');
     }

@@ -136,7 +136,31 @@ export async function POST(request: NextRequest) {
     
     if (data.success) {
       console.log('✅ Produit créé avec succès');
-      return NextResponse.json({ success: true, id: data.result[0].meta.last_row_id }, { status: 201 });
+      
+      // Récupérer le produit créé avec ses relations
+      const newId = data.result[0].meta.last_row_id;
+      const result = await executeSqlOnD1(`
+        SELECT 
+          p.*, 
+          c.name as category, 
+          f.name as farm
+        FROM products p
+        LEFT JOIN categories c ON p.category_id = c.id
+        LEFT JOIN farms f ON p.farm_id = f.id
+        WHERE p.id = ?
+      `, [newId]);
+      
+      if (result.success && result.result?.[0]?.results?.[0]) {
+        const product = result.result[0].results[0];
+        return NextResponse.json({
+          ...product,
+          prices: JSON.parse(product.prices || '{}'),
+          features: JSON.parse(product.features || '[]'),
+          tags: JSON.parse(product.tags || '[]')
+        }, { status: 201 });
+      } else {
+        return NextResponse.json({ success: true, id: newId }, { status: 201 });
+      }
     } else {
       throw new Error('Erreur création produit');
     }
