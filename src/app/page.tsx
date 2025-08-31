@@ -25,6 +25,7 @@ export default function HomePage() {
   
   // États pour les données - Initialiser avec des valeurs par défaut
   const [loading, setLoading] = useState(true); // Toujours true au départ
+  const [settings, setSettings] = useState<any>(null);
 
   
   // Gérer la logique de première visite côté client uniquement
@@ -47,26 +48,27 @@ export default function HomePage() {
         // Charger les paramètres depuis l'API pour les nouveaux visiteurs
         const settingsRes = await fetch('/api/cloudflare/settings', { cache: 'no-store' });
         if (settingsRes.ok) {
-          const settings = await settingsRes.json();
+          const settingsData = await settingsRes.json();
+          setSettings(settingsData); // Sauvegarder dans l'état
           
           // Sauvegarder dans localStorage pour les prochaines visites
-          localStorage.setItem('shopSettings', JSON.stringify(settings));
+          localStorage.setItem('shopSettings', JSON.stringify(settingsData));
           
           // Appliquer le thème immédiatement
-          if (settings.backgroundImage) {
+          if (settingsData.backgroundImage) {
             const style = document.createElement('style');
             style.id = 'dynamic-theme-new-visitor';
             style.textContent = `
               html, body, .main-container {
-                background-image: url(${settings.backgroundImage}) !important;
+                background-image: url(${settingsData.backgroundImage}) !important;
                 background-size: cover !important;
                 background-position: center !important;
                 background-repeat: no-repeat !important;
                 background-attachment: fixed !important;
               }
               .global-overlay {
-                background-color: rgba(0, 0, 0, ${(settings.backgroundOpacity || 20) / 100}) !important;
-                backdrop-filter: blur(${settings.backgroundBlur || 5}px) !important;
+                background-color: rgba(0, 0, 0, ${(settingsData.backgroundOpacity || 20) / 100}) !important;
+                backdrop-filter: blur(${settingsData.backgroundBlur || 5}px) !important;
               }
             `;
             document.head.appendChild(style);
@@ -225,7 +227,7 @@ export default function HomePage() {
               {/* Logo carré = image de fond de la boutique */}
               <div className="mb-8">
                 <img 
-                  src="https://pub-b38679a01a274648827751df94818418.r2.dev/images/background-oglegacy.jpeg"
+                  src={settings?.backgroundImage || "https://pub-b38679a01a274648827751df94818418.r2.dev/images/background-oglegacy.jpeg"}
                   alt="OGLEGACY" 
                   className="h-32 sm:h-40 md:h-48 w-32 sm:w-40 md:w-48 mx-auto rounded-xl object-cover border-4 border-white/20"
                   style={{ filter: 'drop-shadow(0 0 20px rgba(255,255,255,0.3))' }}
