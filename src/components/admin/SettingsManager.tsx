@@ -65,9 +65,16 @@ export default function SettingsManager() {
   };
 
   const handleSave = async () => {
+    // S'assurer que saving est bien à false au départ
+    if (saving) {
+      console.log('Sauvegarde déjà en cours, abandon');
+      return;
+    }
+
     try {
       setSaving(true);
-      console.log('Tentative de sauvegarde avec:', settings);
+      setMessage(''); // Effacer les anciens messages
+      console.log('🔄 Tentative de sauvegarde avec:', settings);
       
       const response = await fetch('/api/cloudflare/settings', {
         method: 'PUT',
@@ -77,57 +84,50 @@ export default function SettingsManager() {
         body: JSON.stringify(settings),
       });
 
-      console.log('Réponse API:', response.status);
+      console.log('📡 Réponse API:', response.status, response.statusText);
       
       if (response.ok) {
         const savedData = await response.json();
-        console.log('Données sauvegardées:', savedData);
+        console.log('✅ Données sauvegardées:', savedData);
         
-        // Recharger les données depuis l'API pour s'assurer qu'elles sont bien sauvegardées
+        // Message de succès immédiat
+        setMessage('✅ Paramètres sauvegardés avec succès ! Les changements sont visibles immédiatement sur la boutique');
+        setTimeout(() => setMessage(''), 5000);
+        
+        // Sauvegarder dans localStorage pour synchronisation
+        try {
+          localStorage.setItem('shopSettings', JSON.stringify(settings));
+          window.dispatchEvent(new CustomEvent('settingsUpdated', { detail: settings }));
+        } catch (storageError) {
+          console.warn('Erreur localStorage:', storageError);
+        }
+        
+        // Recharger les données en arrière-plan (optionnel)
         setTimeout(async () => {
           try {
             const refreshResponse = await fetch('/api/cloudflare/settings');
             if (refreshResponse.ok) {
               const refreshedData = await refreshResponse.json();
-              console.log('Données rechargées:', refreshedData);
-              
-              // Mettre à jour l'état avec les données fraîches
-              setSettings({
-                shopTitle: refreshedData.shop_name || '',
-                whatsappLink: refreshedData.whatsapp_link || refreshedData.contact_info || '',
-                whatsappNumber: refreshedData.whatsapp_number || '',
-                titleStyle: refreshedData.theme_color || 'glow',
-                backgroundImage: refreshedData.background_image || '',
-                backgroundOpacity: refreshedData.background_opacity || 20,
-                backgroundBlur: refreshedData.background_blur || 5,
-                scrollingText: refreshedData.scrolling_text || ''
-              });
+              console.log('🔄 Données rechargées:', refreshedData);
             }
           } catch (error) {
-            console.error('Erreur rechargement:', error);
+            console.warn('Erreur rechargement:', error);
           }
-        }, 500);
+        }, 1000);
         
-        setMessage('✅ Paramètres sauvegardés avec succès ! Les changements sont visibles immédiatement sur la boutique');
-        setTimeout(() => setMessage(''), 5000);
-        
-        // Sauvegarder dans localStorage et émettre un événement pour mise à jour instantanée
-        localStorage.setItem('shopSettings', JSON.stringify(settings));
-        window.dispatchEvent(new CustomEvent('settingsUpdated', { detail: settings }));
-        
-        // Pas besoin de recharger - évite les doublons
-        // Les données sont déjà à jour dans l'état local
       } else {
         const errorText = await response.text();
-        console.error('Erreur API:', errorText);
-        setMessage(`❌ Erreur lors de la sauvegarde: ${response.status}`);
+        console.error('❌ Erreur API:', response.status, errorText);
+        setMessage(`❌ Erreur lors de la sauvegarde: ${response.status} - ${response.statusText}`);
         setTimeout(() => setMessage(''), 5000);
       }
     } catch (error) {
-      console.error('Erreur:', error);
-      setMessage(`❌ Erreur lors de la sauvegarde: ${error.message}`);
+      console.error('❌ Erreur catch:', error);
+      setMessage(`❌ Erreur lors de la sauvegarde: ${error.message || 'Erreur inconnue'}`);
       setTimeout(() => setMessage(''), 5000);
     } finally {
+      // S'assurer que saving revient TOUJOURS à false
+      console.log('🔄 Fin sauvegarde, setSaving(false)');
       setSaving(false);
     }
   };
@@ -148,15 +148,37 @@ export default function SettingsManager() {
     <div className="p-2 sm:p-4 md:p-6 lg:p-8 max-w-full lg:max-w-7xl mx-auto">
       {/* Header avec bouton de sauvegarde - optimisé responsive */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-4 sticky top-0 bg-black/95 backdrop-blur-md p-3 sm:p-4 -mx-2 sm:-mx-4 rounded-lg sm:rounded-xl border border-white/10 z-10">
-        <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white">Configuration de la Boutique</h1>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-white hover:bg-gray-100 disabled:bg-gray-600 text-black font-medium sm:font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-md sm:rounded-lg flex items-center gap-1 sm:gap-2 w-full sm:w-auto text-xs sm:text-sm md:text-base transition-all"
-        >
-          <span>💾</span>
-          <span>{saving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
-        </button>
+        <div>
+          <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-bold text-white">Configuration de la Boutique</h1>
+          {process.env.NODE_ENV === 'development' && (
+            <div className="text-xs text-gray-400 mt-1">
+              État: {loading ? 'Chargement' : saving ? 'Sauvegarde' : 'Prêt'} | Message: {message ? 'Affiché' : 'Aucun'}
+            </div>
+          )}
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-white hover:bg-gray-100 disabled:bg-gray-600 text-black font-medium sm:font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-md sm:rounded-lg flex items-center gap-1 sm:gap-2 w-full sm:w-auto text-xs sm:text-sm md:text-base transition-all"
+          >
+            <span>💾</span>
+            <span>{saving ? 'Sauvegarde en cours...' : 'Sauvegarder'}</span>
+          </button>
+          
+          {saving && (
+            <button
+              onClick={() => {
+                setSaving(false);
+                setMessage('');
+                console.log('🔄 Reset forcé de l\'état saving');
+              }}
+              className="bg-red-600 hover:bg-red-700 text-white font-medium py-1.5 sm:py-2 px-3 sm:px-4 rounded-md sm:rounded-lg text-xs sm:text-sm transition-all"
+            >
+              ❌ Annuler
+            </button>
+          )}
+        </div>
       </div>
 
       {message && (
