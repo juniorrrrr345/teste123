@@ -1,5 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import d1Client from '../../../../../lib/cloudflare-d1';
+
+// Configuration Cloudflare D1 hardcodée
+const CLOUDFLARE_CONFIG = {
+  accountId: '7979421604bd07b3bd34d3ed96222512',
+  databaseId: '732dfabe-3e2c-4d65-8fdc-bc39eb989434',
+  apiToken: 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
+};
+
+async function executeSqlOnD1(sql: string, params: any[] = []) {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_CONFIG.accountId}/d1/database/${CLOUDFLARE_CONFIG.databaseId}/query`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${CLOUDFLARE_CONFIG.apiToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ sql, params })
+  });
+  
+  if (!response.ok) {
+    throw new Error(`D1 Error: ${response.status} ${response.statusText}`);
+  }
+  
+  return await response.json();
+}
 
 // GET - Récupérer une catégorie par ID
 export async function GET(
@@ -8,16 +33,16 @@ export async function GET(
 ) {
   try {
     const id = parseInt(params.id);
-    const category = await d1Client.findOne('categories', { id });
+    const result = await executeSqlOnD1('SELECT * FROM categories WHERE id = ?', [id]);
     
-    if (!category) {
+    if (!result.result?.[0]?.results?.length) {
       return NextResponse.json(
         { error: 'Catégorie non trouvée' },
         { status: 404 }
       );
     }
     
-    return NextResponse.json(category);
+    return NextResponse.json(result.result[0].results[0]);
   } catch (error) {
     console.error('Erreur récupération catégorie:', error);
     return NextResponse.json(
@@ -35,16 +60,17 @@ export async function PUT(
   try {
     const id = parseInt(params.id);
     const body = await request.json();
-    const { name, description, icon, color } = body;
+    const { name, icon, color } = body;
 
-    const updatedCategory = await d1Client.update('categories', id, {
-      name,
-      description,
-      icon,
-      color,
-    });
+    await executeSqlOnD1(
+      'UPDATE categories SET name = ?, icon = ?, color = ? WHERE id = ?',
+      [name, icon || '📦', color || '#22C55E', id]
+    );
 
-    return NextResponse.json(updatedCategory);
+    // Récupérer la catégorie mise à jour
+    const result = await executeSqlOnD1('SELECT * FROM categories WHERE id = ?', [id]);
+    
+    return NextResponse.json(result.result[0].results[0]);
   } catch (error) {
     console.error('Erreur mise à jour catégorie:', error);
     return NextResponse.json(
@@ -61,20 +87,15 @@ export async function DELETE(
 ) {
   try {
     const id = parseInt(params.id);
-    const success = await d1Client.delete('categories', id);
     
-    if (success) {
-      return NextResponse.json({ success: true });
-    } else {
-      return NextResponse.json(
-        { error: 'Impossible de supprimer la catégorie' },
-        { status: 500 }
-      );
-    }
+    // Supprimer la catégorie
+    await executeSqlOnD1('DELETE FROM categories WHERE id = ?', [id]);
+    
+    return NextResponse.json({ success: true, message: 'Catégorie supprimée avec succès' });
   } catch (error) {
     console.error('Erreur suppression catégorie:', error);
     return NextResponse.json(
-      { error: 'Erreur serveur' },
+      { error: 'Erreur serveur lors de la suppression' },
       { status: 500 }
     );
   }
