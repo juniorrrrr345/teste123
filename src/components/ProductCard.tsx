@@ -31,14 +31,17 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
     >
       {/* Container image avec badge */}
       <div className="relative aspect-square overflow-hidden">
-        <MediaDisplay
-          url={product.image_url}
-          alt={product.name}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-          controls={false}
-          autoPlay={false}
-          muted={true}
-        />
+        {product.image_url ? (
+          <img
+            src={product.image_url}
+            alt={product.name}
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+            <div className="text-gray-400 text-4xl">📷</div>
+          </div>
+        )}
         
         {/* Badge catégorie - responsive */}
         <div className="absolute top-2 left-2 bg-white text-black text-xxs sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md shadow-lg max-w-[80%] truncate">

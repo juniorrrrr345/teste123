@@ -83,15 +83,8 @@ export default function MediaDisplay({
   if (hasError) {
     return (
       <div className={`bg-gray-800 flex items-center justify-center ${className}`}>
-        <div className="text-center p-4">
-          <div className="text-gray-400 text-2xl mb-2">📷</div>
-          <div className="text-gray-500 text-xs mb-3">Média non disponible</div>
-          <button
-            onClick={handleRetry}
-            className="bg-gray-700 hover:bg-gray-600 text-white text-xs px-3 py-1 rounded transition-colors"
-          >
-            🔄 Réessayer
-          </button>
+        <div className="text-center">
+          <div className="text-gray-400 text-lg">📷</div>
         </div>
       </div>
     );

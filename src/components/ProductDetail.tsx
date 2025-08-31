@@ -89,16 +89,33 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
         {/* Contenu scrollable avec padding bottom pour éviter que le contenu soit caché */}
         <div className="w-full h-full overflow-y-auto pb-20">
-          {/* Image ou vidéo avec MediaDisplay */}
+          {/* Image ou vidéo - affichage direct */}
           <div className="relative w-full aspect-square bg-black">
-            <MediaDisplay
-              url={product.video_url || product.image_url}
-              alt={product.name}
-              className="w-full h-full"
-              controls={true}
-              autoPlay={false}
-              muted={true}
-            />
+            {product.video_url ? (
+              <video 
+                src={product.video_url}
+                className="w-full h-full object-contain"
+                controls
+                muted
+                playsInline
+              >
+                <source src={product.video_url} type="video/mp4" />
+                Vidéo non supportée
+              </video>
+            ) : product.image_url ? (
+              <img 
+                src={product.image_url}
+                alt={product.name}
+                className="w-full h-full object-contain"
+              />
+            ) : (
+              <div className="w-full h-full flex items-center justify-center text-gray-400">
+                <div className="text-center">
+                  <div className="text-4xl mb-2">📷</div>
+                  <div>Aucune image</div>
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Infos produit */}
