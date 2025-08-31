@@ -63,7 +63,7 @@ export default function ProductsManager() {
       
       // Charger les produits
       console.log('📦 Chargement des produits...');
-      const productsRes = await fetch('/api/products-simple');
+      const productsRes = await fetch('/api/cloudflare/products');
       console.log('📦 Réponse produits:', productsRes.status);
       if (productsRes.ok) {
         const productsData = await productsRes.json();

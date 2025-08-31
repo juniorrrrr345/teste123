@@ -27,6 +27,30 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true); // Toujours true au départ
   const [settings, setSettings] = useState<any>(null);
 
+  // Charger les settings immédiatement pour l'image de chargement
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        // Essayer d'abord le localStorage
+        const cached = localStorage.getItem('shopSettings');
+        if (cached) {
+          setSettings(JSON.parse(cached));
+        }
+        
+        // Puis charger depuis l'API
+        const settingsRes = await fetch('/api/cloudflare/settings', { cache: 'no-store' });
+        if (settingsRes.ok) {
+          const settingsData = await settingsRes.json();
+          setSettings(settingsData);
+          localStorage.setItem('shopSettings', JSON.stringify(settingsData));
+        }
+      } catch (error) {
+        console.error('Erreur chargement settings:', error);
+      }
+    };
+    
+    loadSettings();
+  }, []);
   
   // Gérer la logique de première visite côté client uniquement
   useEffect(() => {

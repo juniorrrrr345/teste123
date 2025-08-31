@@ -25,7 +25,7 @@ export default function CategoriesManager() {
     try {
       setLoading(true);
       console.log('🏷️ Admin: Chargement des catégories...');
-      const response = await fetch('/api/categories-simple');
+      const response = await fetch('/api/cloudflare/categories');
       console.log('🏷️ Admin: Réponse catégories:', response.status);
       if (response.ok) {
         const data = await response.json();

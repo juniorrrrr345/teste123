@@ -29,7 +29,7 @@ export default function SocialLinksManager() {
   const loadSocialLinks = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/social-simple');
+      const response = await fetch('/api/cloudflare/social-links');
       if (response.ok) {
         const data = await response.json();
         

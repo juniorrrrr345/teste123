@@ -24,7 +24,7 @@ export default function FarmsManager() {
   const loadFarms = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/farms-simple');
+      const response = await fetch('/api/cloudflare/farms');
       if (response.ok) {
         const data = await response.json();
         
