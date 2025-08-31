@@ -16,21 +16,28 @@ export async function GET() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        sql: 'SELECT id, name, icon, color, created_at FROM categories ORDER BY name ASC'
+        sql: 'SELECT id, name, description, location, contact, created_at FROM farms ORDER BY name ASC'
       })
     });
     
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const responseText = await response.text();
+    console.log('Response status:', response.status);
+    console.log('Response text:', responseText);
     
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${responseText}`);
+    }
+    
+    const data = JSON.parse(responseText);
     
     if (data.success && data.result?.[0]?.results) {
       return NextResponse.json(data.result[0].results);
     } else {
+      console.log('No results found, returning empty array');
       return NextResponse.json([]);
     }
   } catch (error) {
-    console.error('❌ Erreur API catégories:', error);
-    return NextResponse.json([], { status: 500 });
+    console.error('❌ Erreur API farms (fixed):', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

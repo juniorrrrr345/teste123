@@ -20,17 +20,24 @@ export async function GET() {
       })
     });
     
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    const responseText = await response.text();
+    console.log('Response status:', response.status);
+    console.log('Response text:', responseText);
     
-    const data = await response.json();
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${responseText}`);
+    }
+    
+    const data = JSON.parse(responseText);
     
     if (data.success && data.result?.[0]?.results) {
       return NextResponse.json(data.result[0].results);
     } else {
+      console.log('No results found, returning empty array');
       return NextResponse.json([]);
     }
   } catch (error) {
-    console.error('❌ Erreur API catégories:', error);
-    return NextResponse.json([], { status: 500 });
+    console.error('❌ Erreur API catégories (fixed):', error);
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }
