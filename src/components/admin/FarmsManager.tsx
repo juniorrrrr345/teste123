@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { notifyAdminUpdate } from '../../hooks/useAdminSync';
 
 interface Farm {
   id?: number;
@@ -86,6 +87,9 @@ export default function FarmsManager() {
         successMsg.textContent = editingFarm ? '✅ Farm modifiée!' : '✅ Farm ajoutée!';
         document.body.appendChild(successMsg);
         setTimeout(() => successMsg.remove(), 3000);
+        
+        // Notifier les autres onglets du changement
+        notifyAdminUpdate('farms', editingFarm ? 'update' : 'create', { id: editingFarm?._id });
         
         setShowModal(false);
         await loadFarms();

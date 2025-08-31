@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import MediaUploader from './MediaUploader';
+import { notifyAdminUpdate } from '../../hooks/useAdminSync';
 // CloudinaryUploader supprimé - utilise Cloudflare R2
 
 interface Product {
@@ -371,6 +372,9 @@ export default function ProductsManager() {
           console.error('Erreur invalidation cache:', error);
         }
         
+        // Notifier les autres onglets du changement
+        notifyAdminUpdate('products', editingProduct ? 'update' : 'create', { id: editingProduct?._id });
+        
         // Recharger les données
         await loadData();
         
@@ -430,6 +434,9 @@ export default function ProductsManager() {
       loadingMsg.remove();
 
       if (response.ok) {
+        // Notifier les autres onglets de la suppression
+        notifyAdminUpdate('products', 'delete', { id: productId });
+        
         // Suppression réussie - mettre à jour l'interface
         setProducts(prev => prev.filter(p => p._id !== productId));
         

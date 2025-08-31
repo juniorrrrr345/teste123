@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { notifyAdminUpdate } from '../../hooks/useAdminSync';
 
 interface SocialLink {
   id?: number;

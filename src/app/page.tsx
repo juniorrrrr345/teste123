@@ -135,9 +135,9 @@ export default function HomePage() {
       console.log('🔄 Rechargement données...');
       
       const [productsRes, categoriesRes, farmsRes] = await Promise.all([
-        fetch('/api/products-simple', { cache: 'no-store' }),
-        fetch('/api/categories-simple', { cache: 'no-store' }),
-        fetch('/api/farms-simple', { cache: 'no-store' })
+        fetch('/api/cloudflare/products', { cache: 'no-store' }),
+        fetch('/api/cloudflare/categories', { cache: 'no-store' }),
+        fetch('/api/cloudflare/farms', { cache: 'no-store' })
       ]);
 
       if (productsRes.ok) {

@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import { notifyAdminUpdate } from '../../hooks/useAdminSync';
 
 interface Category {
   id?: number;
@@ -92,6 +93,9 @@ export default function CategoriesManager() {
         document.body.appendChild(successMsg);
         setTimeout(() => successMsg.remove(), 3000);
         
+        // Notifier les autres onglets du changement
+        notifyAdminUpdate('categories', editingCategory ? 'update' : 'create', { id: editingCategory?._id });
+        
         setShowModal(false);
         await loadCategories();
         
@@ -131,6 +135,9 @@ export default function CategoriesManager() {
 
         if (response.ok) {
           console.log('✅ Catégorie supprimée avec succès');
+          
+          // Notifier les autres onglets de la suppression
+          notifyAdminUpdate('categories', 'delete', { id: categoryId });
           
           // Vider le localStorage pour forcer le rechargement
           localStorage.removeItem('categories');
