@@ -1,5 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import d1Client from '../../../../../lib/cloudflare-d1';
+
+// Configuration Cloudflare D1 hardcodée
+const CLOUDFLARE_CONFIG = {
+  accountId: '7979421604bd07b3bd34d3ed96222512',
+  databaseId: '732dfabe-3e2c-4d65-8fdc-bc39eb989434',
+  apiToken: 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
+};
+
+async function executeSqlOnD1(sql: string, params: any[] = []) {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_CONFIG.accountId}/d1/database/${CLOUDFLARE_CONFIG.databaseId}/query`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${CLOUDFLARE_CONFIG.apiToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ sql, params })
+  });
+  
+  if (!response.ok) {
+    throw new Error(`D1 Error: ${response.status} ${response.statusText}`);
+  }
+  
+  return await response.json();
+}
 
 // GET - Récupérer un produit par ID
 export async function GET(
@@ -8,32 +33,32 @@ export async function GET(
 ) {
   try {
     const id = parseInt(params.id);
-    const product = await d1Client.findOne('products', { id });
+    const result = await executeSqlOnD1(`
+      SELECT 
+        p.*, 
+        c.name as category_name, 
+        f.name as farm_name
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN farms f ON p.farm_id = f.id
+      WHERE p.id = ?
+    `, [id]);
     
-    if (!product) {
+    if (!result.result?.[0]?.results?.length) {
       return NextResponse.json(
         { error: 'Produit non trouvé' },
         { status: 404 }
       );
     }
     
-    // Enrichir avec catégorie et farm
-    let category = null;
-    let farm = null;
+    const product = result.result[0].results[0];
     
-    if (product.category_id) {
-      category = await d1Client.findOne('categories', { id: product.category_id });
-    }
-    
-    if (product.farm_id) {
-      farm = await d1Client.findOne('farms', { id: product.farm_id });
-    }
-    
+    // Parser les JSON fields
     const enrichedProduct = {
       ...product,
-      category: category?.name || null,
-      farm: farm?.name || null,
-      images: JSON.parse(product.images || '[]'),
+      category: product.category_name || null,
+      farm: product.farm_name || null,
+      prices: JSON.parse(product.prices || '{}'),
       features: JSON.parse(product.features || '[]'),
       tags: JSON.parse(product.tags || '[]'),
     };
@@ -56,79 +81,58 @@ export async function PUT(
   try {
     const id = parseInt(params.id);
     const body = await request.json();
-    
-    const {
-      name,
-      description,
-      price,
-      prices,
-      category,
-      farm,
-      image_url,
-      image,
-      video_url,
-      video,
-      images,
-      stock,
-      is_available,
-      features,
-      tags
-    } = body;
 
-    console.log('📝 Données reçues pour mise à jour produit:', body);
-
-    // Récupérer les IDs de catégorie et farm
-    let category_id = null;
-    let farm_id = null;
+    const sql = `UPDATE products SET 
+      name = ?, description = ?, price = ?, prices = ?, 
+      category_id = ?, farm_id = ?, image_url = ?, video_url = ?, 
+      stock = ?, is_available = ?, features = ?, tags = ?
+      WHERE id = ?`;
     
-    if (category) {
-      const categoryData = await d1Client.findOne('categories', { name: category });
-      category_id = categoryData?.id || null;
+    const values = [
+      body.name,
+      body.description || '',
+      parseFloat(body.price) || 0,
+      JSON.stringify(body.prices || {}),
+      body.category_id || null,
+      body.farm_id || null,
+      body.image_url || '',
+      body.video_url || '',
+      parseInt(body.stock) || 0,
+      body.is_available !== false ? 1 : 0,
+      JSON.stringify(body.features || []),
+      JSON.stringify(body.tags || []),
+      id
+    ];
+
+    await executeSqlOnD1(sql, values);
+
+    // Récupérer le produit mis à jour
+    const result = await executeSqlOnD1(`
+      SELECT 
+        p.*, 
+        c.name as category_name, 
+        f.name as farm_name
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN farms f ON p.farm_id = f.id
+      WHERE p.id = ?
+    `, [id]);
+    
+    if (result.result?.[0]?.results?.length) {
+      const product = result.result[0].results[0];
+      const enrichedProduct = {
+        ...product,
+        category: product.category_name || null,
+        farm: product.farm_name || null,
+        prices: JSON.parse(product.prices || '{}'),
+        features: JSON.parse(product.features || '[]'),
+        tags: JSON.parse(product.tags || '[]'),
+      };
+      
+      return NextResponse.json(enrichedProduct);
+    } else {
+      return NextResponse.json({ success: true, message: 'Produit mis à jour' });
     }
-    
-    if (farm) {
-      const farmData = await d1Client.findOne('farms', { name: farm });
-      farm_id = farmData?.id || null;
-    }
-
-    // Préparer les données de mise à jour avec validation
-    const updateData: any = {};
-    
-    if (name !== undefined) updateData.name = name;
-    if (description !== undefined) updateData.description = description;
-    
-    // S'assurer que price n'est jamais null/undefined
-    if (price !== undefined && price !== null) {
-      const numPrice = parseFloat(price);
-      updateData.price = isNaN(numPrice) ? 0 : numPrice;
-    }
-    
-    // Gérer les prix par quantité
-    if (prices && Object.keys(prices).length > 0) {
-      updateData.prices = JSON.stringify(prices);
-    }
-    
-    if (category_id !== undefined) updateData.category_id = category_id;
-    if (farm_id !== undefined) updateData.farm_id = farm_id;
-    
-    // Gérer les URLs d'images/vidéos
-    const finalImageUrl = image_url || image;
-    const finalVideoUrl = video_url || video;
-    
-    if (finalImageUrl !== undefined) updateData.image_url = finalImageUrl || '';
-    if (finalVideoUrl !== undefined) updateData.video_url = finalVideoUrl || '';
-    
-    if (images !== undefined) updateData.images = JSON.stringify(images || []);
-    if (stock !== undefined) updateData.stock = parseInt(stock) || 0;
-    if (is_available !== undefined) updateData.is_available = Boolean(is_available);
-    if (features !== undefined) updateData.features = JSON.stringify(features || []);
-    if (tags !== undefined) updateData.tags = JSON.stringify(tags || []);
-
-    console.log('🗄️ Données nettoyées pour D1:', updateData);
-
-    const updatedProduct = await d1Client.update('products', id, updateData);
-
-    return NextResponse.json(updatedProduct);
   } catch (error) {
     console.error('Erreur mise à jour produit:', error);
     return NextResponse.json(
@@ -145,20 +149,15 @@ export async function DELETE(
 ) {
   try {
     const id = parseInt(params.id);
-    const success = await d1Client.delete('products', id);
     
-    if (success) {
-      return NextResponse.json({ success: true });
-    } else {
-      return NextResponse.json(
-        { error: 'Impossible de supprimer le produit' },
-        { status: 500 }
-      );
-    }
+    // Supprimer le produit
+    await executeSqlOnD1('DELETE FROM products WHERE id = ?', [id]);
+    
+    return NextResponse.json({ success: true, message: 'Produit supprimé avec succès' });
   } catch (error) {
     console.error('Erreur suppression produit:', error);
     return NextResponse.json(
-      { error: 'Erreur serveur' },
+      { error: 'Erreur serveur lors de la suppression' },
       { status: 500 }
     );
   }

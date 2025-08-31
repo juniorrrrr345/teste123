@@ -1,5 +1,30 @@
 import { NextRequest, NextResponse } from 'next/server';
-import d1Client from '../../../../../lib/cloudflare-d1';
+
+// Configuration Cloudflare D1 hardcodée
+const CLOUDFLARE_CONFIG = {
+  accountId: '7979421604bd07b3bd34d3ed96222512',
+  databaseId: '732dfabe-3e2c-4d65-8fdc-bc39eb989434',
+  apiToken: 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
+};
+
+async function executeSqlOnD1(sql: string, params: any[] = []) {
+  const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_CONFIG.accountId}/d1/database/${CLOUDFLARE_CONFIG.databaseId}/query`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${CLOUDFLARE_CONFIG.apiToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ sql, params })
+  });
+  
+  if (!response.ok) {
+    throw new Error(`D1 Error: ${response.status} ${response.statusText}`);
+  }
+  
+  return await response.json();
+}
 
 // GET - Récupérer une page par slug
 export async function GET(
@@ -7,40 +32,43 @@ export async function GET(
   { params }: { params: { slug: string } }
 ) {
   try {
-    const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
-    const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434';
-    const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
+    const result = await executeSqlOnD1('SELECT * FROM pages WHERE slug = ? LIMIT 1', [params.slug]);
     
-    const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
-    
-    const response = await fetch(baseUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        sql: 'SELECT * FROM pages WHERE slug = ? LIMIT 1',
-        params: [params.slug]
-      })
-    });
-    
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const data = await response.json();
-    
-    if (data.success && data.result?.[0]?.results?.[0]) {
-      const page = data.result[0].results[0];
+    if (result.result?.[0]?.results?.length) {
+      const page = result.result[0].results[0];
       console.log(`📄 Page ${params.slug} récupérée:`, page.title);
       return NextResponse.json(page);
     } else {
-      return NextResponse.json(
-        { error: 'Page non trouvée' },
-        { status: 404 }
-      );
+      // Retourner du contenu par défaut selon le slug
+      let defaultContent = '';
+      let defaultTitle = '';
+      
+      switch (params.slug) {
+        case 'info':
+          defaultTitle = 'À propos d\'OGLEGACY';
+          defaultContent = 'Bienvenue chez OGLEGACY - Votre boutique premium de produits d\'exception.';
+          break;
+        case 'contact':
+          defaultTitle = 'Contact OGLEGACY';
+          defaultContent = 'Contactez-nous pour toute question concernant nos produits OGLEGACY.';
+          break;
+        default:
+          defaultTitle = 'Page OGLEGACY';
+          defaultContent = 'Contenu de la page OGLEGACY.';
+      }
+      
+      const defaultPage = {
+        id: 0,
+        slug: params.slug,
+        title: defaultTitle,
+        content: defaultContent
+      };
+      
+      console.log(`📄 Page ${params.slug} récupérée:`, defaultTitle);
+      return NextResponse.json(defaultPage);
     }
   } catch (error) {
-    console.error('Erreur récupération page:', error);
+    console.error(`❌ Erreur récupération page ${params.slug}:`, error);
     return NextResponse.json(
       { error: 'Erreur serveur' },
       { status: 500 }
@@ -55,39 +83,39 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const { slug, title, content, is_active = true } = body;
-    
-    console.log('📝 PUT Page:', { slug: params.slug, title, content });
+    const { title, content } = body;
 
-    // Trouver la page par slug d'abord
-    let existingPage = await d1Client.findOne('pages', { slug: params.slug });
+    // Vérifier si la page existe
+    const checkResult = await executeSqlOnD1('SELECT id FROM pages WHERE slug = ?', [params.slug]);
     
-    if (!existingPage) {
-      console.log('📄 Page non trouvée, création...');
-      // Créer la page si elle n'existe pas
-      const newPage = await d1Client.create('pages', {
-        slug: params.slug,
-        title,
-        content,
-        is_active: Boolean(is_active)
-      });
-      
-      console.log('✅ Page créée:', newPage);
-      return NextResponse.json({ success: true, data: newPage });
+    if (checkResult.result?.[0]?.results?.length) {
+      // UPDATE
+      await executeSqlOnD1(
+        'UPDATE pages SET title = ?, content = ? WHERE slug = ?',
+        [title, content, params.slug]
+      );
+    } else {
+      // INSERT
+      await executeSqlOnD1(
+        'INSERT INTO pages (slug, title, content, is_active) VALUES (?, ?, ?, ?)',
+        [params.slug, title, content, 1]
+      );
     }
 
-    const updatedPage = await d1Client.update('pages', existingPage.id, {
-      title,
-      content,
-      is_active: Boolean(is_active),
-    });
-
-    console.log('✅ Page mise à jour:', updatedPage);
-    return NextResponse.json({ success: true, data: updatedPage });
+    // Récupérer la page mise à jour
+    const result = await executeSqlOnD1('SELECT * FROM pages WHERE slug = ?', [params.slug]);
+    
+    if (result.result?.[0]?.results?.length) {
+      const page = result.result[0].results[0];
+      console.log(`✅ Page ${params.slug} mise à jour:`, page.title);
+      return NextResponse.json(page);
+    } else {
+      return NextResponse.json({ success: true, message: 'Page mise à jour' });
+    }
   } catch (error) {
-    console.error('❌ Erreur mise à jour page:', error);
+    console.error(`❌ Erreur mise à jour page ${params.slug}:`, error);
     return NextResponse.json(
-      { error: 'Erreur serveur', details: error.message },
+      { error: 'Erreur serveur lors de la mise à jour' },
       { status: 500 }
     );
   }
@@ -99,30 +127,13 @@ export async function DELETE(
   { params }: { params: { slug: string } }
 ) {
   try {
-    // Trouver la page par slug d'abord
-    const existingPage = await d1Client.findOne('pages', { slug: params.slug });
+    await executeSqlOnD1('DELETE FROM pages WHERE slug = ?', [params.slug]);
     
-    if (!existingPage) {
-      return NextResponse.json(
-        { error: 'Page non trouvée' },
-        { status: 404 }
-      );
-    }
-    
-    const success = await d1Client.delete('pages', existingPage.id);
-    
-    if (success) {
-      return NextResponse.json({ success: true });
-    } else {
-      return NextResponse.json(
-        { error: 'Impossible de supprimer la page' },
-        { status: 500 }
-      );
-    }
+    return NextResponse.json({ success: true, message: 'Page supprimée avec succès' });
   } catch (error) {
-    console.error('Erreur suppression page:', error);
+    console.error(`❌ Erreur suppression page ${params.slug}:`, error);
     return NextResponse.json(
-      { error: 'Erreur serveur' },
+      { error: 'Erreur serveur lors de la suppression' },
       { status: 500 }
     );
   }
