@@ -259,7 +259,7 @@ export default function HomePage() {
               </div>
               
               <p className="text-2xl text-white mb-8 font-semibold drop-shadow-lg animate-pulse">
-                LANATIONDULAIT
+                LANATION DU LAIT
               </p>
               
               {/* Nouvelle barre de chargement style néon */}
@@ -269,7 +269,7 @@ export default function HomePage() {
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
                   </div>
                 </div>
-                <div className="mt-2 text-sm text-blue-300 font-medium drop-shadow-md animate-pulse">Chargement de LANATIONDULAIT...</div>
+                <div className="mt-2 text-sm text-blue-300 font-medium drop-shadow-md animate-pulse">Chargement Du Menu..</div>
               </div>
               
               {/* Animation de particules style diamant */}
