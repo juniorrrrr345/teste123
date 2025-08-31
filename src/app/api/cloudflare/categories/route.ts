@@ -1,28 +1,31 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+async function executeSqlOnD1(sql: string, params: any[] = []) {
+  const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
+  const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434';
+  const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
+  
+  const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
+  
+  const response = await fetch(baseUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${API_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ sql, params })
+  });
+  
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  
+  const data = await response.json();
+  return data;
+}
+
 // GET - Récupérer toutes les catégories pour le panel admin
 export async function GET() {
   try {
-    const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
-    const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434'; // UUID D1 OGLEGACY
-    const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
-    
-    const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
-    
-    const response = await fetch(baseUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        sql: 'SELECT * FROM categories ORDER BY name ASC'
-      })
-    });
-    
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const data = await response.json();
+    const data = await executeSqlOnD1('SELECT * FROM categories ORDER BY name ASC');
     
     if (data.success && data.result?.[0]?.results) {
       console.log(`🏷️ Catégories récupérées pour admin: ${data.result[0].results.length}`);
@@ -40,11 +43,6 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
-    const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434'; // UUID D1 OGLEGACY
-    const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
-    
-    const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
     
     const sql = `INSERT INTO categories (name, icon, color) VALUES (?, ?, ?)`;
     const values = [
@@ -53,18 +51,7 @@ export async function POST(request: NextRequest) {
       body.color || '#3B82F6'
     ];
     
-    const response = await fetch(baseUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ sql, params: values })
-    });
-    
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const data = await response.json();
+    const data = await executeSqlOnD1(sql, values);
     
     if (data.success) {
       console.log('✅ Catégorie créée avec succès');

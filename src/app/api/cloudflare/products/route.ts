@@ -1,38 +1,41 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+async function executeSqlOnD1(sql: string, params: any[] = []) {
+  const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
+  const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434';
+  const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
+  
+  const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
+  
+  const response = await fetch(baseUrl, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${API_TOKEN}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ sql, params })
+  });
+  
+  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  
+  const data = await response.json();
+  return data;
+}
+
 // GET - Récupérer tous les produits pour le panel admin
 export async function GET(request: NextRequest) {
   try {
-    const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
-    const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434';
-    const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
-    
-    const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
-    
-    const response = await fetch(baseUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        sql: `
-          SELECT 
-            p.id, p.name, p.description, p.price, p.prices, 
-            p.image_url, p.video_url, p.stock, p.is_available,
-            c.name as category, f.name as farm,
-            p.category_id, p.farm_id, p.features, p.tags
-          FROM products p
-          LEFT JOIN categories c ON p.category_id = c.id
-          LEFT JOIN farms f ON p.farm_id = f.id
-          ORDER BY p.created_at DESC
-        `
-      })
-    });
-    
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const data = await response.json();
+    const data = await executeSqlOnD1(`
+      SELECT 
+        p.id, p.name, p.description, p.price, p.prices, 
+        p.image_url, p.video_url, p.stock, p.is_available,
+        c.name as category, f.name as farm,
+        p.category_id, p.farm_id, p.features, p.tags
+      FROM products p
+      LEFT JOIN categories c ON p.category_id = c.id
+      LEFT JOIN farms f ON p.farm_id = f.id
+      ORDER BY p.created_at DESC
+    `);
     
     if (data.success && data.result?.[0]?.results) {
       const products = data.result[0].results.map((product: any) => {
@@ -96,36 +99,14 @@ export async function POST(request: NextRequest) {
     
     // Si on reçoit des noms au lieu d'IDs, les convertir
     if (body.category && !category_id) {
-      const catResult = await fetch(baseUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          sql: 'SELECT id FROM categories WHERE name = ?',
-          params: [body.category]
-        })
-      });
-      const catData = await catResult.json();
+      const catData = await executeSqlOnD1('SELECT id FROM categories WHERE name = ?', [body.category]);
       if (catData.success && catData.result?.[0]?.results?.[0]) {
         category_id = catData.result[0].results[0].id;
       }
     }
     
     if (body.farm && !farm_id) {
-      const farmResult = await fetch(baseUrl, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${API_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          sql: 'SELECT id FROM farms WHERE name = ?',
-          params: [body.farm]
-        })
-      });
-      const farmData = await farmResult.json();
+      const farmData = await executeSqlOnD1('SELECT id FROM farms WHERE name = ?', [body.farm]);
       if (farmData.success && farmData.result?.[0]?.results?.[0]) {
         farm_id = farmData.result[0].results[0].id;
       }
@@ -151,18 +132,7 @@ export async function POST(request: NextRequest) {
       JSON.stringify(body.tags || [])
     ];
     
-    const response = await fetch(baseUrl, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${API_TOKEN}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ sql, params: values })
-    });
-    
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    
-    const data = await response.json();
+    const data = await executeSqlOnD1(sql, values);
     
     if (data.success) {
       console.log('✅ Produit créé avec succès');
