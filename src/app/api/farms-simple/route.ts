@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 async function executeSqlOnD1(sql: string, params: any[] = []) {
   const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
-  const DATABASE_ID = 'c2f265db-7c5d-4f33-a5dd-f84c602a013d';
+  const DATABASE_ID = '6df2df23-06af-4494-ba0f-30b2061c1def';
   const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
   
   const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
     
     const data = await executeSqlOnD1(
       'INSERT INTO farms (name, description, location, contact, created_at) VALUES (?, ?, ?, ?, datetime("now")) RETURNING *',
-      [name, description || 'Farm MEXICAIN', location || 'Non spécifié', contact || 'contact@oglegacy.com']
+      [name, description || 'Farm LANATIONDULAIT', location || 'Non spécifié', contact || 'contact@oglegacy.com']
     );
     
     if (data.success && data.result?.[0]?.results?.[0]) {
