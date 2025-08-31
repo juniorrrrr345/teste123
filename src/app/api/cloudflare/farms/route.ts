@@ -78,3 +78,47 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+// DELETE - Supprimer une farm (bulk delete)
+export async function DELETE(request: NextRequest) {
+  try {
+    const body = await request.json();
+    const { id } = body;
+
+    if (!id) {
+      return NextResponse.json({ error: 'ID requis' }, { status: 400 });
+    }
+
+    const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
+    const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434';
+    const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
+    
+    const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
+    
+    const response = await fetch(baseUrl, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${API_TOKEN}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        sql: 'DELETE FROM farms WHERE id = ?',
+        params: [id]
+      })
+    });
+    
+    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      console.log('✅ Farm supprimée avec succès');
+      return NextResponse.json({ success: true, message: 'Farm supprimée avec succès' });
+    } else {
+      throw new Error('Erreur suppression farm');
+    }
+  } catch (error) {
+    console.error('❌ Erreur suppression farm:', error);
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
