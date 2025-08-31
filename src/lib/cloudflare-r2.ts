@@ -46,7 +46,7 @@ class CloudflareR2Client {
       const response = await fetch(uploadUrl, {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+          'Authorization': `Bearer ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW`,
         },
         body: file instanceof File ? file : file,
       });
@@ -99,7 +99,7 @@ class CloudflareR2Client {
         {
           method: 'DELETE',
           headers: {
-            'Authorization': `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+            'Authorization': `Bearer ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW`,
           },
         }
       );
@@ -121,7 +121,7 @@ class CloudflareR2Client {
 
       const response = await fetch(url.toString(), {
         headers: {
-          'Authorization': `Bearer ${process.env.CLOUDFLARE_API_TOKEN}`,
+          'Authorization': `Bearer ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW`,
         },
       });
 
@@ -143,13 +143,13 @@ class CloudflareR2Client {
   }
 }
 
-// Instance globale
+// Instance globale avec credentials hardcodés
 const r2Client = new CloudflareR2Client({
   accountId: '7979421604bd07b3bd34d3ed96222512',
-  accessKeyId: process.env.CLOUDFLARE_R2_ACCESS_KEY_ID || '',
-  secretAccessKey: process.env.CLOUDFLARE_R2_SECRET_ACCESS_KEY || '',
-  bucketName: process.env.CLOUDFLARE_R2_BUCKET_NAME || 'boutique-images',
-  publicUrl: process.env.CLOUDFLARE_R2_PUBLIC_URL || 'https://pub-b38679a01a274648827751df94818418.r2.dev',
+  accessKeyId: '82WsPNjX-j0UqZIGAny8b0uEehcHd0X3zMKNIKIN',
+  secretAccessKey: '28230e200a3b71e5374e569f8a297eba9aa3fe2e1097fdf26e5d9e340ded709d',
+  bucketName: 'boutique-images',
+  publicUrl: 'https://pub-b38679a01a274648827751df94818418.r2.dev',
 });
 
 export default r2Client;

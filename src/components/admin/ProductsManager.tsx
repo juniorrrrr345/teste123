@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import MediaUploader from './MediaUploader';
+import MediaDisplay from '../MediaDisplay';
 import { notifyAdminUpdate } from '../../hooks/useAdminSync';
 // CloudinaryUploader supprimé - utilise Cloudflare R2
 
@@ -351,15 +352,25 @@ export default function ProductsManager() {
       console.log('📡 Réponse sauvegarde:', response.status, response.statusText);
 
       if (response.ok) {
-        // Afficher un message de succès
+        // Afficher un message de succès plus visible
         const successMsg = document.createElement('div');
-        successMsg.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-[9999] transition-all duration-300';
-        successMsg.textContent = editingProduct ? '✅ Produit modifié avec succès!' : '✅ Produit ajouté avec succès!';
+        successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-8 py-4 rounded-lg shadow-2xl z-[9999] transition-all duration-500 border-2 border-green-400';
+        successMsg.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">✅</div>
+            <div>
+              <div class="font-bold text-lg">${editingProduct ? 'Produit modifié avec succès!' : 'Produit ajouté avec succès!'}</div>
+              <div class="text-green-100 text-sm">Les changements sont visibles immédiatement</div>
+            </div>
+          </div>
+        `;
         document.body.appendChild(successMsg);
         
         setTimeout(() => {
-          successMsg.remove();
-        }, 3000);
+          successMsg.style.opacity = '0';
+          successMsg.style.transform = 'translateX(100%)';
+          setTimeout(() => successMsg.remove(), 500);
+        }, 4000);
         
         setShowModal(false);
         
@@ -751,12 +762,15 @@ export default function ProductsManager() {
           {products.map((product) => (
             <div key={product._id} className="bg-gray-900/50 border border-white/20 rounded-xl overflow-hidden shadow-lg backdrop-blur-sm">
               <div className="flex items-center p-3 space-x-3">
-                {/* Image compacte */}
-                <div className="relative w-16 h-16 flex-shrink-0">
-                  <img
-                    src={product.image_url}
+                {/* Image compacte avec MediaDisplay */}
+                <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
+                  <MediaDisplay
+                    url={product.image_url}
                     alt={product.name}
-                    className="w-full h-full object-cover rounded-lg"
+                    className="w-full h-full"
+                    controls={false}
+                    autoPlay={false}
+                    muted={true}
                   />
                   <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-xs flex items-center justify-center ${
                     product.isActive ? 'bg-green-600' : 'bg-red-600'
@@ -816,10 +830,13 @@ export default function ProductsManager() {
           {products.map((product) => (
           <div key={product._id} className="bg-gray-900/50 border border-white/20 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm">
             <div className="relative h-32">
-              <img
-                src={product.image_url}
+              <MediaDisplay
+                url={product.image_url}
                 alt={product.name}
-                className="w-full h-full object-cover"
+                className="w-full h-full"
+                controls={false}
+                autoPlay={false}
+                muted={true}
               />
               <div className="absolute top-2 left-2 bg-white/90 text-black text-xs font-bold px-2 py-1 rounded-md">
                 {product.category}
@@ -1029,18 +1046,20 @@ export default function ProductsManager() {
                       placeholder="URL complète de l'image (https://...)"
                     />
                     
-                    {/* Préview de l'image */}
+                    {/* Préview de l'image avec MediaDisplay */}
                     {formData.image_url && (
                       <div className="mt-3">
                         <div className="text-xs text-gray-400 mb-2">Aperçu :</div>
-                        <img 
-                          src={formData.image_url} 
-                          alt="Aperçu" 
-                          className="w-32 h-20 object-cover rounded border border-white/20"
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
+                        <div className="w-32 h-20 rounded border border-white/20 overflow-hidden">
+                          <MediaDisplay
+                            url={formData.image_url}
+                            alt="Aperçu image"
+                            className="w-full h-full"
+                            controls={false}
+                            autoPlay={false}
+                            muted={true}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>
@@ -1091,19 +1110,20 @@ export default function ProductsManager() {
                       placeholder="URL complète de la vidéo (https://...)"
                     />
                     
-                    {/* Préview de la vidéo */}
+                    {/* Préview de la vidéo avec MediaDisplay */}
                     {formData.video_url && (
                       <div className="mt-3">
                         <div className="text-xs text-gray-400 mb-2">Aperçu :</div>
-                        <video 
-                          src={formData.video_url} 
-                          className="w-32 h-20 object-cover rounded border border-white/20"
-                          controls
-                          muted
-                          onError={(e) => {
-                            e.currentTarget.style.display = 'none';
-                          }}
-                        />
+                        <div className="w-32 h-20 rounded border border-white/20 overflow-hidden">
+                          <MediaDisplay
+                            url={formData.video_url}
+                            alt="Aperçu vidéo"
+                            className="w-full h-full"
+                            controls={true}
+                            autoPlay={false}
+                            muted={true}
+                          />
+                        </div>
                       </div>
                     )}
                   </div>

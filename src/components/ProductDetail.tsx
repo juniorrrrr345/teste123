@@ -4,6 +4,7 @@ import { Product } from './ProductCard';
 import { useCartStore } from '@/lib/cartStore';
 import { ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
+import MediaDisplay from './MediaDisplay';
 
 interface ProductDetailProps {
   product: Product | null;
@@ -88,26 +89,16 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
 
         {/* Contenu scrollable avec padding bottom pour éviter que le contenu soit caché */}
         <div className="w-full h-full overflow-y-auto pb-20">
-          {/* Image ou vidéo */}
+          {/* Image ou vidéo avec MediaDisplay */}
           <div className="relative w-full aspect-square bg-black">
-            {product.video_url ? (
-              <video 
-                className="w-full h-full object-contain"
-                autoPlay 
-                loop 
-                muted 
-                playsInline
-                controls
-              >
-                <source src={product.video_url} type="video/mp4" />
-              </video>
-            ) : (
-              <img 
-                src={product.image_url} 
-                alt={product.name}
-                className="w-full h-full object-contain"
-              />
-            )}
+            <MediaDisplay
+              url={product.video_url || product.image_url}
+              alt={product.name}
+              className="w-full h-full"
+              controls={true}
+              autoPlay={false}
+              muted={true}
+            />
           </div>
 
           {/* Infos produit */}

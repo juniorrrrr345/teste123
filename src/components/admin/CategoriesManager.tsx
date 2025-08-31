@@ -88,10 +88,22 @@ export default function CategoriesManager() {
       if (response.ok) {
         // Message de succès
         const successMsg = document.createElement('div');
-        successMsg.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-[9999]';
-        successMsg.textContent = editingCategory ? '✅ Catégorie modifiée!' : '✅ Catégorie ajoutée!';
+        successMsg.className = 'fixed top-4 right-4 bg-green-500 text-white px-8 py-4 rounded-lg shadow-2xl z-[9999] transition-all duration-500 border-2 border-green-400';
+        successMsg.innerHTML = `
+          <div class="flex items-center space-x-3">
+            <div class="text-2xl">✅</div>
+            <div>
+              <div class="font-bold text-lg">${editingCategory ? 'Catégorie modifiée avec succès!' : 'Catégorie ajoutée avec succès!'}</div>
+              <div class="text-green-100 text-sm">Disponible immédiatement dans la boutique</div>
+            </div>
+          </div>
+        `;
         document.body.appendChild(successMsg);
-        setTimeout(() => successMsg.remove(), 3000);
+        setTimeout(() => {
+          successMsg.style.opacity = '0';
+          successMsg.style.transform = 'translateX(100%)';
+          setTimeout(() => successMsg.remove(), 500);
+        }, 4000);
         
         // Notifier les autres onglets du changement
         notifyAdminUpdate('categories', editingCategory ? 'update' : 'create', { id: editingCategory?._id });

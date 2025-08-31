@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import MediaDisplay from '../MediaDisplay';
 
 interface Settings {
   shopTitle: string;
@@ -107,8 +108,8 @@ export default function SettingsManager() {
           }
         }, 500);
         
-        setMessage('✅ Paramètres sauvegardés ! Les changements sont visibles immédiatement sur la boutique');
-        setTimeout(() => setMessage(''), 3000);
+        setMessage('✅ Paramètres sauvegardés avec succès ! Les changements sont visibles immédiatement sur la boutique');
+        setTimeout(() => setMessage(''), 5000);
         
         // Sauvegarder dans localStorage et émettre un événement pour mise à jour instantanée
         localStorage.setItem('shopSettings', JSON.stringify(settings));
@@ -159,8 +160,12 @@ export default function SettingsManager() {
       </div>
 
       {message && (
-        <div className="mb-6 p-4 bg-gray-800 border border-white/20 rounded-lg">
-          <p className="text-white">{message}</p>
+        <div className={`mb-6 p-4 rounded-lg border-2 ${
+          message.includes('✅') 
+            ? 'bg-green-900/50 border-green-400 text-green-100' 
+            : 'bg-red-900/50 border-red-400 text-red-100'
+        }`}>
+          <p className="font-semibold text-center">{message}</p>
         </div>
       )}
 
@@ -290,11 +295,16 @@ export default function SettingsManager() {
               />
               {settings.backgroundImage && (
                 <div className="mt-2">
-                  <img 
-                    src={settings.backgroundImage} 
-                    alt="Aperçu" 
-                    className="w-32 h-20 object-cover rounded-lg border border-white/20"
-                  />
+                  <div className="w-32 h-20 rounded-lg border border-white/20 overflow-hidden">
+                    <MediaDisplay
+                      url={settings.backgroundImage}
+                      alt="Aperçu image de fond"
+                      className="w-full h-full"
+                      controls={false}
+                      autoPlay={false}
+                      muted={true}
+                    />
+                  </div>
                   <button
                     onClick={() => updateField('backgroundImage', '')}
                     className="ml-2 text-red-400 hover:text-red-300 text-sm"
@@ -348,22 +358,54 @@ export default function SettingsManager() {
             Aperçu du header
           </h2>
           
-          <div className="bg-black rounded-lg overflow-hidden border border-white/20">
-            {/* Bandeau */}
-            <div className="bg-white text-black py-1 px-4 text-center">
-              <p className="text-black text-xs font-bold tracking-wide">
-                {settings.bannerText || 'Aperçu du bandeau'}
-              </p>
-            </div>
+          <div className="relative bg-black rounded-lg overflow-hidden border border-white/20">
+            {/* Image de fond avec opacité et flou */}
+            {settings.backgroundImage && (
+              <div 
+                className="absolute inset-0 w-full h-full"
+                style={{
+                  opacity: settings.backgroundOpacity / 100,
+                  filter: `blur(${settings.backgroundBlur}px)`
+                }}
+              >
+                <MediaDisplay
+                  url={settings.backgroundImage}
+                  alt="Arrière-plan"
+                  className="w-full h-full object-cover"
+                  controls={false}
+                  autoPlay={false}
+                  muted={true}
+                />
+              </div>
+            )}
             
-            {/* Logo */}
-            <div className="bg-black py-6 px-4 text-center border-b border-white/20">
-              <h1 className="text-2xl font-black text-white tracking-wider">
-                {settings.shopTitle || 'TITRE'}
-              </h1>
-              <p className="text-gray-400 text-xs mt-1 uppercase tracking-[0.2em] font-medium">
-                                  {settings.shopSubtitle || 'Sous-titre'}
-              </p>
+            {/* Contenu par-dessus l'image */}
+            <div className="relative z-10">
+              {/* Bandeau */}
+              <div className="bg-white text-black py-1 px-4 text-center">
+                <p className="text-black text-xs font-bold tracking-wide">
+                  {settings.scrollingText || 'Aperçu du bandeau'}
+                </p>
+              </div>
+              
+              {/* Logo */}
+              <div className="bg-black/50 backdrop-blur-sm py-6 px-4 text-center border-b border-white/20">
+                <h1 className={`text-2xl font-black text-white tracking-wider ${
+                  settings.titleStyle === 'glow' ? 'drop-shadow-[0_0_10px_rgba(255,255,255,0.7)]' :
+                  settings.titleStyle === 'gradient' ? 'bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent' :
+                  settings.titleStyle === 'neon' ? 'text-cyan-400 drop-shadow-[0_0_15px_rgba(34,211,238,0.8)]' :
+                  settings.titleStyle === 'rainbow' ? 'bg-gradient-to-r from-red-500 via-yellow-500 via-green-500 via-blue-500 to-purple-500 bg-clip-text text-transparent animate-pulse' :
+                  settings.titleStyle === 'shadow' ? 'drop-shadow-[3px_3px_6px_rgba(0,0,0,0.8)]' :
+                  settings.titleStyle === 'bounce' ? 'animate-bounce' :
+                  settings.titleStyle === 'graffiti' ? 'text-yellow-400 drop-shadow-[2px_2px_0px_rgba(0,0,0,1)] transform rotate-1' :
+                  ''
+                }`}>
+                  {settings.shopTitle || 'MEXICAIN'}
+                </h1>
+                <p className="text-gray-400 text-xs mt-1 uppercase tracking-[0.2em] font-medium">
+                  Boutique Premium
+                </p>
+              </div>
             </div>
           </div>
         </div>
