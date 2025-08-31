@@ -33,12 +33,12 @@ export default function ProductsManager() {
     name: '',
     farm: '',
     category: '',
-    image: '',
-    video: '',
+    image_url: '',
+    video_url: '',
     prices: {},
     promotions: {},
     description: '',
-    isActive: true
+    is_available: true
   });
   const [activeTab, setActiveTab] = useState<'infos' | 'media' | 'prix'>('infos');
   // États locaux pour les champs de prix pour éviter la perte de focus
@@ -118,6 +118,8 @@ export default function ProductsManager() {
     setEditingProduct(product);
     setFormData({
       ...product,
+      image_url: product.image_url || '',
+      video_url: product.video_url || '',
       prices: { ...product.prices },
       promotions: { ...product.promotions } || {}
     });
@@ -158,11 +160,11 @@ export default function ProductsManager() {
       name: '',
       farm: '',
       category: '',
-      image: '',
-      video: '',
+      image_url: '',
+      video_url: '',
       prices: {},
       description: '',
-      isActive: true
+      is_available: true
     });
     // Aucun prix par défaut - interface complètement vide
     setPriceInputs({});
@@ -986,7 +988,6 @@ export default function ProductsManager() {
                         <MediaUploader
                           onMediaSelected={(url, type) => {
                             if (type === 'image') {
-                              updateField('image', url);
                               updateField('image_url', url);
                             }
                           }}
@@ -1001,7 +1002,6 @@ export default function ProductsManager() {
                         <MediaUploader
                           onMediaSelected={(url, type) => {
                             if (type === 'image') {
-                              updateField('image', url);
                               updateField('image_url', url);
                             }
                           }}
@@ -1017,9 +1017,9 @@ export default function ProductsManager() {
                     <input
                       type="text"
                       value={formData.image_url || ''}
-                      onChange={(e) => updateField('image', e.target.value)}
-                      className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50"
-                      placeholder="https://... ou data:image/..."
+                      onChange={(e) => updateField('image_url', e.target.value)}
+                      className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50 min-h-[48px]"
+                      placeholder="URL complète de l'image (https://...)"
                     />
                     
                     {/* Préview de l'image */}
@@ -1050,7 +1050,6 @@ export default function ProductsManager() {
                         <MediaUploader
                           onMediaSelected={(url, type) => {
                             if (type === 'video') {
-                              updateField('video', url);
                               updateField('video_url', url);
                             }
                           }}
@@ -1065,7 +1064,6 @@ export default function ProductsManager() {
                         <MediaUploader
                           onMediaSelected={(url, type) => {
                             if (type === 'video') {
-                              updateField('video', url);
                               updateField('video_url', url);
                             }
                           }}
@@ -1081,9 +1079,9 @@ export default function ProductsManager() {
                     <input
                       type="text"
                       value={formData.video_url || ''}
-                      onChange={(e) => updateField('video', e.target.value)}
-                      className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50"
-                      placeholder="https://... ou data:video/..."
+                      onChange={(e) => updateField('video_url', e.target.value)}
+                      className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50 min-h-[48px]"
+                      placeholder="URL complète de la vidéo (https://...)"
                     />
                     
                     {/* Préview de la vidéo */}
@@ -1283,7 +1281,7 @@ export default function ProductsManager() {
                       <MediaUploader
                         onMediaSelected={(url, type) => {
                           if (type === 'image') {
-                            updateField('image', url);
+                            updateField('image_url', url);
                           }
                         }}
                         acceptedTypes="image/*"
@@ -1292,9 +1290,9 @@ export default function ProductsManager() {
                       <input
                         type="text"
                         value={formData.image_url || ''}
-                        onChange={(e) => updateField('image', e.target.value)}
+                        onChange={(e) => updateField('image_url', e.target.value)}
                         className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        placeholder="URL de l'image..."
+                        placeholder="URL complète de l'image (https://...)"
                       />
                       {formData.image_url && (
                         <img 
@@ -1310,7 +1308,7 @@ export default function ProductsManager() {
                       <MediaUploader
                         onMediaSelected={(url, type) => {
                           if (type === 'video') {
-                            updateField('video', url);
+                            updateField('video_url', url);
                           }
                         }}
                         acceptedTypes="video/*"
@@ -1319,9 +1317,9 @@ export default function ProductsManager() {
                       <input
                         type="text"
                         value={formData.video_url || ''}
-                        onChange={(e) => updateField('video', e.target.value)}
+                        onChange={(e) => updateField('video_url', e.target.value)}
                         className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50"
-                        placeholder="URL de la vidéo..."
+                        placeholder="URL complète de la vidéo (https://...)"
                       />
                       {formData.video_url && (
                         <video 
