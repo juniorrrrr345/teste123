@@ -46,10 +46,9 @@ export async function POST(request: NextRequest) {
     
     const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
     
-    const sql = `INSERT INTO categories (name, description, icon, color) VALUES (?, ?, ?, ?)`;
+    const sql = `INSERT INTO categories (name, icon, color) VALUES (?, ?, ?)`;
     const values = [
       body.name,
-      body.description || '',
       body.icon || '🏷️',
       body.color || '#3B82F6'
     ];

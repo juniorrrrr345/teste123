@@ -90,6 +90,47 @@ export async function POST(request: NextRequest) {
     
     const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
     
+    // Convertir category et farm en IDs si nécessaire
+    let category_id = body.category_id;
+    let farm_id = body.farm_id;
+    
+    // Si on reçoit des noms au lieu d'IDs, les convertir
+    if (body.category && !category_id) {
+      const catResult = await fetch(baseUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${API_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sql: 'SELECT id FROM categories WHERE name = ?',
+          params: [body.category]
+        })
+      });
+      const catData = await catResult.json();
+      if (catData.success && catData.result?.[0]?.results?.[0]) {
+        category_id = catData.result[0].results[0].id;
+      }
+    }
+    
+    if (body.farm && !farm_id) {
+      const farmResult = await fetch(baseUrl, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${API_TOKEN}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          sql: 'SELECT id FROM farms WHERE name = ?',
+          params: [body.farm]
+        })
+      });
+      const farmData = await farmResult.json();
+      if (farmData.success && farmData.result?.[0]?.results?.[0]) {
+        farm_id = farmData.result[0].results[0].id;
+      }
+    }
+    
     const sql = `INSERT INTO products (
       name, description, price, prices, category_id, farm_id,
       image_url, video_url, stock, is_available, features, tags
@@ -100,8 +141,8 @@ export async function POST(request: NextRequest) {
       body.description || '',
       parseFloat(body.price) || 0,
       JSON.stringify(body.prices || {}),
-      body.category_id || null,
-      body.farm_id || null,
+      category_id || null,
+      farm_id || null,
       body.image_url || '',
       body.video_url || '',
       parseInt(body.stock) || 0,

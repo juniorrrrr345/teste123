@@ -82,6 +82,25 @@ export async function PUT(
     const id = parseInt(params.id);
     const body = await request.json();
 
+    // Convertir category et farm en IDs si nécessaire
+    let category_id = body.category_id;
+    let farm_id = body.farm_id;
+    
+    // Si on reçoit des noms au lieu d'IDs, les convertir
+    if (body.category && !category_id) {
+      const catResult = await executeSqlOnD1('SELECT id FROM categories WHERE name = ?', [body.category]);
+      if (catResult.success && catResult.result?.[0]?.results?.[0]) {
+        category_id = catResult.result[0].results[0].id;
+      }
+    }
+    
+    if (body.farm && !farm_id) {
+      const farmResult = await executeSqlOnD1('SELECT id FROM farms WHERE name = ?', [body.farm]);
+      if (farmResult.success && farmResult.result?.[0]?.results?.[0]) {
+        farm_id = farmResult.result[0].results[0].id;
+      }
+    }
+
     const sql = `UPDATE products SET 
       name = ?, description = ?, price = ?, prices = ?, 
       category_id = ?, farm_id = ?, image_url = ?, video_url = ?, 
@@ -93,8 +112,8 @@ export async function PUT(
       body.description || '',
       parseFloat(body.price) || 0,
       JSON.stringify(body.prices || {}),
-      body.category_id || null,
-      body.farm_id || null,
+      category_id || null,
+      farm_id || null,
       body.image_url || '',
       body.video_url || '',
       parseInt(body.stock) || 0,
