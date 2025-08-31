@@ -25,8 +25,13 @@ export async function GET() {
     const data = await response.json();
     
     if (data.success && data.result?.[0]?.results) {
-      console.log('🌐 Liens sociaux récupérés:', data.result[0].results.length);
-      return NextResponse.json(data.result[0].results);
+      const socialLinks = data.result[0].results.map((link: any) => ({
+        ...link,
+        _id: link.id, // Frontend s'attend à _id
+        name: link.platform // Frontend s'attend à name
+      }));
+      console.log('🌐 Liens sociaux récupérés:', socialLinks.length);
+      return NextResponse.json(socialLinks);
     } else {
       return NextResponse.json([]);
     }

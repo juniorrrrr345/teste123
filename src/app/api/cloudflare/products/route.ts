@@ -54,6 +54,7 @@ export async function GET(request: NextRequest) {
         }
         
         return {
+          _id: product.id, // Frontend s'attend à _id
           id: product.id,
           name: product.name,
           description: product.description || '',

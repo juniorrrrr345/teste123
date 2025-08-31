@@ -25,8 +25,12 @@ export async function GET() {
     const data = await response.json();
     
     if (data.success && data.result?.[0]?.results) {
-      console.log(`🏭 Farms récupérées pour admin: ${data.result[0].results.length}`);
-      return NextResponse.json(data.result[0].results);
+      const farms = data.result[0].results.map((farm: any) => ({
+        ...farm,
+        _id: farm.id // Frontend s'attend à _id
+      }));
+      console.log(`🏭 Farms récupérées pour admin: ${farms.length}`);
+      return NextResponse.json(farms);
     } else {
       return NextResponse.json([]);
     }

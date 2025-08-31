@@ -28,8 +28,12 @@ export async function GET() {
     const data = await executeSqlOnD1('SELECT * FROM categories ORDER BY name ASC');
     
     if (data.success && data.result?.[0]?.results) {
-      console.log(`🏷️ Catégories récupérées pour admin: ${data.result[0].results.length}`);
-      return NextResponse.json(data.result[0].results);
+      const categories = data.result[0].results.map((category: any) => ({
+        ...category,
+        _id: category.id // Frontend s'attend à _id
+      }));
+      console.log(`🏷️ Catégories récupérées pour admin: ${categories.length}`);
+      return NextResponse.json(categories);
     } else {
       return NextResponse.json([]);
     }
