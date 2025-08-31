@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 // Configuration Cloudflare D1 hardcodée
 const CLOUDFLARE_CONFIG = {
   accountId: '7979421604bd07b3bd34d3ed96222512',
-  databaseId: '732dfabe-3e2c-4d65-8fdc-bc39eb989434',
+  databaseId: 'c2f265db-7c5d-4f33-a5dd-f84c602a013d',
   apiToken: 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
 };
 

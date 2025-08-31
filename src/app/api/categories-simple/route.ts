@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 
 async function executeSqlOnD1(sql: string, params: any[] = []) {
   const ACCOUNT_ID = '7979421604bd07b3bd34d3ed96222512';
-  const DATABASE_ID = '732dfabe-3e2c-4d65-8fdc-bc39eb989434';
+  const DATABASE_ID = 'c2f265db-7c5d-4f33-a5dd-f84c602a013d';
   const API_TOKEN = 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW';
   
   const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;

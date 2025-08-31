@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 // Configuration Cloudflare D1 hardcodée
 const CLOUDFLARE_CONFIG = {
   accountId: '7979421604bd07b3bd34d3ed96222512',
-  databaseId: '732dfabe-3e2c-4d65-8fdc-bc39eb989434',
+  databaseId: 'c2f265db-7c5d-4f33-a5dd-f84c602a013d',
   apiToken: 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
 };
 
@@ -45,16 +45,16 @@ export async function GET(
       
       switch (params.slug) {
         case 'info':
-          defaultTitle = 'À propos d\'OGLEGACY';
-          defaultContent = 'Bienvenue chez OGLEGACY - Votre boutique premium de produits d\'exception.';
+          defaultTitle = 'À propos d\'MEXICAIN';
+          defaultContent = 'Bienvenue chez MEXICAIN - Votre boutique premium de produits d\'exception.';
           break;
         case 'contact':
-          defaultTitle = 'Contact OGLEGACY';
-          defaultContent = 'Contactez-nous pour toute question concernant nos produits OGLEGACY.';
+          defaultTitle = 'Contact MEXICAIN';
+          defaultContent = 'Contactez-nous pour toute question concernant nos produits MEXICAIN.';
           break;
         default:
-          defaultTitle = 'Page OGLEGACY';
-          defaultContent = 'Contenu de la page OGLEGACY.';
+          defaultTitle = 'Page MEXICAIN';
+          defaultContent = 'Contenu de la page MEXICAIN.';
       }
       
       const defaultPage = {
