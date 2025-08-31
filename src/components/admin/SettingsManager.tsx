@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import MediaDisplay from '../MediaDisplay';
+
 
 interface Settings {
   shopTitle: string;
@@ -318,13 +318,10 @@ export default function SettingsManager() {
               {settings.backgroundImage && (
                 <div className="mt-2">
                   <div className="w-32 h-20 rounded-lg border border-white/20 overflow-hidden">
-                    <MediaDisplay
-                      url={settings.backgroundImage}
+                    <img
+                      src={settings.backgroundImage}
                       alt="Aperçu image de fond"
-                      className="w-full h-full"
-                      controls={false}
-                      autoPlay={false}
-                      muted={true}
+                      className="w-full h-full object-cover"
                     />
                   </div>
                   <button
@@ -390,13 +387,10 @@ export default function SettingsManager() {
                   filter: `blur(${settings.backgroundBlur}px)`
                 }}
               >
-                <MediaDisplay
-                  url={settings.backgroundImage}
+                <img
+                  src={settings.backgroundImage}
                   alt="Arrière-plan"
                   className="w-full h-full object-cover"
-                  controls={false}
-                  autoPlay={false}
-                  muted={true}
                 />
               </div>
             )}

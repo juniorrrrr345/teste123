@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import MediaUploader from './MediaUploader';
-import MediaDisplay from '../MediaDisplay';
+
 import { notifyAdminUpdate } from '../../hooks/useAdminSync';
 // CloudinaryUploader supprimé - utilise Cloudflare R2
 
@@ -762,16 +762,19 @@ export default function ProductsManager() {
           {products.map((product) => (
             <div key={product._id} className="bg-gray-900/50 border border-white/20 rounded-xl overflow-hidden shadow-lg backdrop-blur-sm">
               <div className="flex items-center p-3 space-x-3">
-                {/* Image compacte avec MediaDisplay */}
+                {/* Image compacte directe */}
                 <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
-                  <MediaDisplay
-                    url={product.image_url}
-                    alt={product.name}
-                    className="w-full h-full"
-                    controls={false}
-                    autoPlay={false}
-                    muted={true}
-                  />
+                  {product.image_url ? (
+                    <img
+                      src={product.image_url}
+                      alt={product.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+                      <span className="text-gray-400 text-lg">📷</span>
+                    </div>
+                  )}
                   <div className={`absolute -top-1 -right-1 w-4 h-4 rounded-full text-xs flex items-center justify-center ${
                     product.isActive ? 'bg-green-600' : 'bg-red-600'
                   }`}>
@@ -830,14 +833,17 @@ export default function ProductsManager() {
           {products.map((product) => (
           <div key={product._id} className="bg-gray-900/50 border border-white/20 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm">
             <div className="relative h-32">
-              <MediaDisplay
-                url={product.image_url}
-                alt={product.name}
-                className="w-full h-full"
-                controls={false}
-                autoPlay={false}
-                muted={true}
-              />
+              {product.image_url ? (
+                <img
+                  src={product.image_url}
+                  alt={product.name}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <div className="w-full h-full bg-gray-700 flex items-center justify-center">
+                  <span className="text-gray-400 text-2xl">📷</span>
+                </div>
+              )}
               <div className="absolute top-2 left-2 bg-white/90 text-black text-xs font-bold px-2 py-1 rounded-md">
                 {product.category}
               </div>
@@ -1046,18 +1052,15 @@ export default function ProductsManager() {
                       placeholder="URL complète de l'image (https://...)"
                     />
                     
-                    {/* Préview de l'image avec MediaDisplay */}
+                    {/* Aperçu de l'image direct */}
                     {formData.image_url && (
                       <div className="mt-3">
                         <div className="text-xs text-gray-400 mb-2">Aperçu :</div>
                         <div className="w-32 h-20 rounded border border-white/20 overflow-hidden">
-                          <MediaDisplay
-                            url={formData.image_url}
-                            alt="Aperçu image"
-                            className="w-full h-full"
-                            controls={false}
-                            autoPlay={false}
-                            muted={true}
+                          <img 
+                            src={formData.image_url} 
+                            alt="Aperçu image" 
+                            className="w-full h-full object-cover"
                           />
                         </div>
                       </div>
@@ -1110,18 +1113,17 @@ export default function ProductsManager() {
                       placeholder="URL complète de la vidéo (https://...)"
                     />
                     
-                    {/* Préview de la vidéo avec MediaDisplay */}
+                    {/* Aperçu de la vidéo direct */}
                     {formData.video_url && (
                       <div className="mt-3">
                         <div className="text-xs text-gray-400 mb-2">Aperçu :</div>
                         <div className="w-32 h-20 rounded border border-white/20 overflow-hidden">
-                          <MediaDisplay
-                            url={formData.video_url}
-                            alt="Aperçu vidéo"
-                            className="w-full h-full"
-                            controls={true}
-                            autoPlay={false}
-                            muted={true}
+                          <video 
+                            src={formData.video_url} 
+                            className="w-full h-full object-cover"
+                            controls
+                            muted
+                            preload="metadata"
                           />
                         </div>
                       </div>
