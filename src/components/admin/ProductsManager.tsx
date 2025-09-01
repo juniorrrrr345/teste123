@@ -78,8 +78,20 @@ export default function ProductsManager() {
       console.log('📦 Réponse produits:', productsRes.status);
       if (productsRes.ok) {
         const productsData = await productsRes.json();
-        console.log('📦 Produits chargés:', productsData.length, productsData);
+        console.log('📦 Produits chargés:', productsData.length);
+        
+        // Debug spécifique pour Barbara Punch
+        const barbara = productsData.find(p => p.name.includes('Barbara'));
+        if (barbara) {
+          console.log('🔍 Barbara Punch dans loadData:', {
+            name: barbara.name,
+            category: barbara.category,
+            category_id: barbara.category_id
+          });
+        }
+        
         setProducts(productsData);
+        console.log('✅ setProducts() appelé avec nouvelles données');
       } else {
         console.error('❌ Erreur produits:', productsRes.status);
         setProducts([]); // Fallback to empty array
@@ -728,6 +740,16 @@ export default function ProductsManager() {
   }
 
   console.log('🎯 Rendu ProductsManager - Produits:', products.length, 'Catégories:', categories.length, 'Farms:', farms.length);
+  
+  // Debug Barbara Punch dans le rendu
+  const barbaraInRender = products.find(p => p.name.includes('Barbara'));
+  if (barbaraInRender) {
+    console.log('🔍 Barbara Punch dans le rendu:', {
+      name: barbaraInRender.name,
+      category: barbaraInRender.category,
+      farm: barbaraInRender.farm
+    });
+  }
 
   return (
     <div className="p-4 lg:p-6">
