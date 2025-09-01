@@ -30,6 +30,7 @@ export default function ProductsManager() {
   const [farms, setFarms] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [preventReload, setPreventReload] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<Partial<Product>>({
@@ -60,6 +61,12 @@ export default function ProductsManager() {
   }, []);
 
   const loadData = async () => {
+    // Empêcher le rechargement si on vient de sauvegarder
+    if (preventReload) {
+      console.log('🚫 Rechargement bloqué - édition en cours');
+      return;
+    }
+    
     try {
       setLoading(true);
       console.log('🔄 Début du chargement des données...');
@@ -120,12 +127,21 @@ export default function ProductsManager() {
   const handleEdit = (product: Product) => {
     console.log('✏️ Édition du produit:', product.name, 'Prix:', product.prices);
     setEditingProduct(product);
+    
+    // Utiliser le produit avec les données les plus récentes de l'état local
+    const currentProduct = products.find(p => p._id === product._id) || product;
+    
     setFormData({
-      ...product,
-      image_url: product.image_url || '',
-      video_url: product.video_url || '',
-      prices: { ...product.prices },
-      promotions: { ...product.promotions } || {}
+      ...currentProduct, // Utiliser les données actuelles, pas les anciennes
+      image_url: currentProduct.image_url || '',
+      video_url: currentProduct.video_url || '',
+      prices: { ...currentProduct.prices },
+      promotions: { ...currentProduct.promotions } || {}
+    });
+    
+    console.log('✅ Formulaire initialisé avec données actuelles:', {
+      category: currentProduct.category,
+      farm: currentProduct.farm
     });
     // Synchroniser les états locaux des prix
     const priceStrings: { [key: string]: string } = {};
@@ -387,6 +403,10 @@ export default function ProductsManager() {
         } catch (error) {
           console.error('Erreur invalidation/revalidation cache:', error);
         }
+        
+        // Bloquer les rechargements automatiques pendant 10 secondes
+        setPreventReload(true);
+        setTimeout(() => setPreventReload(false), 10000);
         
         // Notifier les autres onglets du changement
         notifyAdminUpdate('products', editingProduct ? 'update' : 'create', { id: editingProduct?._id });
