@@ -404,13 +404,6 @@ export default function ProductsManager() {
           console.error('Erreur invalidation/revalidation cache:', error);
         }
         
-        // Bloquer les rechargements automatiques pendant 10 secondes
-        setPreventReload(true);
-        setTimeout(() => setPreventReload(false), 10000);
-        
-        // Notifier les autres onglets du changement
-        notifyAdminUpdate('products', editingProduct ? 'update' : 'create', { id: editingProduct?._id });
-        
         // MISE À JOUR IMMÉDIATE - EXACTEMENT comme pour les prix
         if (editingProduct) {
           // Mettre à jour le produit dans la liste avec les valeurs du formulaire
@@ -436,19 +429,22 @@ export default function ProductsManager() {
           // Mettre à jour aussi editingProduct pour le formulaire
           setEditingProduct(prev => prev ? {
             ...prev,
+            name: formData.name || prev.name,
             category: formData.category || prev.category,
             farm: formData.farm || prev.farm
           } : null);
           
           console.log('✅ Mise à jour immédiate comme pour les prix:', {
             id: editingProduct._id,
+            name: formData.name,
             category: formData.category,
             farm: formData.farm
           });
         }
         
-        // PAS de rechargement automatique - comme pour les prix !
-        // Les valeurs sont déjà mises à jour dans l'état local
+        // AUCUN rechargement - JAMAIS - comme pour les prix !
+        // Notifier seulement pour la synchronisation côté client
+        notifyAdminUpdate('products', editingProduct ? 'update' : 'create', { id: editingProduct?._id });
         
         // Fermer le modal APRÈS la mise à jour
         setShowModal(false);
