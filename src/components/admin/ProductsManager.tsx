@@ -138,11 +138,23 @@ export default function ProductsManager() {
 
   const handleEdit = (product: Product) => {
     console.log('✏️ Édition du produit:', product.name, 'Prix:', product.prices);
+    
+    // Ne pas écraser formData si on édite déjà le même produit
+    if (editingProduct && editingProduct._id === product._id && showModal) {
+      console.log('🚫 Édition du même produit - formData conservé');
+      return;
+    }
+    
     setEditingProduct(product);
     setFormData({
       ...product,
       prices: { ...product.prices },
       promotions: { ...product.promotions } || {}
+    });
+    
+    console.log('✅ FormData initialisé:', {
+      category: product.category,
+      farm: product.farm
     });
     // Synchroniser les états locaux des prix
     const priceStrings: { [key: string]: string } = {};
@@ -516,6 +528,7 @@ export default function ProductsManager() {
   };
 
   const updateField = (field: keyof Product, value: any) => {
+    console.log(`🔄 updateField: ${field} = "${value}"`);
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
