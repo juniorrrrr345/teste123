@@ -63,9 +63,10 @@ export default function ProductsManager() {
       setLoading(true);
       console.log('🔄 Début du chargement des données...');
       
-      // Charger les produits
+      // Charger les produits avec cache-busting
       console.log('📦 Chargement des produits...');
-      const productsRes = await fetch('/api/cloudflare/products');
+      const timestamp = Date.now();
+      const productsRes = await fetch(`/api/cloudflare/products?t=${timestamp}`, { cache: 'no-store' });
       console.log('📦 Réponse produits:', productsRes.status);
       if (productsRes.ok) {
         const productsData = await productsRes.json();
@@ -76,9 +77,9 @@ export default function ProductsManager() {
         setProducts([]); // Fallback to empty array
       }
 
-      // Charger les catégories
+      // Charger les catégories avec cache-busting
       console.log('🏷️ Chargement des catégories...');
-      const categoriesRes = await fetch('/api/categories-simple');
+      const categoriesRes = await fetch(`/api/categories-simple?t=${timestamp}`, { cache: 'no-store' });
       console.log('🏷️ Réponse catégories:', categoriesRes.status);
       if (categoriesRes.ok) {
         const categoriesData = await categoriesRes.json();
@@ -89,9 +90,9 @@ export default function ProductsManager() {
         setCategories([]);
       }
 
-      // Charger les farms
+      // Charger les farms avec cache-busting
       console.log('🏭 Chargement des farms...');
-      const farmsRes = await fetch('/api/farms-simple');
+      const farmsRes = await fetch(`/api/farms-simple?t=${timestamp}`, { cache: 'no-store' });
       console.log('🏭 Réponse farms:', farmsRes.status);
       if (farmsRes.ok) {
         const farmsData = await farmsRes.json();
@@ -391,8 +392,45 @@ export default function ProductsManager() {
         // Notifier les autres onglets du changement
         notifyAdminUpdate('products', editingProduct ? 'update' : 'create', { id: editingProduct?._id });
         
-        // Recharger les données
-        await loadData();
+        // Recharger les données avec un délai pour s'assurer que la DB est mise à jour
+        setTimeout(async () => {
+          await loadData();
+          
+          // Forcer la mise à jour du formulaire si on est en mode édition
+          if (editingProduct) {
+            // Récupérer le produit mis à jour depuis l'API
+            try {
+              const updatedProductRes = await fetch(`/api/cloudflare/products/${editingProduct._id}?t=${Date.now()}`, { cache: 'no-store' });
+              if (updatedProductRes.ok) {
+                const updatedProduct = await updatedProductRes.json();
+                console.log('🔄 Produit mis à jour récupéré:', updatedProduct);
+                
+                // Mettre à jour editingProduct avec les nouvelles données
+                setEditingProduct(updatedProduct);
+                
+                // Mettre à jour formData avec les bonnes propriétés
+                setFormData({
+                  name: updatedProduct.name || '',
+                  description: updatedProduct.description || '',
+                  category: updatedProduct.category_name || updatedProduct.category || '',
+                  farm: updatedProduct.farm_name || updatedProduct.farm || '',
+                  image_url: updatedProduct.image_url || '',
+                  video_url: updatedProduct.video_url || '',
+                  price: updatedProduct.price?.toString() || '',
+                  stock: updatedProduct.stock?.toString() || '',
+                  prices: updatedProduct.prices || '',
+                  is_available: updatedProduct.is_available !== false,
+                  features: updatedProduct.features || '',
+                  tags: updatedProduct.tags || ''
+                });
+                
+                console.log('✅ Formulaire mis à jour avec les nouvelles données');
+              }
+            } catch (error) {
+              console.error('Erreur rechargement produit édité:', error);
+            }
+          }
+        }, 500); // Délai de 500ms pour s'assurer que la DB est mise à jour
       } else {
         // Récupérer le détail de l'erreur
         const errorData = await response.text();
