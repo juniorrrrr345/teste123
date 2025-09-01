@@ -391,19 +391,44 @@ export default function ProductsManager() {
         // Notifier les autres onglets du changement
         notifyAdminUpdate('products', editingProduct ? 'update' : 'create', { id: editingProduct?._id });
         
-        // Recharger les données AVANT de fermer le modal
-        await loadData();
+        // MISE À JOUR IMMÉDIATE - EXACTEMENT comme pour les prix
+        if (editingProduct) {
+          // Mettre à jour le produit dans la liste avec les valeurs du formulaire
+          setProducts(prevProducts => 
+            prevProducts.map(product => 
+              product._id === editingProduct._id 
+                ? { 
+                    ...product,
+                    name: formData.name || product.name,
+                    description: formData.description || product.description,
+                    category: formData.category || product.category, // ← CLEF !
+                    farm: formData.farm || product.farm, // ← CLEF !
+                    image_url: formData.image_url || product.image_url,
+                    video_url: formData.video_url || product.video_url,
+                    price: formData.price || product.price,
+                    stock: formData.stock || product.stock,
+                    is_available: formData.is_available ?? product.is_available
+                  }
+                : product
+            )
+          );
+          
+          // Mettre à jour aussi editingProduct pour le formulaire
+          setEditingProduct(prev => prev ? {
+            ...prev,
+            category: formData.category || prev.category,
+            farm: formData.farm || prev.farm
+          } : null);
+          
+          console.log('✅ Mise à jour immédiate comme pour les prix:', {
+            id: editingProduct._id,
+            category: formData.category,
+            farm: formData.farm
+          });
+        }
         
-        // Forcer le re-render en changeant la clé
-        setRefreshKey(prev => prev + 1);
-        
-        // GARDE LES VALEURS DU FORMULAIRE - Ne pas écraser avec l'API
-        // L'utilisateur vient de sélectionner les bonnes valeurs, on les garde !
-        console.log('✅ Valeurs du formulaire conservées après sauvegarde:', {
-          category: formData.category,
-          farm: formData.farm,
-          name: formData.name
-        });
+        // Recharger en arrière-plan pour synchronisation
+        setTimeout(() => loadData(), 2000);
         
         // Fermer le modal APRÈS la mise à jour
         setShowModal(false);
