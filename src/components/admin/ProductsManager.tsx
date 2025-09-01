@@ -404,8 +404,10 @@ export default function ProductsManager() {
           console.error('Erreur invalidation cache:', error);
         }
         
-        // Recharger les données
-        await loadData();
+        // Recharger les données avec délai pour laisser la DB se mettre à jour
+        setTimeout(async () => {
+          await loadData();
+        }, 1000); // 1 seconde de délai
       } else {
         // Récupérer le détail de l'erreur
         const errorData = await response.text();
