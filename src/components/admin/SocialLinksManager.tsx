@@ -88,9 +88,10 @@ export default function SocialLinksManager() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          ...formData,
-          color: formData.color || '#0088cc',
-          is_active: true // Toujours actif
+          platform: formData.name, // L'API attend 'platform' pas 'name'
+          url: formData.url,
+          icon: formData.icon,
+          is_available: true // L'API attend 'is_available' pas 'is_active'
         }),
       });
 
