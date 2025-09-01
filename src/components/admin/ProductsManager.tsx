@@ -104,7 +104,9 @@ export default function ProductsManager() {
       if (categoriesRes.ok) {
         const categoriesData = await categoriesRes.json();
         console.log('🏷️ Catégories chargées:', categoriesData.length, categoriesData);
-        setCategories(categoriesData.map((c: { name: string }) => c.name));
+        const categoryNames = categoriesData.map((c: { name: string }) => c.name);
+        console.log('🏷️ Noms catégories pour dropdown:', categoryNames);
+        setCategories(categoryNames);
       } else {
         console.error('❌ Erreur catégories:', categoriesRes.status);
         setCategories([]);
@@ -762,6 +764,16 @@ export default function ProductsManager() {
       category: barbaraInRender.category,
       farm: barbaraInRender.farm
     });
+  }
+  
+  // Debug formData si modal ouvert
+  if (showModal && editingProduct) {
+    console.log('📝 FormData actuel:', {
+      name: formData.name,
+      category: formData.category,
+      farm: formData.farm
+    });
+    console.log('📋 Catégories disponibles:', categories.slice(0, 5));
   }
 
   return (
