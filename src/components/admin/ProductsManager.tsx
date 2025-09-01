@@ -28,6 +28,7 @@ export default function ProductsManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
   const [farms, setFarms] = useState<string[]>([]);
+  const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -373,8 +374,6 @@ export default function ProductsManager() {
           setTimeout(() => successMsg.remove(), 500);
         }, 4000);
         
-        setShowModal(false);
-        
         // Forcer la synchronisation immédiate
         try {
           // Invalider le cache côté client
@@ -392,45 +391,51 @@ export default function ProductsManager() {
         // Notifier les autres onglets du changement
         notifyAdminUpdate('products', editingProduct ? 'update' : 'create', { id: editingProduct?._id });
         
-        // Recharger les données avec un délai pour s'assurer que la DB est mise à jour
-        setTimeout(async () => {
-          await loadData();
-          
-          // Forcer la mise à jour du formulaire si on est en mode édition
-          if (editingProduct) {
-            // Récupérer le produit mis à jour depuis l'API
-            try {
-              const updatedProductRes = await fetch(`/api/cloudflare/products/${editingProduct._id}?t=${Date.now()}`, { cache: 'no-store' });
-              if (updatedProductRes.ok) {
-                const updatedProduct = await updatedProductRes.json();
-                console.log('🔄 Produit mis à jour récupéré:', updatedProduct);
-                
-                // Mettre à jour editingProduct avec les nouvelles données
-                setEditingProduct(updatedProduct);
-                
-                // Mettre à jour formData avec les bonnes propriétés
-                setFormData({
-                  name: updatedProduct.name || '',
-                  description: updatedProduct.description || '',
-                  category: updatedProduct.category_name || updatedProduct.category || '',
-                  farm: updatedProduct.farm_name || updatedProduct.farm || '',
-                  image_url: updatedProduct.image_url || '',
-                  video_url: updatedProduct.video_url || '',
-                  price: updatedProduct.price?.toString() || '',
-                  stock: updatedProduct.stock?.toString() || '',
-                  prices: updatedProduct.prices || '',
-                  is_available: updatedProduct.is_available !== false,
-                  features: updatedProduct.features || '',
-                  tags: updatedProduct.tags || ''
-                });
-                
-                console.log('✅ Formulaire mis à jour avec les nouvelles données');
-              }
-            } catch (error) {
-              console.error('Erreur rechargement produit édité:', error);
+        // Recharger les données AVANT de fermer le modal
+        await loadData();
+        
+        // Forcer le re-render en changeant la clé
+        setRefreshKey(prev => prev + 1);
+        
+        // Si on était en train d'éditer, récupérer le produit mis à jour
+        if (editingProduct) {
+          try {
+            const updatedProductRes = await fetch(`/api/cloudflare/products/${editingProduct._id}?t=${Date.now()}`, { cache: 'no-store' });
+            if (updatedProductRes.ok) {
+              const updatedProduct = await updatedProductRes.json();
+              console.log('🔄 Produit mis à jour récupéré:', updatedProduct);
+              
+              // Mettre à jour editingProduct avec les nouvelles données
+              setEditingProduct(updatedProduct);
+              
+              // Mettre à jour formData avec les bonnes propriétés
+              setFormData({
+                name: updatedProduct.name || '',
+                description: updatedProduct.description || '',
+                category: updatedProduct.category_name || updatedProduct.category || '',
+                farm: updatedProduct.farm_name || updatedProduct.farm || '',
+                image_url: updatedProduct.image_url || '',
+                video_url: updatedProduct.video_url || '',
+                price: updatedProduct.price?.toString() || '',
+                stock: updatedProduct.stock?.toString() || '',
+                prices: updatedProduct.prices || '',
+                is_available: updatedProduct.is_available !== false,
+                features: updatedProduct.features || '',
+                tags: updatedProduct.tags || ''
+              });
+              
+              console.log('✅ Formulaire mis à jour avec les nouvelles données:', {
+                category: updatedProduct.category_name || updatedProduct.category,
+                farm: updatedProduct.farm_name || updatedProduct.farm
+              });
             }
+          } catch (error) {
+            console.error('Erreur rechargement produit édité:', error);
           }
-        }, 500); // Délai de 500ms pour s'assurer que la DB est mise à jour
+        }
+        
+        // Fermer le modal APRÈS la mise à jour
+        setShowModal(false);
       } else {
         // Récupérer le détail de l'erreur
         const errorData = await response.text();
@@ -794,7 +799,7 @@ export default function ProductsManager() {
         {/* Version mobile - Liste verticale */}
         <div className="block lg:hidden space-y-3">
           {products.map((product) => (
-            <div key={product._id} className="bg-gray-900/50 border border-white/20 rounded-xl overflow-hidden shadow-lg backdrop-blur-sm">
+            <div key={`${product._id}-${refreshKey}`} className="bg-gray-900/50 border border-white/20 rounded-xl overflow-hidden shadow-lg backdrop-blur-sm">
               <div className="flex items-center p-3 space-x-3">
                 {/* Image compacte directe */}
                 <div className="relative w-16 h-16 flex-shrink-0 rounded-lg overflow-hidden">
@@ -865,7 +870,7 @@ export default function ProductsManager() {
         {/* Version desktop - Grille */}
         <div className="hidden lg:grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
           {products.map((product) => (
-          <div key={product._id} className="bg-gray-900/50 border border-white/20 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm">
+          <div key={`${product._id}-${refreshKey}`} className="bg-gray-900/50 border border-white/20 rounded-xl overflow-hidden shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-[1.02] backdrop-blur-sm">
             <div className="relative h-32">
               {product.image_url ? (
                 <img
