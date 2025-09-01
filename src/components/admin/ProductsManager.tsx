@@ -427,8 +427,8 @@ export default function ProductsManager() {
           });
         }
         
-        // Recharger en arrière-plan pour synchronisation
-        setTimeout(() => loadData(), 2000);
+        // PAS de rechargement automatique - comme pour les prix !
+        // Les valeurs sont déjà mises à jour dans l'état local
         
         // Fermer le modal APRÈS la mise à jour
         setShowModal(false);
