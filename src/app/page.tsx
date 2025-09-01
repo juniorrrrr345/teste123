@@ -181,10 +181,10 @@ export default function HomePage() {
       setLoading(false);
     }, 3000);
     
-    // Rafraîchir les données toutes les 2 secondes pour synchronisation temps réel
+    // Rafraîchir les données moins souvent pour éviter de perturber l'admin
     const interval = setInterval(() => {
       loadAllData();
-    }, 2000);
+    }, 60000); // 1 minute au lieu de 2 secondes
     
     return () => {
       clearTimeout(loadingTimeout);
