@@ -88,18 +88,25 @@ export default function FarmsManager() {
         document.body.appendChild(successMsg);
         setTimeout(() => successMsg.remove(), 3000);
         
+        // Invalider le cache et revalider la boutique
+        try {
+          await fetch('/api/cache/invalidate', { method: 'POST' });
+          await fetch('/api/revalidate', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: '/' })
+          });
+          console.log('✅ Cache invalidé et boutique revalidée');
+        } catch (e) {
+          console.log('Cache/revalidation skipped:', e);
+        }
+        
         // Notifier les autres onglets du changement
         notifyAdminUpdate('farms', editingFarm ? 'update' : 'create', { id: editingFarm?._id });
         
         setShowModal(false);
         await loadFarms();
-        
-        // Forcer la synchronisation
-        try {
-          await fetch('/api/cache/invalidate', { method: 'POST' });
-        } catch (e) {
-          console.error('Erreur invalidation cache:', e);
-        }
+
       } else {
         const errorText = await response.text();
         console.error('❌ Erreur sauvegarde:', errorText);

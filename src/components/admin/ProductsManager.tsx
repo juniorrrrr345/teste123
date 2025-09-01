@@ -377,10 +377,15 @@ export default function ProductsManager() {
         // Forcer la synchronisation immédiate
         try {
           // Invalider le cache côté client
-          const cacheResponse = await fetch('/api/cache/invalidate', { method: 'POST' });
-          console.log('🔄 Cache invalidé:', cacheResponse.ok);
+          await fetch('/api/cache/invalidate', { method: 'POST' });
+          await fetch('/api/revalidate', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: '/' })
+          });
+          console.log('✅ Cache invalidé et boutique revalidée');
         } catch (error) {
-          console.error('Erreur invalidation cache:', error);
+          console.error('Erreur invalidation/revalidation cache:', error);
         }
         
         // Notifier les autres onglets du changement
@@ -388,15 +393,6 @@ export default function ProductsManager() {
         
         // Recharger les données
         await loadData();
-        
-        // Forcer un refresh de la page boutique si elle est ouverte
-        if (window.opener || window.parent !== window) {
-          try {
-            window.opener?.location.reload();
-          } catch (e) {
-            console.log('Pas de fenêtre parent à rafraîchir');
-          }
-        }
       } else {
         // Récupérer le détail de l'erreur
         const errorData = await response.text();

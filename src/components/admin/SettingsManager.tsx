@@ -94,6 +94,19 @@ export default function SettingsManager() {
         setMessage('✅ Paramètres sauvegardés avec succès ! Les changements sont visibles immédiatement sur la boutique');
         setTimeout(() => setMessage(''), 5000);
         
+        // Invalider le cache et revalider la boutique
+        try {
+          await fetch('/api/cache/invalidate', { method: 'POST' });
+          await fetch('/api/revalidate', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: '/' })
+          });
+          console.log('✅ Cache invalidé et boutique revalidée');
+        } catch (e) {
+          console.log('Cache/revalidation skipped:', e);
+        }
+        
         // Sauvegarder dans localStorage pour synchronisation
         try {
           localStorage.setItem('shopSettings', JSON.stringify(settings));
@@ -101,19 +114,6 @@ export default function SettingsManager() {
         } catch (storageError) {
           console.warn('Erreur localStorage:', storageError);
         }
-        
-        // Recharger les données en arrière-plan (optionnel)
-        setTimeout(async () => {
-          try {
-            const refreshResponse = await fetch('/api/cloudflare/settings');
-            if (refreshResponse.ok) {
-              const refreshedData = await refreshResponse.json();
-              console.log('🔄 Données rechargées:', refreshedData);
-            }
-          } catch (error) {
-            console.warn('Erreur rechargement:', error);
-          }
-        }, 1000);
         
       } else {
         const errorText = await response.text();

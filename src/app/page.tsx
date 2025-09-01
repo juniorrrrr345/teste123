@@ -26,6 +26,7 @@ export default function HomePage() {
   // États pour les données - Initialiser avec des valeurs par défaut
   const [loading, setLoading] = useState(true); // Toujours true au départ
   const [settings, setSettings] = useState<any>(null);
+  const [updateNotification, setUpdateNotification] = useState<string | null>(null);
 
   // Charger les settings immédiatement pour l'image de chargement
   useEffect(() => {
@@ -133,6 +134,10 @@ export default function HomePage() {
   const loadAllData = async () => {
     try {
       console.log('🔄 Rechargement données...');
+      
+      // Afficher notification de mise à jour
+      setUpdateNotification('🔄 Mise à jour en cours...');
+      setTimeout(() => setUpdateNotification(null), 2000);
       
       const [productsRes, categoriesRes, farmsRes] = await Promise.all([
         fetch('/api/cloudflare/products', { cache: 'no-store' }),
@@ -341,6 +346,13 @@ export default function HomePage() {
       
       {/* BottomNav toujours visible - en dehors du content-layer */}
       <BottomNav activeTab={activeTab} onTabChange={handleTabChange} />
+      
+      {/* Notification de mise à jour */}
+      {updateNotification && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-blue-500 text-white px-6 py-3 rounded-lg shadow-lg z-[9999] animate-bounce">
+          {updateNotification}
+        </div>
+      )}
     </div>
   );
 }

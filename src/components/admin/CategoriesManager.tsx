@@ -111,11 +111,17 @@ export default function CategoriesManager() {
         setShowModal(false);
         await loadCategories();
         
-        // Forcer la synchronisation
+        // Forcer la synchronisation et revalidation
         try {
           await fetch('/api/cache/invalidate', { method: 'POST' });
+          await fetch('/api/revalidate', { 
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: '/' })
+          });
+          console.log('✅ Cache invalidé et boutique revalidée');
         } catch (e) {
-          console.error('Erreur invalidation cache:', e);
+          console.error('Erreur invalidation/revalidation cache:', e);
         }
       } else {
         const errorText = await response.text();
