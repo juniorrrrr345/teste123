@@ -127,21 +127,10 @@ export default function ProductsManager() {
   const handleEdit = (product: Product) => {
     console.log('✏️ Édition du produit:', product.name, 'Prix:', product.prices);
     setEditingProduct(product);
-    
-    // Utiliser le produit avec les données les plus récentes de l'état local
-    const currentProduct = products.find(p => p._id === product._id) || product;
-    
     setFormData({
-      ...currentProduct, // Utiliser les données actuelles, pas les anciennes
-      image_url: currentProduct.image_url || '',
-      video_url: currentProduct.video_url || '',
-      prices: { ...currentProduct.prices },
-      promotions: { ...currentProduct.promotions } || {}
-    });
-    
-    console.log('✅ Formulaire initialisé avec données actuelles:', {
-      category: currentProduct.category,
-      farm: currentProduct.farm
+      ...product,
+      prices: { ...product.prices },
+      promotions: { ...product.promotions } || {}
     });
     // Synchroniser les états locaux des prix
     const priceStrings: { [key: string]: string } = {};
@@ -404,50 +393,19 @@ export default function ProductsManager() {
           console.error('Erreur invalidation/revalidation cache:', error);
         }
         
-        // MISE À JOUR IMMÉDIATE - EXACTEMENT comme pour les prix
-        if (editingProduct) {
-          // Mettre à jour le produit dans la liste avec les valeurs du formulaire
-          setProducts(prevProducts => 
-            prevProducts.map(product => 
-              product._id === editingProduct._id 
-                ? { 
-                    ...product,
-                    name: formData.name || product.name,
-                    description: formData.description || product.description,
-                    category: formData.category || product.category, // ← CLEF !
-                    farm: formData.farm || product.farm, // ← CLEF !
-                    image_url: formData.image_url || product.image_url,
-                    video_url: formData.video_url || product.video_url,
-                    price: formData.price || product.price,
-                    stock: formData.stock || product.stock,
-                    is_available: formData.is_available ?? product.is_available
-                  }
-                : product
-            )
-          );
-          
-          // Mettre à jour aussi editingProduct pour le formulaire
-          setEditingProduct(prev => prev ? {
-            ...prev,
-            name: formData.name || prev.name,
-            category: formData.category || prev.category,
-            farm: formData.farm || prev.farm
-          } : null);
-          
-          console.log('✅ Mise à jour immédiate comme pour les prix:', {
-            id: editingProduct._id,
-            name: formData.name,
-            category: formData.category,
-            farm: formData.farm
-          });
+        setShowModal(false);
+        
+        // Forcer la synchronisation immédiate
+        try {
+          // Invalider le cache côté client
+          const cacheResponse = await fetch('/api/cache/invalidate', { method: 'POST' });
+          console.log('🔄 Cache invalidé:', cacheResponse.ok);
+        } catch (error) {
+          console.error('Erreur invalidation cache:', error);
         }
         
-        // AUCUN rechargement - JAMAIS - comme pour les prix !
-        // Notifier seulement pour la synchronisation côté client
-        notifyAdminUpdate('products', editingProduct ? 'update' : 'create', { id: editingProduct?._id });
-        
-        // Fermer le modal APRÈS la mise à jour
-        setShowModal(false);
+        // Recharger les données
+        await loadData();
       } else {
         // Récupérer le détail de l'erreur
         const errorData = await response.text();
