@@ -397,42 +397,13 @@ export default function ProductsManager() {
         // Forcer le re-render en changeant la clé
         setRefreshKey(prev => prev + 1);
         
-        // Si on était en train d'éditer, récupérer le produit mis à jour
-        if (editingProduct) {
-          try {
-            const updatedProductRes = await fetch(`/api/cloudflare/products/${editingProduct._id}?t=${Date.now()}`, { cache: 'no-store' });
-            if (updatedProductRes.ok) {
-              const updatedProduct = await updatedProductRes.json();
-              console.log('🔄 Produit mis à jour récupéré:', updatedProduct);
-              
-              // Mettre à jour editingProduct avec les nouvelles données
-              setEditingProduct(updatedProduct);
-              
-              // Mettre à jour formData avec les bonnes propriétés
-              setFormData({
-                name: updatedProduct.name || '',
-                description: updatedProduct.description || '',
-                category: updatedProduct.category_name || updatedProduct.category || '',
-                farm: updatedProduct.farm_name || updatedProduct.farm || '',
-                image_url: updatedProduct.image_url || '',
-                video_url: updatedProduct.video_url || '',
-                price: updatedProduct.price?.toString() || '',
-                stock: updatedProduct.stock?.toString() || '',
-                prices: updatedProduct.prices || '',
-                is_available: updatedProduct.is_available !== false,
-                features: updatedProduct.features || '',
-                tags: updatedProduct.tags || ''
-              });
-              
-              console.log('✅ Formulaire mis à jour avec les nouvelles données:', {
-                category: updatedProduct.category_name || updatedProduct.category,
-                farm: updatedProduct.farm_name || updatedProduct.farm
-              });
-            }
-          } catch (error) {
-            console.error('Erreur rechargement produit édité:', error);
-          }
-        }
+        // GARDE LES VALEURS DU FORMULAIRE - Ne pas écraser avec l'API
+        // L'utilisateur vient de sélectionner les bonnes valeurs, on les garde !
+        console.log('✅ Valeurs du formulaire conservées après sauvegarde:', {
+          category: formData.category,
+          farm: formData.farm,
+          name: formData.name
+        });
         
         // Fermer le modal APRÈS la mise à jour
         setShowModal(false);
