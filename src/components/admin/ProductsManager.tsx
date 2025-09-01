@@ -416,10 +416,10 @@ export default function ProductsManager() {
           console.error('Erreur invalidation cache:', error);
         }
         
-        // Recharger les données avec délai pour laisser la DB se mettre à jour
-        setTimeout(async () => {
-          await loadData();
-        }, 1000); // 1 seconde de délai
+        // Recharger les données immédiatement comme GD33V2
+        console.log('🔄 DÉCLENCHEMENT loadData() après sauvegarde...');
+        await loadData();
+        console.log('✅ loadData() terminé après sauvegarde');
       } else {
         // Récupérer le détail de l'erreur
         const errorData = await response.text();
