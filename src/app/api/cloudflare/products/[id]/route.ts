@@ -87,14 +87,19 @@ export async function PUT(
     let farm_id = body.farm_id;
     
     // Si on reçoit des noms au lieu d'IDs, les convertir
-    if (body.category && !category_id) {
+    if (body.category) {
+      console.log('🔍 Conversion catégorie:', body.category);
       const catResult = await executeSqlOnD1('SELECT id FROM categories WHERE name = ?', [body.category]);
+      console.log('🔍 Résultat recherche catégorie:', catResult);
       if (catResult.success && catResult.result?.[0]?.results?.[0]) {
         category_id = catResult.result[0].results[0].id;
+        console.log('✅ Catégorie convertie:', body.category, '→ ID', category_id);
+      } else {
+        console.log('❌ Catégorie non trouvée:', body.category);
       }
     }
     
-    if (body.farm && !farm_id) {
+    if (body.farm) {
       const farmResult = await executeSqlOnD1('SELECT id FROM farms WHERE name = ?', [body.farm]);
       if (farmResult.success && farmResult.result?.[0]?.results?.[0]) {
         farm_id = farmResult.result[0].results[0].id;
