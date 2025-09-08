@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import ProductsManager from './ProductsManager';
 import CategoriesManager from './CategoriesManager';
-import FarmsManager from './FarmsManager';
 import SocialLinksManager from './SocialLinksManager';
 import SettingsManager from './SettingsManager';
 import PagesManager from './PagesManager';
@@ -12,7 +11,7 @@ interface AdminDashboardProps {
   onLogout: () => void;
 }
 
-type SectionType = 'products' | 'categories' | 'farms' | 'settings' | 'pages' | 'social';
+type SectionType = 'products' | 'categories' | 'settings' | 'pages' | 'social';
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeSection, setActiveSection] = useState<SectionType>('products');
@@ -21,7 +20,6 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const menuItems = [
     { id: 'products' as SectionType, label: 'Produits', icon: '🛍️' },
     { id: 'categories' as SectionType, label: 'Catégories', icon: '🏷️' },
-    { id: 'farms' as SectionType, label: 'Farms', icon: '🏭' },
     { id: 'settings' as SectionType, label: 'Configuration', icon: '⚙️' },
     { id: 'pages' as SectionType, label: 'Pages', icon: '📄' },
     { id: 'social' as SectionType, label: 'Réseaux sociaux', icon: '🌐' },
@@ -33,8 +31,6 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         return <ProductsManager />;
       case 'categories':
         return <CategoriesManager />;
-      case 'farms':
-        return <FarmsManager />;
       case 'settings':
         return <SettingsManager />;
       case 'pages':
@@ -53,8 +49,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         {/* Sidebar Desktop avec style ÎLE DE FRANCE FULL OPTION */}
         <aside className="w-72 bg-black/90 backdrop-blur-sm border-r border-white/20 min-h-screen fixed left-0 top-0 z-50">
           <div className="p-6 border-b border-white/20">
-            <h1 className="text-2xl font-black text-white tracking-wider">LANATIONDULAIT</h1>
-            <p className="text-gray-400 text-xs mt-1 uppercase tracking-[0.2em] font-medium">Panel Admin - LANATIONDULAIT</p>
+            <h1 className="text-2xl font-black text-white tracking-wider">LA NATION</h1>
+            <p className="text-gray-400 text-xs mt-1 uppercase tracking-[0.2em] font-medium">DU LAIT - Panel Admin</p>
           </div>
           <nav className="p-4">
             <div className="space-y-3">
@@ -101,8 +97,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
           <header className="fixed top-0 left-0 right-0 z-50 bg-black/95 backdrop-blur-sm border-b border-white/20">
             <div className="flex items-center justify-between p-4">
               <div>
-                <h1 className="text-lg font-black text-white tracking-wider">LANATIONDULAIT</h1>
-                <p className="text-gray-400 text-xs uppercase tracking-[0.2em] font-medium">Panel Admin - LANATIONDULAIT</p>
+                <h1 className="text-lg font-black text-white tracking-wider">LA NATION</h1>
+                <p className="text-gray-400 text-xs uppercase tracking-[0.2em] font-medium">DU LAIT - Panel Admin</p>
               </div>
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -178,8 +174,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         <div className="hidden sm:flex lg:hidden h-screen">
           <aside className="w-64 bg-black/90 backdrop-blur-sm border-r border-white/20 min-h-screen overflow-y-auto">
             <div className="p-4 border-b border-white/20">
-              <h1 className="text-lg font-black text-white tracking-wider">LANATIONDULAIT</h1>
-              <p className="text-gray-400 text-xs mt-1 uppercase tracking-[0.2em] font-medium">Panel Admin - LANATIONDULAIT</p>
+              <h1 className="text-lg font-black text-white tracking-wider">LA NATION</h1>
+              <p className="text-gray-400 text-xs mt-1 uppercase tracking-[0.2em] font-medium">DU LAIT - Panel Admin</p>
             </div>
             <nav className="p-3">
               <div className="space-y-2">

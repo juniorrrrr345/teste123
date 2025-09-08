@@ -20,11 +20,11 @@ export async function GET() {
           SELECT 
             p.id, p.name, p.description, p.price, p.prices, 
             p.image_url, p.video_url, p.stock, p.is_available,
-            c.name as category_name, f.name as farm_name,
-            p.category_id, p.farm_id, p.features, p.tags
+            c.name as category_name,
+            p.category_id, p.features, p.tags
           FROM products p
           LEFT JOIN categories c ON p.category_id = c.id
-          LEFT JOIN farms f ON p.farm_id = f.id
+          
           WHERE (p.is_available = 1 OR p.is_available = 'true' OR p.is_available IS NULL)
           ORDER BY p.created_at DESC
         `
@@ -56,9 +56,7 @@ export async function GET() {
           name: product.name,
           description: product.description || '',
           category: product.category_name || 'Sans catégorie',
-          farm: product.farm_name || 'Sans farm',
           category_id: product.category_id,
-          farm_id: product.farm_id,
           image_url: product.image_url || '',
           video_url: product.video_url || '',
           prices: prices,

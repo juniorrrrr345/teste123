@@ -98,7 +98,7 @@ export default function TestAPIPage() {
             <div key={product.id} className="bg-gray-800 p-4 rounded">
               <h3 className="font-bold">{product.name}</h3>
               <p className="text-sm text-gray-400">Catégorie: {product.category}</p>
-              <p className="text-sm text-gray-400">Farm: {product.farm}</p>
+              <p className="text-sm text-gray-400" />
               <div className="mt-2">
                 <p className="text-xs text-green-400">Image: {product.image_url?.substring(0, 60)}...</p>
                 <p className="text-xs text-blue-400">Vidéo: {product.video_url?.substring(0, 60)}...</p>

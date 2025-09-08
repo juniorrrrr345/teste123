@@ -8,7 +8,7 @@ interface CachedData {
   socialLinks?: any[];
   products?: any[];
   categories?: any[];
-  farms?: any[];
+  // farms supprimé
   pages?: {
     info?: { title: string; content: string };
     contact?: { title: string; content: string };
@@ -48,11 +48,10 @@ class ContentCache {
       console.log('🔄 Rafraîchissement cache Cloudflare D1...');
       
       // Charger depuis les routes API Cloudflare avec cache no-store
-      const [settingsRes, productsRes, categoriesRes, farmsRes, socialLinksRes, pagesRes] = await Promise.allSettled([
+      const [settingsRes, productsRes, categoriesRes, socialLinksRes, pagesRes] = await Promise.allSettled([
         fetch('/api/cloudflare/settings', { cache: 'no-store' }).then(r => r.ok ? r.json() : null),
         fetch('/api/products-simple', { cache: 'no-store' }).then(r => r.ok ? r.json() : []),
         fetch('/api/categories-simple', { cache: 'no-store' }).then(r => r.ok ? r.json() : []),
-        fetch('/api/farms-simple', { cache: 'no-store' }).then(r => r.ok ? r.json() : []),
         fetch('/api/cloudflare/social-links', { cache: 'no-store' }).then(r => r.ok ? r.json() : []),
         fetch('/api/cloudflare/pages', { cache: 'no-store' }).then(r => r.ok ? r.json() : [])
       ]);
@@ -61,7 +60,6 @@ class ContentCache {
       const settings = settingsRes.status === 'fulfilled' ? settingsRes.value : this.getDefaultSettings();
       const products = productsRes.status === 'fulfilled' ? productsRes.value : [];
       const categories = categoriesRes.status === 'fulfilled' ? categoriesRes.value : [];
-      const farms = farmsRes.status === 'fulfilled' ? farmsRes.value : [];
       const socialLinks = socialLinksRes.status === 'fulfilled' ? socialLinksRes.value : [];
       const pages = pagesRes.status === 'fulfilled' ? pagesRes.value : [];
 
@@ -73,7 +71,6 @@ class ContentCache {
         settings,
         products,
         categories,
-        farms,
         socialLinks,
         infoPage,
         contactPage,

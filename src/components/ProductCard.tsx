@@ -3,7 +3,6 @@ import MediaDisplay from './MediaDisplay';
 interface Product {
   id: number;
   name: string;
-  farm: string;
   category: string;
   image_url: string;
   video_url?: string;
@@ -66,9 +65,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         <h3 className="text-white font-bold text-responsive-xs sm:text-responsive-sm mb-1 uppercase tracking-wide leading-tight break-words line-clamp-2">
           {product.name}
         </h3>
-        <p className="text-gray-400 text-xxs sm:text-xs font-medium uppercase tracking-widest break-words line-clamp-1">
-          {product.farm}
-        </p>
+        <p className="text-gray-400 text-xxs sm:text-xs font-medium uppercase tracking-widest break-words line-clamp-1"/>
         {/* Description du produit */}
         {product.description && (
           <p className="text-gray-300 text-xxs sm:text-xs mt-2 line-clamp-2 leading-relaxed">
