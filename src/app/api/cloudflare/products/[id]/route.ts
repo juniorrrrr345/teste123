@@ -36,11 +36,9 @@ export async function GET(
     const result = await executeSqlOnD1(`
       SELECT 
         p.*, 
-        c.name as category_name, 
-        f.name as farm_name
+        c.name as category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN farms f ON p.farm_id = f.id
       WHERE p.id = ?
     `, [id]);
     
@@ -57,7 +55,6 @@ export async function GET(
     const enrichedProduct = {
       ...product,
       category: product.category_name || null,
-      farm: product.farm_name || null,
       prices: JSON.parse(product.prices || '{}'),
       features: JSON.parse(product.features || '[]'),
       tags: JSON.parse(product.tags || '[]'),
@@ -82,9 +79,8 @@ export async function PUT(
     const id = parseInt(params.id);
     const body = await request.json();
 
-    // Convertir category et farm en IDs si nécessaire
+    // Convertir category en ID si nécessaire
     let category_id = body.category_id;
-    let farm_id = body.farm_id;
     
     // Si on reçoit des noms au lieu d'IDs, les convertir
     if (body.category) {
@@ -99,16 +95,11 @@ export async function PUT(
       }
     }
     
-    if (body.farm) {
-      const farmResult = await executeSqlOnD1('SELECT id FROM farms WHERE name = ?', [body.farm]);
-      if (farmResult.success && farmResult.result?.[0]?.results?.[0]) {
-        farm_id = farmResult.result[0].results[0].id;
-      }
-    }
+    // Champ "farm" supprimé
 
     const sql = `UPDATE products SET 
       name = ?, description = ?, price = ?, prices = ?, 
-      category_id = ?, farm_id = ?, image_url = ?, video_url = ?, 
+      category_id = ?, image_url = ?, video_url = ?, 
       stock = ?, is_available = ?, features = ?, tags = ?
       WHERE id = ?`;
     
@@ -118,7 +109,6 @@ export async function PUT(
       parseFloat(body.price) || 0,
       JSON.stringify(body.prices || {}),
       category_id || null,
-      farm_id || null,
       body.image_url || '',
       body.video_url || '',
       parseInt(body.stock) || 0,
@@ -134,11 +124,9 @@ export async function PUT(
     const result = await executeSqlOnD1(`
       SELECT 
         p.*, 
-        c.name as category_name, 
-        f.name as farm_name
+        c.name as category_name
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN farms f ON p.farm_id = f.id
       WHERE p.id = ?
     `, [id]);
     
@@ -147,7 +135,6 @@ export async function PUT(
       const enrichedProduct = {
         ...product,
         category: product.category_name || null,
-        farm: product.farm_name || null,
         prices: JSON.parse(product.prices || '{}'),
         features: JSON.parse(product.features || '[]'),
         tags: JSON.parse(product.tags || '[]'),

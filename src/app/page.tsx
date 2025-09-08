@@ -11,7 +11,6 @@ import contentCache from '../lib/contentCache';
 import { useAdminSync } from '../hooks/useAdminSync';
 export default function HomePage() {
   const [selectedCategory, setSelectedCategory] = useState('Toutes les catégories');
-  const [selectedFarm, setSelectedFarm] = useState('Toutes les farms');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [activeTab, setActiveTab] = useState('menu');
   const router = useRouter();
@@ -121,24 +120,17 @@ export default function HomePage() {
     return ['Toutes les catégories'];
   };
   
-  const getInitialFarms = () => {
-    // Toujours retourner les farms par défaut pour forcer le chargement depuis l'API
-    return ['Toutes les farms'];
-  };
-  
   const [products, setProducts] = useState<Product[]>(getInitialProducts());
   const [categories, setCategories] = useState<string[]>(getInitialCategories());
-  const [farms, setFarms] = useState<string[]>(getInitialFarms());
 
   // Fonction de rechargement des données
   const loadAllData = async () => {
     try {
       console.log('🔄 Rechargement données...');
       
-      const [productsRes, categoriesRes, farmsRes] = await Promise.all([
+      const [productsRes, categoriesRes] = await Promise.all([
         fetch('/api/cloudflare/products', { cache: 'no-store' }),
-        fetch('/api/cloudflare/categories', { cache: 'no-store' }),
-        fetch('/api/cloudflare/farms', { cache: 'no-store' })
+        fetch('/api/cloudflare/categories', { cache: 'no-store' })
       ]);
 
       if (productsRes.ok) {
@@ -153,16 +145,10 @@ export default function HomePage() {
         setCategories(['Toutes les catégories', ...categoriesData.map((c: any) => c.name)]);
       }
 
-      if (farmsRes.ok) {
-        const farmsData = await farmsRes.json();
-        console.log('🏭 Farms:', farmsData.length);
-        setFarms(['Toutes les farms', ...farmsData.map((f: any) => f.name)]);
-      }
     } catch (error) {
       console.error('❌ Erreur chargement LANATIONDULAIT:', error);
       setProducts([]);
       setCategories(['Toutes les catégories']);
-      setFarms(['Toutes les farms']);
     }
   };
 
@@ -192,26 +178,14 @@ export default function HomePage() {
     };
   }, []);
 
-  // Écouter les mises à jour du cache
+  // Écouter les mises à jour du cache (produits et catégories uniquement)
   useEffect(() => {
     const handleCacheUpdate = (event: CustomEvent) => {
-      const { products: newProducts, categories: newCategories, farms: newFarms } = event.detail;
-      
-      if (newProducts) {
-        setProducts(newProducts);
-      }
-      
-      if (newCategories) {
-        setCategories(['Toutes les catégories', ...newCategories.map((c: any) => c.name)]);
-      }
-      
-      if (newFarms) {
-        setFarms(['Toutes les farms', ...newFarms.map((f: any) => f.name)]);
-      }
+      const { products: newProducts, categories: newCategories } = event.detail;
+      if (newProducts) setProducts(newProducts);
+      if (newCategories) setCategories(['Toutes les catégories', ...newCategories.map((c: any) => c.name)]);
     };
-    
     window.addEventListener('cacheUpdated', handleCacheUpdate as EventListener);
-    
     return () => {
       window.removeEventListener('cacheUpdated', handleCacheUpdate as EventListener);
     };
@@ -220,8 +194,7 @@ export default function HomePage() {
   // Filtrage des produits
   const filteredProducts = products.filter(product => {
     const categoryMatch = selectedCategory === 'Toutes les catégories' || product.category === selectedCategory;
-    const farmMatch = selectedFarm === 'Toutes les farms' || product.farm === selectedFarm;
-    return categoryMatch && farmMatch;
+    return categoryMatch;
   });
 
   const handleTabChange = (tabId: string) => {
@@ -249,10 +222,11 @@ export default function HomePage() {
             <div className="text-center bg-black/60 backdrop-blur-md rounded-3xl p-8 sm:p-12 max-w-lg mx-auto border border-white/20">
 
               
-              {/* Titre principal sans logo */}
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-12 tracking-wider drop-shadow-[0_0_30px_rgba(255,255,255,0.8)] animate-pulse">
-                LANATION DU LAIT
-              </h1>
+              {/* Titre principal sans logo (deux lignes) */}
+              <div className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-12 tracking-wider drop-shadow-[0_0_30px_rgba(255,255,255,0.8)] animate-pulse leading-tight text-center">
+                <div>LA NATION</div>
+                <div>DU LAIT</div>
+              </div>
               
               {/* Nouvelle barre de chargement style néon */}
               <div className="w-80 max-w-full mx-auto mb-8">
@@ -307,11 +281,8 @@ export default function HomePage() {
               <div className="pt-2">
                 <CategoryFilter
                   categories={categories}
-                  farms={farms}
                   selectedCategory={selectedCategory}
-                  selectedFarm={selectedFarm}
                   onCategoryChange={setSelectedCategory}
-                  onFarmChange={setSelectedFarm}
                 />
                 
                 <main className="pt-3 pb-24 sm:pb-28 px-3 sm:px-4 lg:px-6 xl:px-8 max-w-7xl mx-auto">

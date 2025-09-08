@@ -8,7 +8,6 @@ import { notifyAdminUpdate } from '../../hooks/useAdminSync';
 interface Product {
   id?: number;
   name: string;
-  farm: string;
   category: string;
   image_url: string;
   video_url?: string;
@@ -27,7 +26,6 @@ const defaultPriceKeys = ['3g', '5g', '10g', '25g', '50g', '100g', '200g', '500g
 export default function ProductsManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<string[]>([]);
-  const [farms, setFarms] = useState<string[]>([]);
   const [refreshKey, setRefreshKey] = useState(0);
   const [loading, setLoading] = useState(true);
   const [preventReload, setPreventReload] = useState(false);
@@ -35,7 +33,6 @@ export default function ProductsManager() {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<Partial<Product>>({
     name: '',
-    farm: '',
     category: '',
     image_url: '',
     video_url: '',
@@ -112,18 +109,8 @@ export default function ProductsManager() {
         setCategories([]);
       }
 
-      // Charger les farms avec cache-busting
-      console.log('🏭 Chargement des farms...');
-      const farmsRes = await fetch(`/api/farms-simple?t=${timestamp}`, { cache: 'no-store' });
-      console.log('🏭 Réponse farms:', farmsRes.status);
-      if (farmsRes.ok) {
-        const farmsData = await farmsRes.json();
-        console.log('🏭 Farms chargées:', farmsData.length, farmsData);
-        setFarms(farmsData.map((f: { name: string }) => f.name));
-      } else {
-        console.error('❌ Erreur farms:', farmsRes.status);
-        setFarms([]);
-      }
+      // Chargement farms supprimé
+      // Fermes supprimées de l'UI admin
       
       console.log('✅ Chargement terminé avec succès');
     } catch (error) {
@@ -131,7 +118,7 @@ export default function ProductsManager() {
       // En cas d'erreur, on s'assure que loading devient false
       setProducts([]);
       setCategories([]);
-      setFarms([]);
+      // nothing
     } finally {
       setLoading(false);
       console.log('🏁 Loading mis à false');
@@ -154,10 +141,7 @@ export default function ProductsManager() {
       promotions: { ...product.promotions } || {}
     });
     
-    console.log('✅ FormData initialisé:', {
-      category: product.category,
-      farm: product.farm
-    });
+    console.log('✅ FormData initialisé:', { category: product.category });
     // Synchroniser les états locaux des prix
     const priceStrings: { [key: string]: string } = {};
     const quantityStrings: { [key: string]: string } = {};
@@ -254,7 +238,7 @@ export default function ProductsManager() {
   const handleSave = async () => {
     console.log('🔵 Bouton sauvegarder cliqué');
     
-    if (!formData.name || !formData.farm || !formData.category) {
+    if (!formData.name || !formData.category) {
       alert('Veuillez remplir tous les champs obligatoires');
       return;
     }
@@ -754,7 +738,8 @@ export default function ProductsManager() {
     );
   }
 
-  console.log('🎯 Rendu ProductsManager - Produits:', products.length, 'Catégories:', categories.length, 'Farms:', farms.length);
+  // Log farms supprimé
+  console.log('🎯 Rendu ProductsManager - Produits:', products.length, 'Catégories:', categories.length);
   
   // Debug Barbara Punch dans le rendu
   const barbaraInRender = products.find(p => p.name.includes('Barbara'));
@@ -762,7 +747,7 @@ export default function ProductsManager() {
     console.log('🔍 Barbara Punch dans le rendu:', {
       name: barbaraInRender.name,
       category: barbaraInRender.category,
-      farm: barbaraInRender.farm
+      farm: 'removed'
     });
   }
   
@@ -771,7 +756,7 @@ export default function ProductsManager() {
     console.log('📝 FormData actuel:', {
       name: formData.name,
       category: formData.category,
-      farm: formData.farm
+      farm: 'removed'
     });
     console.log('📋 Catégories disponibles:', categories.slice(0, 5));
   }
@@ -845,9 +830,7 @@ export default function ProductsManager() {
                   <h3 className="font-bold text-white text-sm truncate uppercase tracking-wide">
                     {product.name}
                   </h3>
-                  <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">
-                    {product.farm} • {product.category}
-                  </p>
+                  <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">{product.category}</p>
                   
 
                   
@@ -923,9 +906,7 @@ export default function ProductsManager() {
               <h3 className="font-bold text-white text-sm mb-1 uppercase tracking-wide">
                 {product.name}
               </h3>
-              <p className="text-gray-400 text-xs uppercase tracking-wider mb-2">
-                {product.farm}
-              </p>
+              <p className="text-gray-400 text-xs uppercase tracking-wider mb-2" />
               
               {/* Prix principaux */}
               <div className="mb-3">
@@ -1050,17 +1031,7 @@ export default function ProductsManager() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">Farm</label>
-                  <select
-                    value={formData.farm || ''}
-                    onChange={(e) => updateField('farm', e.target.value)}
-                    className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50"
-                  >
-                    <option value="">Sélectionner une farm</option>
-                    {farms.map((farm) => (
-                      <option key={farm} value={farm}>{farm}</option>
-                    ))}
-                  </select>
+                  {/* Champ Farm supprimé */}
                 </div>
 
                 <div className="space-y-4">
@@ -1323,19 +1294,7 @@ export default function ProductsManager() {
                       </select>
                     </div>
 
-                    <div>
-                      <label className="block text-sm font-medium text-gray-300 mb-2">Farm</label>
-                      <select
-                        value={formData.farm || ''}
-                        onChange={(e) => updateField('farm', e.target.value)}
-                        className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50"
-                      >
-                        <option value="">Sélectionner une farm</option>
-                        {farms.map((farm) => (
-                          <option key={farm} value={farm}>{farm}</option>
-                        ))}
-                      </select>
-                    </div>
+                    {/* Champ Farm supprimé */}
 
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>

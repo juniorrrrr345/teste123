@@ -11,7 +11,7 @@ export default function CachePreloader() {
         const promises = [
           fetch('/api/products', { cache: 'no-store' }),
           fetch('/api/categories', { cache: 'no-store' }),
-          fetch('/api/farms', { cache: 'no-store' }),
+          // farms supprimé
           fetch('/api/settings', { cache: 'no-store' }),
           fetch('/api/social-links', { cache: 'no-store' }),
           fetch('/api/pages/info', { cache: 'no-store' }),

@@ -29,11 +29,10 @@ export async function GET(request: NextRequest) {
       SELECT 
         p.id, p.name, p.description, p.price, p.prices, 
         p.image_url, p.video_url, p.stock, p.is_available,
-        c.name as category, f.name as farm,
-        p.category_id, p.farm_id, p.features, p.tags
+        c.name as category,
+        p.category_id, p.features, p.tags
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
-      LEFT JOIN farms f ON p.farm_id = f.id
       ORDER BY p.created_at DESC
     `);
     
@@ -59,9 +58,7 @@ export async function GET(request: NextRequest) {
           name: product.name,
           description: product.description || '',
           category: product.category || 'Sans catégorie',
-          farm: product.farm || 'Sans farm',
           category_id: product.category_id,
-          farm_id: product.farm_id,
           image_url: product.image_url || '',
           video_url: product.video_url || '',
           prices: prices,
@@ -94,9 +91,8 @@ export async function POST(request: NextRequest) {
     
     const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
     
-    // Convertir category et farm en IDs si nécessaire
+    // Convertir category en ID si nécessaire
     let category_id = body.category_id;
-    let farm_id = body.farm_id;
     
     // Si on reçoit des noms au lieu d'IDs, les convertir
     if (body.category && !category_id) {
@@ -106,17 +102,12 @@ export async function POST(request: NextRequest) {
       }
     }
     
-    if (body.farm && !farm_id) {
-      const farmData = await executeSqlOnD1('SELECT id FROM farms WHERE name = ?', [body.farm]);
-      if (farmData.success && farmData.result?.[0]?.results?.[0]) {
-        farm_id = farmData.result[0].results[0].id;
-      }
-    }
+    // Champ "farm" supprimé de l'UI
     
     const sql = `INSERT INTO products (
-      name, description, price, prices, category_id, farm_id,
+      name, description, price, prices, category_id,
       image_url, video_url, stock, is_available, features, tags
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
     
     const values = [
       body.name,
@@ -124,7 +115,6 @@ export async function POST(request: NextRequest) {
       parseFloat(body.price) || 0,
       JSON.stringify(body.prices || {}),
       category_id || null,
-      farm_id || null,
       body.image_url || '',
       body.video_url || '',
       parseInt(body.stock) || 0,
@@ -143,11 +133,9 @@ export async function POST(request: NextRequest) {
       const result = await executeSqlOnD1(`
         SELECT 
           p.*, 
-          c.name as category, 
-          f.name as farm
+          c.name as category
         FROM products p
         LEFT JOIN categories c ON p.category_id = c.id
-        LEFT JOIN farms f ON p.farm_id = f.id
         WHERE p.id = ?
       `, [newId]);
       

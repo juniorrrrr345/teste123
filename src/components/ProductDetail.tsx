@@ -30,7 +30,6 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
     addItem({
       productId: product.id.toString(),
       productName: product.name,
-      farm: product.farm,
       image: product.image_url,
       weight,
       price,
@@ -125,9 +124,7 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                 {product.name}
               </h2>
               <p className="text-gray-400 font-medium mt-1">{product.category}</p>
-              <p className="text-gray-400 uppercase tracking-widest text-xs sm:text-sm">
-                {product.farm}
-              </p>
+              <p className="text-gray-400 uppercase tracking-widest text-xs sm:text-sm" />
             </div>
             
             {/* Description du produit */}
