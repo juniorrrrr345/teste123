@@ -121,6 +121,20 @@ export default function FarmsManager() {
   const handleDelete = async (farmId: string) => {
     const farmName = farms.find(f => f._id === farmId)?.name || 'cette farm';
     
+    // Vérifier d'abord s'il y a des produits associés
+    try {
+      const response = await fetch(`/api/farms-simple/${farmId}/products-count`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.count > 0) {
+          alert(`❌ Impossible de supprimer "${farmName}" car elle contient ${data.count} produit(s).\n\nVeuillez d'abord supprimer ou déplacer les produits associés.`);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Erreur vérification produits:', error);
+    }
+    
     if (confirm(`Êtes-vous sûr de vouloir supprimer "${farmName}" ?`)) {
       try {
         // Suppression optimiste - retirer immédiatement de l'interface

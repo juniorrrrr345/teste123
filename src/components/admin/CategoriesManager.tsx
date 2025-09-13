@@ -137,6 +137,20 @@ export default function CategoriesManager() {
   const handleDelete = async (categoryId: string) => {
     const categoryName = categories.find(c => c._id === categoryId)?.name || 'cette catégorie';
     
+    // Vérifier d'abord s'il y a des produits associés
+    try {
+      const response = await fetch(`/api/categories-simple/${categoryId}/products-count`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.count > 0) {
+          alert(`❌ Impossible de supprimer "${categoryName}" car elle contient ${data.count} produit(s).\n\nVeuillez d'abord supprimer ou déplacer les produits associés.`);
+          return;
+        }
+      }
+    } catch (error) {
+      console.error('Erreur vérification produits:', error);
+    }
+    
     if (confirm(`Êtes-vous sûr de vouloir supprimer "${categoryName}" ?`)) {
       try {
         // Suppression optimiste - retirer immédiatement de l'interface
