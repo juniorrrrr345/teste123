@@ -44,7 +44,7 @@ export default function CategoryFilter({
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                 </div>
-                <span className="truncate text-sm sm:text-base">{selectedCategory.replace(' 📦', '').trim()}</span>
+                <span className="truncate text-sm sm:text-base">{selectedCategory.replace(/\s*📦\s*/g, '').trim()}</span>
               </div>
             <svg className={`w-5 h-5 transition-all duration-300 flex-shrink-0 ${showCategories ? 'rotate-180 text-blue-400' : 'text-gray-400'}`} fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -75,7 +75,7 @@ export default function CategoryFilter({
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <span className="flex-1 font-medium group-hover:translate-x-1 transition-transform">{category.replace(' 📦', '').trim()}</span>
+                      <span className="flex-1 font-medium group-hover:translate-x-1 transition-transform">{category.replace(/\s*📦\s*/g, '').trim()}</span>
                       {selectedCategory === category && (
                         <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center animate-scaleIn">
                           <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">

@@ -123,10 +123,10 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
               <p className="text-gray-400 font-medium mb-2">
                 {product.category_icon ? (
                   <>
-                    {product.category.replace(' 📦', '').trim()} {product.category_icon}
+                    {product.category.replace(/\s*📦\s*/g, '').trim()} {product.category_icon.replace(/\s*📦\s*/g, '').trim()}
                   </>
                 ) : (
-                  product.category.replace(' 📦', '').trim()
+                  product.category.replace(/\s*📦\s*/g, '').trim()
                 )}
               </p>
               <h2 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-wide">
