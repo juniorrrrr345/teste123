@@ -4,6 +4,7 @@ interface Product {
   id: number;
   name: string;
   category: string;
+  category_icon?: string;
   image_url: string;
   video_url?: string;
   description?: string;
@@ -44,7 +45,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         
         {/* Badge catégorie - responsive */}
         <div className="absolute top-2 left-2 bg-white text-black text-xxs sm:text-xs font-bold px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md shadow-lg max-w-[80%] truncate">
-          {product.category}
+          {product.category_icon ? `${product.category} ${product.category_icon}` : product.category}
         </div>
         
         {/* Indicateur vidéo - responsive */}

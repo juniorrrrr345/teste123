@@ -123,7 +123,14 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
               <h2 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-wide">
                 {product.name}
               </h2>
-              <p className="text-gray-400 font-medium mt-1">{product.category}</p>
+              <p className="text-gray-400 font-medium mt-1">
+                {product.category_icon && (
+                  <>
+                    {product.category} {product.category_icon}
+                  </>
+                )}
+                {!product.category_icon && product.category}
+              </p>
               <p className="text-gray-400 uppercase tracking-widest text-xs sm:text-sm" />
             </div>
             
