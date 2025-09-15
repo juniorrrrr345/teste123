@@ -30,6 +30,7 @@ export async function GET(request: NextRequest) {
         p.id, p.name, p.description, p.price, p.prices, 
         p.image_url, p.video_url, p.stock, p.is_available,
         c.name as category,
+        c.icon as category_icon,
         p.category_id, p.features, p.tags
       FROM products p
       LEFT JOIN categories c ON p.category_id = c.id
@@ -58,6 +59,7 @@ export async function GET(request: NextRequest) {
           name: product.name,
           description: product.description || '',
           category: product.category || 'Sans catégorie',
+          category_icon: product.category_icon || '🏷️',
           category_id: product.category_id,
           image_url: product.image_url || '',
           video_url: product.video_url || '',
