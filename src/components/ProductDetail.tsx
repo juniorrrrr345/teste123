@@ -120,18 +120,18 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
           {/* Infos produit */}
           <div className="p-4 space-y-4">
             <div>
-              <h2 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-wide">
-                {product.name}
-              </h2>
-              <p className="text-gray-400 font-medium mt-1">
-                {product.category_icon && (
+              <p className="text-gray-400 font-medium mb-2">
+                {product.category_icon ? (
                   <>
                     {product.category} {product.category_icon}
                   </>
+                ) : (
+                  product.category
                 )}
-                {!product.category_icon && product.category}
               </p>
-              <p className="text-gray-400 uppercase tracking-widest text-xs sm:text-sm" />
+              <h2 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-wide">
+                {product.name}
+              </h2>
             </div>
             
             {/* Description du produit */}
