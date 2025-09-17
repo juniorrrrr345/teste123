@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import MediaUploader from './MediaUploader';
-
+import { parseMarkdown, renderMarkdownToJSX } from '@/lib/markdownParser';
 import { notifyAdminUpdate } from '../../hooks/useAdminSync';
 // CloudinaryUploader supprimé - utilise Cloudflare R2
 
@@ -1162,12 +1162,23 @@ export default function ProductsManager() {
 
                 <div>
                   <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-                  <textarea
-                    value={formData.description || ''}
-                    onChange={(e) => updateField('description', e.target.value)}
-                    className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50 h-20"
-                    placeholder="Description du produit..."
-                  />
+                  <div className="space-y-3">
+                    <textarea
+                      value={formData.description || ''}
+                      onChange={(e) => updateField('description', e.target.value)}
+                      className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50 h-20"
+                      placeholder="Description du produit... (Support Markdown: **gras**, *italique*, __souligné__, ~~barré~~)"
+                    />
+                    {/* Aperçu Markdown en temps réel */}
+                    {formData.description && (
+                      <div className="bg-gray-700/50 border border-white/10 rounded-lg p-3">
+                        <div className="text-xs text-gray-400 mb-2 font-medium">Aperçu Markdown :</div>
+                        <div className="text-white/90 text-sm leading-relaxed">
+                          {renderMarkdownToJSX(parseMarkdown(formData.description))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <div className="flex items-center">
@@ -1298,12 +1309,23 @@ export default function ProductsManager() {
 
                     <div>
                       <label className="block text-sm font-medium text-gray-300 mb-2">Description</label>
-                      <textarea
-                        value={formData.description || ''}
-                        onChange={(e) => updateField('description', e.target.value)}
-                        className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50 h-20"
-                        placeholder="Description du produit..."
-                      />
+                      <div className="space-y-3">
+                        <textarea
+                          value={formData.description || ''}
+                          onChange={(e) => updateField('description', e.target.value)}
+                          className="w-full bg-gray-800 border border-white/20 text-white rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-white/50 h-20"
+                          placeholder="Description du produit... (Support Markdown: **gras**, *italique*, __souligné__, ~~barré~~)"
+                        />
+                        {/* Aperçu Markdown en temps réel */}
+                        {formData.description && (
+                          <div className="bg-gray-700/50 border border-white/10 rounded-lg p-3">
+                            <div className="text-xs text-gray-400 mb-2 font-medium">Aperçu Markdown :</div>
+                            <div className="text-white/90 text-sm leading-relaxed">
+                              {renderMarkdownToJSX(parseMarkdown(formData.description))}
+                            </div>
+                          </div>
+                        )}
+                      </div>
                     </div>
 
                     <div className="flex items-center">

@@ -1,4 +1,5 @@
 import MediaDisplay from './MediaDisplay';
+import { parseMarkdown, renderMarkdownToJSX } from '@/lib/markdownParser';
 
 interface Product {
   id: number;
@@ -67,11 +68,11 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           {product.name}
         </h3>
         <p className="text-gray-400 text-xxs sm:text-xs font-medium uppercase tracking-widest break-words line-clamp-1"/>
-        {/* Description du produit */}
+        {/* Description du produit avec support Markdown */}
         {product.description && (
-          <p className="text-gray-300 text-xxs sm:text-xs mt-2 line-clamp-2 leading-relaxed">
-            {product.description}
-          </p>
+          <div className="text-gray-300 text-xxs sm:text-xs mt-2 line-clamp-2 leading-relaxed">
+            {renderMarkdownToJSX(parseMarkdown(product.description))}
+          </div>
         )}
       </div>
     </div>

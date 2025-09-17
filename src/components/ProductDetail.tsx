@@ -5,6 +5,7 @@ import { useCartStore } from '@/lib/cartStore';
 import { ShoppingCart } from 'lucide-react';
 import toast from 'react-hot-toast';
 import MediaDisplay from './MediaDisplay';
+import { parseMarkdown, renderMarkdownToJSX } from '@/lib/markdownParser';
 
 interface ProductDetailProps {
   product: Product | null;
@@ -134,12 +135,12 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
               </h2>
             </div>
             
-            {/* Description du produit */}
+            {/* Description du produit avec support Markdown */}
             {product.description && (
               <div className="p-3 sm:p-4 bg-gray-800/50 rounded-lg border border-white/10">
-                <p className="text-white/90 text-sm leading-relaxed whitespace-pre-wrap">
-                  {product.description}
-                </p>
+                <div className="text-white/90 text-sm leading-relaxed whitespace-pre-wrap">
+                  {renderMarkdownToJSX(parseMarkdown(product.description))}
+                </div>
               </div>
             )}
 
