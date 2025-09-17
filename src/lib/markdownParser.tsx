@@ -1,3 +1,5 @@
+import React from 'react';
+
 /**
  * Parser Markdown simple pour les descriptions de produits
  * Supporte : **gras**, *italique*, __souligné__, ~~barré~~
