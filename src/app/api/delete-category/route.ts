@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { d1Simple } from '@/lib/d1-simple';
+import { d1Simple, executeD1Query } from '@/lib/d1-simple';
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,7 +33,7 @@ export async function POST(request: NextRequest) {
         
         for (const product of productsInCategory) {
           // Mettre à jour le produit avec la nouvelle catégorie
-          await d1Simple.executeD1Query(
+          await executeD1Query(
             'UPDATE products SET category_id = (SELECT id FROM categories WHERE name = ?) WHERE id = ?',
             [moveToCategory, product.id]
           );
@@ -44,7 +44,7 @@ export async function POST(request: NextRequest) {
         console.log(`🗑️ Suppression de ${productsInCategory.length} produits de la catégorie "${categoryName}"`);
         
         for (const product of productsInCategory) {
-          await d1Simple.executeD1Query('DELETE FROM products WHERE id = ?', [product.id]);
+          await executeD1Query('DELETE FROM products WHERE id = ?', [product.id]);
           deletedProducts++;
           console.log(`✅ Produit supprimé: ${product.name}`);
         }
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 6. Supprimer la catégorie
-    await d1Simple.executeD1Query('DELETE FROM categories WHERE id = ?', [categoryToDelete.id]);
+    await executeD1Query('DELETE FROM categories WHERE id = ?', [categoryToDelete.id]);
     console.log(`✅ Catégorie supprimée: ${categoryName}`);
     
     console.log(`✅ Catégorie "${categoryName}" supprimée avec succès`);
