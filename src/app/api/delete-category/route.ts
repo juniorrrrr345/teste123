@@ -13,14 +13,9 @@ export async function POST(request: NextRequest) {
 
     console.log(`🗑️ Suppression de la catégorie: ${categoryName}`);
     
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
-    
-    // 1. Récupérer tous les produits via l'API Cloudflare
-    const productsResponse = await fetch(`${baseUrl}/api/cloudflare/products`);
-    if (!productsResponse.ok) {
-      throw new Error('Erreur lors de la récupération des produits');
-    }
-    const allProducts = await productsResponse.json();
+    // 1. Récupérer tous les produits directement via l'API Cloudflare interne
+    const { getProducts } = await import('@/lib/cloudflare-d1');
+    const allProducts = await getProducts();
     
     // 2. Filtrer les produits de cette catégorie
     const productsInCategory = allProducts.filter((product: any) => 
@@ -36,6 +31,7 @@ export async function POST(request: NextRequest) {
         // Déplacer les produits vers une autre catégorie
         console.log(`🔄 Déplacement des produits vers: ${moveToCategory}`);
         
+        const { updateProduct } = await import('@/lib/cloudflare-d1');
         for (const product of productsInCategory) {
           const updatedProduct = {
             ...product,
@@ -43,45 +39,25 @@ export async function POST(request: NextRequest) {
             category_icon: '📦' // Icône par défaut
           };
           
-          const updateResponse = await fetch(`${baseUrl}/api/cloudflare/products/${product._id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedProduct),
-          });
-          
-          if (updateResponse.ok) {
-            console.log(`✅ Produit déplacé: ${product.name}`);
-          } else {
-            console.error(`❌ Erreur déplacement ${product.name}:`, await updateResponse.text());
-          }
+          await updateProduct(product._id, updatedProduct);
+          console.log(`✅ Produit déplacé: ${product.name}`);
         }
       } else {
         // Supprimer tous les produits de cette catégorie
         console.log(`🗑️ Suppression de ${productsInCategory.length} produits de la catégorie "${categoryName}"`);
         
+        const { deleteProduct } = await import('@/lib/cloudflare-d1');
         for (const product of productsInCategory) {
-          const deleteResponse = await fetch(`${baseUrl}/api/cloudflare/products/${product._id}`, {
-            method: 'DELETE',
-          });
-          
-          if (deleteResponse.ok) {
-            deletedProducts++;
-            console.log(`✅ Produit supprimé: ${product.name}`);
-          } else {
-            console.error(`❌ Erreur suppression ${product.name}:`, await deleteResponse.text());
-          }
+          await deleteProduct(product._id);
+          deletedProducts++;
+          console.log(`✅ Produit supprimé: ${product.name}`);
         }
       }
     }
     
-    // 4. Récupérer toutes les catégories via l'API Cloudflare
-    const categoriesResponse = await fetch(`${baseUrl}/api/cloudflare/categories`);
-    if (!categoriesResponse.ok) {
-      throw new Error('Erreur lors de la récupération des catégories');
-    }
-    const categories = await categoriesResponse.json();
+    // 4. Récupérer toutes les catégories
+    const { getCategories } = await import('@/lib/cloudflare-d1');
+    const categories = await getCategories();
     
     // 5. Trouver la catégorie à supprimer
     const categoryToDelete = categories.find((cat: any) => cat.name === categoryName);
@@ -93,22 +69,10 @@ export async function POST(request: NextRequest) {
       });
     }
     
-    // 6. Supprimer la catégorie via l'API Cloudflare
-    const deleteResponse = await fetch(`${baseUrl}/api/cloudflare/categories/${categoryToDelete.id}`, {
-      method: 'DELETE',
-    });
-    
-    if (!deleteResponse.ok) {
-      throw new Error(`Erreur lors de la suppression de la catégorie: ${await deleteResponse.text()}`);
-    }
-    
-    // 7. Invalider le cache
-    try {
-      await fetch(`${baseUrl}/api/cache/invalidate`, { method: 'POST' });
-      console.log('✅ Cache invalidé');
-    } catch (error) {
-      console.error('⚠️ Erreur invalidation cache:', error);
-    }
+    // 6. Supprimer la catégorie
+    const { deleteCategory } = await import('@/lib/cloudflare-d1');
+    await deleteCategory(categoryToDelete.id);
+    console.log(`✅ Catégorie supprimée: ${categoryName}`);
     
     console.log(`✅ Catégorie "${categoryName}" supprimée avec succès`);
     
