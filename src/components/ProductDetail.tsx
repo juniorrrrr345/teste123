@@ -122,13 +122,15 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
           <div className="p-4 space-y-4">
             <div>
               <p className="text-gray-400 font-medium mb-2">
-                {product.category_icon && product.category_icon.trim() ? (
-                  <>
-                    {product.category.replace(/\s*📦\s*/g, '').trim()} {product.category_icon.replace(/\s*📦\s*/g, '').trim()}
-                  </>
-                ) : (
-                  product.category.replace(/\s*📦\s*/g, '').trim()
-                )}
+                {(() => {
+                  const cleanCategory = product.category.replace(/\s*📦\s*/g, '').trim();
+                  const cleanIcon = product.category_icon?.replace(/🏷️/g, '').trim();
+                  
+                  if (cleanIcon && cleanIcon !== '') {
+                    return `${cleanCategory} ${cleanIcon}`;
+                  }
+                  return cleanCategory;
+                })()}
               </p>
               <h2 className="text-xl sm:text-2xl font-bold text-white uppercase tracking-wide">
                 {product.name}
