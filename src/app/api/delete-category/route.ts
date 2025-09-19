@@ -29,29 +29,47 @@ export async function POST(request: NextRequest) {
     
     console.log(`📦 ${productsInCategory.length} produits trouvés dans la catégorie "${categoryName}"`);
     
-    // 3. Si on doit déplacer les produits vers une autre catégorie
-    if (moveToCategory && productsInCategory.length > 0) {
-      console.log(`🔄 Déplacement des produits vers: ${moveToCategory}`);
-      
-      for (const product of productsInCategory) {
-        const updatedProduct = {
-          ...product,
-          category: moveToCategory,
-          category_icon: '📦' // Icône par défaut
-        };
+    // 3. Gérer les produits de cette catégorie
+    if (productsInCategory.length > 0) {
+      if (moveToCategory) {
+        // Déplacer les produits vers une autre catégorie
+        console.log(`🔄 Déplacement des produits vers: ${moveToCategory}`);
         
-        const updateResponse = await fetch(`${baseUrl}/api/cloudflare/products/${product._id}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(updatedProduct),
-        });
+        for (const product of productsInCategory) {
+          const updatedProduct = {
+            ...product,
+            category: moveToCategory,
+            category_icon: '📦' // Icône par défaut
+          };
+          
+          const updateResponse = await fetch(`${baseUrl}/api/cloudflare/products/${product._id}`, {
+            method: 'PUT',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(updatedProduct),
+          });
+          
+          if (updateResponse.ok) {
+            console.log(`✅ Produit déplacé: ${product.name}`);
+          } else {
+            console.error(`❌ Erreur déplacement ${product.name}:`, await updateResponse.text());
+          }
+        }
+      } else {
+        // Supprimer tous les produits de cette catégorie
+        console.log(`🗑️ Suppression de ${productsInCategory.length} produits de la catégorie "${categoryName}"`);
         
-        if (updateResponse.ok) {
-          console.log(`✅ Produit déplacé: ${product.name}`);
-        } else {
-          console.error(`❌ Erreur déplacement ${product.name}:`, await updateResponse.text());
+        for (const product of productsInCategory) {
+          const deleteResponse = await fetch(`${baseUrl}/api/cloudflare/products/${product._id}`, {
+            method: 'DELETE',
+          });
+          
+          if (deleteResponse.ok) {
+            console.log(`✅ Produit supprimé: ${product.name}`);
+          } else {
+            console.error(`❌ Erreur suppression ${product.name}:`, await deleteResponse.text());
+          }
         }
       }
     }

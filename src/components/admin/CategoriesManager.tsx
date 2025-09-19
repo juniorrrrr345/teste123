@@ -151,28 +151,38 @@ export default function CategoriesManager() {
       console.error('Erreur vérification produits:', error);
     }
     
-    if (confirm(`Êtes-vous sûr de vouloir supprimer "${categoryName}" ?`)) {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer "${categoryName}" ?\n\n⚠️ ATTENTION: Tous les produits de cette catégorie seront également supprimés !`)) {
       try {
         // Suppression optimiste - retirer immédiatement de l'interface
         const originalCategories = [...categories];
         setCategories(prev => prev.filter(cat => cat._id !== categoryId));
 
-        console.log('🗑️ Suppression catégorie:', categoryId);
+        console.log('🗑️ Suppression catégorie avec produits:', categoryId);
         
-        const response = await fetch(`/api/cloudflare/categories/${categoryId}`, {
-          method: 'DELETE',
+        // Utiliser la nouvelle API qui gère automatiquement les produits
+        const response = await fetch('/api/delete-category', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            categoryName: categoryName
+          }),
         });
 
         console.log('📡 Réponse suppression:', response.status);
+        const result = await response.json();
 
-        if (response.ok) {
-          console.log('✅ Catégorie supprimée avec succès');
+        if (response.ok && result.success) {
+          console.log('✅ Catégorie et produits supprimés avec succès');
           
           // Notifier les autres onglets de la suppression
           notifyAdminUpdate('categories', 'delete', { id: categoryId });
+          notifyAdminUpdate('products', 'delete', { category: categoryName });
           
           // Vider le localStorage pour forcer le rechargement
           localStorage.removeItem('categories');
+          localStorage.removeItem('products');
           localStorage.removeItem('adminData');
           
           // Recharger les données depuis l'API après suppression
@@ -180,13 +190,16 @@ export default function CategoriesManager() {
             loadCategories();
           }, 500);
           
-          // Afficher message de succès
+          // Afficher message de succès avec détails
           const successMsg = document.createElement('div');
           successMsg.className = 'fixed top-4 right-4 bg-green-600 text-white px-6 py-3 rounded-lg shadow-lg z-[9999]';
-          successMsg.textContent = `✅ "${categoryName}" supprimée avec succès!`;
+          successMsg.innerHTML = `
+            <div class="font-bold">✅ "${categoryName}" supprimée!</div>
+            <div class="text-sm">${result.productsMoved || 0} produits supprimés</div>
+          `;
           document.body.appendChild(successMsg);
           
-          setTimeout(() => successMsg.remove(), 3000);
+          setTimeout(() => successMsg.remove(), 4000);
         } else {
           // En cas d'erreur, restaurer l'état original
           console.error('❌ Erreur suppression, restauration...');
@@ -194,7 +207,7 @@ export default function CategoriesManager() {
           
           const errorMsg = document.createElement('div');
           errorMsg.className = 'fixed top-4 right-4 bg-red-600 text-white px-6 py-3 rounded-lg shadow-lg z-[9999]';
-          errorMsg.textContent = `❌ Erreur: Impossible de supprimer "${categoryName}"`;
+          errorMsg.textContent = `❌ Erreur: ${result.error || 'Impossible de supprimer la catégorie'}`;
           document.body.appendChild(errorMsg);
           
           setTimeout(() => errorMsg.remove(), 5000);
