@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { createClient } from '@libsql/client';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,107 +14,74 @@ export async function POST(request: NextRequest) {
 
     console.log(`🗑️ Suppression de la catégorie: ${categoryName}`);
     
-    const baseUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : 'http://localhost:3000';
+    // Connexion directe à la base de données
+    const client = createClient({
+      url: process.env.DATABASE_URL!,
+      authToken: process.env.DATABASE_AUTH_TOKEN!,
+    });
     
-    // 1. Récupérer tous les produits
-    const productsResponse = await fetch(`${baseUrl}/api/cloudflare/products`);
-    if (!productsResponse.ok) {
-      throw new Error('Erreur lors de la récupération des produits');
-    }
-    const products = await productsResponse.json();
+    // 1. Récupérer tous les produits directement de la DB
+    const productsResult = await client.execute('SELECT * FROM products WHERE category = ?', [categoryName]);
+    const products = productsResult.rows.map(row => ({
+      _id: row.id,
+      name: row.name,
+      category: row.category,
+      category_icon: row.category_icon
+    }));
     
-    // 2. Trouver les produits de cette catégorie
-    const productsInCategory = products.filter((product: any) => 
-      product.category === categoryName
-    );
+    console.log(`📦 ${products.length} produits trouvés dans la catégorie "${categoryName}"`);
     
-    console.log(`📦 ${productsInCategory.length} produits trouvés dans la catégorie "${categoryName}"`);
-    
-    // 3. Gérer les produits de cette catégorie
-    if (productsInCategory.length > 0) {
+    // 2. Gérer les produits de cette catégorie
+    let deletedProducts = 0;
+    if (products.length > 0) {
       if (moveToCategory) {
         // Déplacer les produits vers une autre catégorie
         console.log(`🔄 Déplacement des produits vers: ${moveToCategory}`);
         
-        for (const product of productsInCategory) {
-          const updatedProduct = {
-            ...product,
-            category: moveToCategory,
-            category_icon: '📦' // Icône par défaut
-          };
-          
-          const updateResponse = await fetch(`${baseUrl}/api/cloudflare/products/${product._id}`, {
-            method: 'PUT',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(updatedProduct),
-          });
-          
-          if (updateResponse.ok) {
-            console.log(`✅ Produit déplacé: ${product.name}`);
-          } else {
-            console.error(`❌ Erreur déplacement ${product.name}:`, await updateResponse.text());
-          }
+        for (const product of products) {
+          await client.execute(
+            'UPDATE products SET category = ?, category_icon = ? WHERE id = ?',
+            [moveToCategory, '📦', product._id]
+          );
+          console.log(`✅ Produit déplacé: ${product.name}`);
         }
       } else {
         // Supprimer tous les produits de cette catégorie
-        console.log(`🗑️ Suppression de ${productsInCategory.length} produits de la catégorie "${categoryName}"`);
+        console.log(`🗑️ Suppression de ${products.length} produits de la catégorie "${categoryName}"`);
         
-        for (const product of productsInCategory) {
-          const deleteResponse = await fetch(`${baseUrl}/api/cloudflare/products/${product._id}`, {
-            method: 'DELETE',
-          });
-          
-          if (deleteResponse.ok) {
-            console.log(`✅ Produit supprimé: ${product.name}`);
-          } else {
-            console.error(`❌ Erreur suppression ${product.name}:`, await deleteResponse.text());
-          }
+        for (const product of products) {
+          await client.execute('DELETE FROM products WHERE id = ?', [product._id]);
+          deletedProducts++;
+          console.log(`✅ Produit supprimé: ${product.name}`);
         }
       }
     }
     
-    // 4. Récupérer toutes les catégories
-    const categoriesResponse = await fetch(`${baseUrl}/api/cloudflare/categories`);
-    if (!categoriesResponse.ok) {
-      throw new Error('Erreur lors de la récupération des catégories');
-    }
-    const categories = await categoriesResponse.json();
+    // 3. Récupérer la catégorie à supprimer
+    const categoryResult = await client.execute('SELECT * FROM categories WHERE name = ?', [categoryName]);
     
-    // 5. Trouver la catégorie à supprimer
-    const categoryToDelete = categories.find((cat: any) => cat.name === categoryName);
-    
-    if (!categoryToDelete) {
+    if (categoryResult.rows.length === 0) {
       return NextResponse.json({
         success: false,
         error: `Catégorie "${categoryName}" non trouvée`
       });
     }
     
-    // 6. Supprimer la catégorie
-    const deleteResponse = await fetch(`${baseUrl}/api/cloudflare/categories/${categoryToDelete.id}`, {
-      method: 'DELETE',
-    });
+    const categoryToDelete = categoryResult.rows[0];
     
-    if (!deleteResponse.ok) {
-      throw new Error(`Erreur lors de la suppression de la catégorie: ${await deleteResponse.text()}`);
-    }
+    // 4. Supprimer la catégorie
+    await client.execute('DELETE FROM categories WHERE id = ?', [categoryToDelete.id]);
+    console.log(`✅ Catégorie supprimée: ${categoryName}`);
     
-    // 7. Invalider le cache
-    try {
-      await fetch(`${baseUrl}/api/cache/invalidate`, { method: 'POST' });
-      console.log('✅ Cache invalidé');
-    } catch (error) {
-      console.error('⚠️ Erreur invalidation cache:', error);
-    }
+    // 5. Fermer la connexion
+    await client.close();
     
     console.log(`✅ Catégorie "${categoryName}" supprimée avec succès`);
     
     return NextResponse.json({
       success: true,
       message: `Catégorie "${categoryName}" supprimée avec succès`,
-      productsMoved: productsInCategory.length,
+      deletedProducts: deletedProducts,
       moveToCategory: moveToCategory || null
     });
     
