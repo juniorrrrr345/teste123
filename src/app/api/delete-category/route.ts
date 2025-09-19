@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { d1Simple } from '@/lib/d1-simple';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,9 +14,8 @@ export async function POST(request: NextRequest) {
 
     console.log(`🗑️ Suppression de la catégorie: ${categoryName}`);
     
-    // 1. Récupérer tous les produits directement via l'API Cloudflare interne
-    const { getProducts } = await import('@/lib/cloudflare-d1');
-    const allProducts = await getProducts();
+    // 1. Récupérer tous les produits
+    const allProducts = await d1Simple.getProducts();
     
     // 2. Filtrer les produits de cette catégorie
     const productsInCategory = allProducts.filter((product: any) => 
@@ -31,24 +31,20 @@ export async function POST(request: NextRequest) {
         // Déplacer les produits vers une autre catégorie
         console.log(`🔄 Déplacement des produits vers: ${moveToCategory}`);
         
-        const { updateProduct } = await import('@/lib/cloudflare-d1');
         for (const product of productsInCategory) {
-          const updatedProduct = {
-            ...product,
-            category: moveToCategory,
-            category_icon: '📦' // Icône par défaut
-          };
-          
-          await updateProduct(product._id, updatedProduct);
+          // Mettre à jour le produit avec la nouvelle catégorie
+          await d1Simple.executeD1Query(
+            'UPDATE products SET category_id = (SELECT id FROM categories WHERE name = ?) WHERE id = ?',
+            [moveToCategory, product.id]
+          );
           console.log(`✅ Produit déplacé: ${product.name}`);
         }
       } else {
         // Supprimer tous les produits de cette catégorie
         console.log(`🗑️ Suppression de ${productsInCategory.length} produits de la catégorie "${categoryName}"`);
         
-        const { deleteProduct } = await import('@/lib/cloudflare-d1');
         for (const product of productsInCategory) {
-          await deleteProduct(product._id);
+          await d1Simple.executeD1Query('DELETE FROM products WHERE id = ?', [product.id]);
           deletedProducts++;
           console.log(`✅ Produit supprimé: ${product.name}`);
         }
@@ -56,8 +52,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 4. Récupérer toutes les catégories
-    const { getCategories } = await import('@/lib/cloudflare-d1');
-    const categories = await getCategories();
+    const categories = await d1Simple.getCategories();
     
     // 5. Trouver la catégorie à supprimer
     const categoryToDelete = categories.find((cat: any) => cat.name === categoryName);
@@ -70,8 +65,7 @@ export async function POST(request: NextRequest) {
     }
     
     // 6. Supprimer la catégorie
-    const { deleteCategory } = await import('@/lib/cloudflare-d1');
-    await deleteCategory(categoryToDelete.id);
+    await d1Simple.executeD1Query('DELETE FROM categories WHERE id = ?', [categoryToDelete.id]);
     console.log(`✅ Catégorie supprimée: ${categoryName}`);
     
     console.log(`✅ Catégorie "${categoryName}" supprimée avec succès`);
@@ -83,7 +77,7 @@ export async function POST(request: NextRequest) {
       moveToCategory: moveToCategory || null
     });
     
-  } catch (error) {
+  } catch (error: any) {
     console.error('❌ Erreur lors de la suppression de catégorie:', error);
     return NextResponse.json(
       { success: false, error: error.message },
