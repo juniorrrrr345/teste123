@@ -120,7 +120,7 @@ export const useCartStore = create<CartStore>()(
       
       getItemsNeedingSchedule: () => {
         const items = get().items;
-        return items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup') && !item.schedule);
+        return items.filter(item => item.service && !item.schedule);
       },
       
       isCartReadyForOrder: () => {
@@ -128,8 +128,8 @@ export const useCartStore = create<CartStore>()(
         return items.length > 0 && items.every(item => {
           // Chaque item doit avoir un service
           if (!item.service) return false;
-          // Si le service nécessite un horaire (livraison ou meetup), il doit être défini
-          if ((item.service === 'livraison' || item.service === 'meetup') && !item.schedule) return false;
+          // Tous les services nécessitent maintenant une option/horaire
+          if (!item.schedule) return false;
           return true;
         });
       },

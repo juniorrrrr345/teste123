@@ -266,7 +266,7 @@ export default function Cart() {
                 <h2 className="text-xl font-bold text-white">
                   {currentStep === 'cart' && 'Mon Panier'}
                   {currentStep === 'service' && 'Mode de livraison'}
-                  {currentStep === 'schedule' && 'Horaires'}
+                  {currentStep === 'schedule' && 'Options & Horaires'}
                   {currentStep === 'review' && 'Récapitulatif'}
                 </h2>
                 <span className="rounded-full bg-green-500 px-2 py-1 text-sm font-medium text-black">
@@ -296,7 +296,7 @@ export default function Cart() {
                 <ArrowRight className="w-3 h-3 text-gray-600" />
                 <div className={`flex items-center gap-1 ${currentStep === 'schedule' ? 'text-green-400' : 'text-gray-400'}`}>
                   <span className={`w-2 h-2 rounded-full ${currentStep === 'schedule' || (currentStep === 'review' && getItemsNeedingSchedule().length === 0) ? 'bg-green-400' : 'bg-gray-600'}`}></span>
-                  Horaire
+                  Options
                 </div>
                 <ArrowRight className="w-3 h-3 text-gray-600" />
                 <div className={`flex items-center gap-1 ${currentStep === 'review' ? 'text-green-400' : 'text-gray-400'}`}>
@@ -411,7 +411,7 @@ export default function Cart() {
                 {currentStep === 'schedule' && (
                   <div className="space-y-6">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
-                      Choisissez vos options de livraison/envoi
+                      Choisissez ou modifiez vos options de livraison/envoi
                     </div>
                     
                     {items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi')).map((item) => (
@@ -598,7 +598,7 @@ export default function Cart() {
                         if (itemsNeedingSchedule.length === 0) {
                           setCurrentStep('review');
                         } else {
-                          toast.error('Veuillez choisir un horaire pour tous les articles nécessaires');
+                          toast.error('Veuillez choisir des options pour tous les articles nécessaires');
                         }
                       }}
                       disabled={items.filter(item => 
@@ -606,7 +606,7 @@ export default function Cart() {
                       ).length > 0}
                       className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Continuer
+                      Finaliser
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
@@ -705,25 +705,19 @@ export default function Cart() {
                     <div className="flex gap-3">
                       <button
                         onClick={() => {
-                          // Navigation intelligente vers l'étape précédente
-                          if (getItemsNeedingSchedule().length > 0) {
-                            setCurrentStep('schedule');
-                          } else if (getItemsNeedingService().length > 0) {
-                            setCurrentStep('service');
-                          } else {
-                            setCurrentStep('cart');
-                          }
+                          // Retour logique : review → schedule → service → cart
+                          setCurrentStep('schedule');
                         }}
                         className="flex-1 rounded-lg bg-gray-700 py-3 font-medium text-white hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
                       >
                         <ArrowLeft className="w-4 h-4" />
-                        Retour
+                        Modifier options
                       </button>
                       <button
-                        onClick={() => setCurrentStep('cart')}
-                        className="flex-1 rounded-lg bg-gray-800 py-3 font-medium text-white hover:bg-gray-700 transition-colors"
+                        onClick={() => setCurrentStep('service')}
+                        className="flex-1 rounded-lg bg-gray-600 py-3 font-medium text-white hover:bg-gray-500 transition-colors"
                       >
-                        Voir le panier
+                        Modifier services
                       </button>
                     </div>
                   </div>
