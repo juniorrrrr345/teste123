@@ -35,26 +35,17 @@ export default function Cart() {
   });
   const [currentStep, setCurrentStep] = useState<'cart' | 'service' | 'schedule' | 'review'>('cart');
   
-  // Auto-navigation entre les étapes
+  // Auto-navigation entre les étapes (désactivée pour permettre la modification)
   useEffect(() => {
     if (items.length === 0) {
       setCurrentStep('cart');
       return;
     }
     
-    const itemsNeedingService = getItemsNeedingService();
-    const itemsNeedingSchedule = getItemsNeedingSchedule();
+    // On supprime la navigation automatique pour permettre la modification des services
+    // L'utilisateur peut maintenant naviguer librement entre les étapes pour modifier ses choix
     
-    if (itemsNeedingService.length > 0) {
-      if (currentStep === 'schedule' || currentStep === 'review') {
-        setCurrentStep('service');
-      }
-    } else if (itemsNeedingSchedule.length > 0) {
-      if (currentStep === 'review') {
-        setCurrentStep('schedule');
-      }
-    }
-  }, [items, getItemsNeedingService, getItemsNeedingSchedule, currentStep]);
+  }, [items]);
   
   useEffect(() => {
     // Charger les liens de commande depuis les settings Cloudflare
@@ -384,16 +375,23 @@ export default function Cart() {
                 {currentStep === 'service' && (
                   <div className="space-y-6">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
-                      Choisissez le mode de réception pour vos articles
+                      Choisissez ou modifiez le mode de réception pour vos articles
                     </div>
                     
-                    {getItemsNeedingService().map((item) => (
+                    {items.map((item) => (
                       <div key={`service-${item.productId}-${item.weight}`} className="space-y-3">
                         <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                           <img src={item.image} alt={item.productName} className="w-12 h-12 object-cover rounded" />
                           <div className="flex-1">
                             <p className="font-medium text-white">{item.productName}</p>
                             <p className="text-sm text-gray-400">{item.weight}</p>
+                            {item.service && (
+                              <p className="text-xs text-green-400 mt-1">
+                                Actuellement: {item.service === 'livraison' ? '🚚 Livraison' : 
+                                               item.service === 'envoi' ? '📦 Envoi' : 
+                                               '📍 Meetup'}
+                              </p>
+                            )}
                           </div>
                         </div>
                         
@@ -410,10 +408,10 @@ export default function Cart() {
                 {currentStep === 'schedule' && (
                   <div className="space-y-6">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
-                      Choisissez vos créneaux horaires
+                      Choisissez ou modifiez vos créneaux horaires
                     </div>
                     
-                    {getItemsNeedingSchedule().map((item) => (
+                    {items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup')).map((item) => (
                       <div key={`schedule-${item.productId}-${item.weight}`} className="space-y-3">
                         <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                           <img src={item.image} alt={item.productName} className="w-12 h-12 object-cover rounded" />
@@ -423,6 +421,11 @@ export default function Cart() {
                             <p className="text-sm text-green-400">
                               {item.service === 'livraison' ? '🚚 Livraison' : '📍 Point de rencontre'}
                             </p>
+                            {item.schedule && (
+                              <p className="text-xs text-blue-400 mt-1">
+                                Actuellement: {item.schedule}
+                              </p>
+                            )}
                           </div>
                         </div>
                         
@@ -434,6 +437,13 @@ export default function Cart() {
                         />
                       </div>
                     ))}
+                    
+                    {items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup')).length === 0 && (
+                      <div className="text-center text-gray-400 py-8">
+                        <p>Aucun article ne nécessite d'horaire.</p>
+                        <p className="text-sm mt-2">Les articles en "Envoi postal" n'ont pas besoin d'horaire.</p>
+                      </div>
+                    )}
                   </div>
                 )}
 
@@ -535,8 +545,13 @@ export default function Cart() {
                     </button>
                     <button
                       onClick={() => {
-                        if (getItemsNeedingService().length === 0) {
-                          if (getItemsNeedingSchedule().length > 0) {
+                        const itemsNeedingService = getItemsNeedingService();
+                        if (itemsNeedingService.length === 0) {
+                          // Tous les articles ont un service, vérifier si on a besoin d'horaires
+                          const itemsNeedingSchedule = items.filter(item => 
+                            item.service && (item.service === 'livraison' || item.service === 'meetup') && !item.schedule
+                          );
+                          if (itemsNeedingSchedule.length > 0) {
                             setCurrentStep('schedule');
                           } else {
                             setCurrentStep('review');
@@ -568,13 +583,18 @@ export default function Cart() {
                     </button>
                     <button
                       onClick={() => {
-                        if (getItemsNeedingSchedule().length === 0) {
+                        const itemsNeedingSchedule = items.filter(item => 
+                          item.service && (item.service === 'livraison' || item.service === 'meetup') && !item.schedule
+                        );
+                        if (itemsNeedingSchedule.length === 0) {
                           setCurrentStep('review');
                         } else {
                           toast.error('Veuillez choisir un horaire pour tous les articles nécessaires');
                         }
                       }}
-                      disabled={getItemsNeedingSchedule().length > 0}
+                      disabled={items.filter(item => 
+                        item.service && (item.service === 'livraison' || item.service === 'meetup') && !item.schedule
+                      ).length > 0}
                       className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Continuer
