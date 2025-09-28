@@ -138,23 +138,7 @@ export default function Cart() {
       });
     });
     
-    // Copier le message dans le presse-papiers
-    try {
-      await navigator.clipboard.writeText(message);
-      toast.success('✅ Commande copiée dans le presse-papiers !');
-    } catch (err) {
-      console.error('❌ Erreur lors de la copie:', err);
-      // Fallback pour les navigateurs qui ne supportent pas l'API clipboard
-      const textArea = document.createElement('textarea');
-      textArea.value = message;
-      document.body.appendChild(textArea);
-      textArea.select();
-      document.execCommand('copy');
-      document.body.removeChild(textArea);
-      toast.success('✅ Commande copiée dans le presse-papiers !');
-    }
-    
-    // Encoder le message pour l'URL (au cas où)
+    // Encoder le message pour l'URL
     const encodedMessage = encodeURIComponent(message);
     
     // Construire l'URL selon le type de lien
@@ -164,26 +148,29 @@ export default function Cart() {
       // WhatsApp : ajouter le message
       finalUrl = `${orderLink}?text=${encodedMessage}`;
     } else if (orderLink.includes('t.me')) {
-      // Telegram : ouvrir le chat
-      finalUrl = orderLink;
+      // Telegram : ajouter le message pré-rempli
+      // Gérer différents formats de liens Telegram
+      if (orderLink.includes('?')) {
+        // Le lien a déjà des paramètres
+        finalUrl = `${orderLink}&text=${encodedMessage}`;
+      } else {
+        // Lien simple, ajouter le paramètre text
+        finalUrl = `${orderLink}?text=${encodedMessage}`;
+      }
     } else {
-      // Autre lien : ouvrir tel quel
-      finalUrl = orderLink;
+      // Autre lien : essayer d'ajouter le message quand même
+      const separator = orderLink.includes('?') ? '&' : '?';
+      finalUrl = `${orderLink}${separator}text=${encodedMessage}`;
     }
     
     console.log('📱 Ouverture lien commande:', finalUrl);
-    console.log('📋 Message copié:', message);
+    console.log('📋 Message:', message);
     
-    // Attendre un peu pour que l'utilisateur voie le message de succès
-    setTimeout(() => {
-      // Ouvrir le lien de commande
-      window.open(finalUrl, '_blank');
-      
-      // Afficher un message d'instructions
-      toast.success('📱 Collez votre commande dans Telegram !', {
-        duration: 4000,
-      });
-    }, 1000);
+    // Ouvrir le lien de commande avec le message pré-rempli
+    window.open(finalUrl, '_blank');
+    
+    // Afficher un message de succès
+    toast.success('📱 Redirection vers Telegram avec votre commande...');
     
     // Optionnel : vider le panier après un délai
     setTimeout(() => {
@@ -387,13 +374,13 @@ export default function Cart() {
                     </div>
                     
                     <div className="text-sm text-blue-400 bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg flex items-start gap-2">
-                      <span className="text-lg">📋</span>
+                      <span className="text-lg">📱</span>
                       <div>
                         <div className="font-medium">Comment ça marche :</div>
                         <div className="text-xs opacity-90 mt-1">
-                          • Votre commande sera automatiquement copiée<br/>
-                          • Telegram s'ouvrira dans un nouvel onglet<br/>
-                          • Collez simplement votre commande dans le chat (Ctrl+V)
+                          • Telegram s'ouvrira avec votre commande pré-remplie<br/>
+                          • Il vous suffira de cliquer "Envoyer" dans Telegram<br/>
+                          • Aucune copie/collage nécessaire !
                         </div>
                       </div>
                     </div>
@@ -526,9 +513,9 @@ export default function Cart() {
                       className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-3 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                        <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.66-.52-.38L8.74 13.5l-4.4-1.39c-.96-.3-.96-1.22.07-1.57L22.61 3.6c.84-.35 1.63.34 1.28 1.28l-6.94 18.2c-.35.82-1.27.52-1.57-.07l-1.89-4.48c-.18-.42-.61-.68-1.07-.68-.46 0-.89.26-1.07.68l-1.89 4.48c-.3.59-1.22.89-1.57.07z"/>
                       </svg>
-                      📋 Copier & Envoyer vers Telegram
+                      📱 Envoyer vers Telegram
                     </button>
                     
                     <div className="flex gap-3">
