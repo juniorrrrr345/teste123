@@ -524,10 +524,10 @@ export default function Cart() {
                 {currentStep === 'cart' && (
                   <button
                     onClick={() => setCurrentStep('service')}
-                    className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2"
+                    className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-3 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
                   >
                     <ArrowRight className="w-5 h-5" />
-                    Choisir le mode de livraison
+                    COMMANDER
                   </button>
                 )}
 
