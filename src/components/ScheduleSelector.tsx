@@ -7,13 +7,20 @@ interface ScheduleSelectorProps {
   selectedSchedule?: string;
   onScheduleSelect: (schedule: string) => void;
   serviceType: 'livraison' | 'meetup';
+  customSchedules?: string[];
 }
 
-export default function ScheduleSelector({ selectedSchedule, onScheduleSelect, serviceType }: ScheduleSelectorProps) {
+export default function ScheduleSelector({ selectedSchedule, onScheduleSelect, serviceType, customSchedules }: ScheduleSelectorProps) {
   const [customSchedule, setCustomSchedule] = useState('');
   
   // Créneaux prédéfinis selon le type de service
   const getTimeSlots = () => {
+    // Utiliser les horaires personnalisés s'ils sont fournis
+    if (customSchedules && customSchedules.length > 0) {
+      return customSchedules;
+    }
+    
+    // Fallback vers les horaires par défaut
     if (serviceType === 'livraison') {
       return [
         'Matin (9h-12h)',

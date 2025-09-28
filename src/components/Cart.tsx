@@ -29,6 +29,10 @@ export default function Cart() {
     envoi: '',
     meetup: ''
   });
+  const [customSchedules, setCustomSchedules] = useState({
+    livraison: [] as string[],
+    meetup: [] as string[]
+  });
   const [currentStep, setCurrentStep] = useState<'cart' | 'service' | 'schedule' | 'review'>('cart');
   
   // Auto-navigation entre les étapes
@@ -66,6 +70,12 @@ export default function Cart() {
           meetup: data.telegram_meetup || data.meetup || ''
         });
         
+        // Charger les horaires personnalisés
+        setCustomSchedules({
+          livraison: data.livraison_schedules || [],
+          meetup: data.meetup_schedules || []
+        });
+        
         // Lien de commande principal (fallback)
         // Priorité 1: whatsapp_link (colonne dédiée)
         if (data.whatsapp_link) {
@@ -87,6 +97,11 @@ export default function Cart() {
           livraison: data.telegram_livraison || data.livraison,
           envoi: data.telegram_envoi || data.envoi,
           meetup: data.telegram_meetup || data.meetup
+        });
+        
+        console.log('⏰ Horaires personnalisés chargés:', {
+          livraison: data.livraison_schedules,
+          meetup: data.meetup_schedules
         });
       })
       .catch((error) => {
@@ -399,6 +414,7 @@ export default function Cart() {
                           selectedSchedule={item.schedule}
                           onScheduleSelect={(schedule) => updateSchedule(item.productId, item.weight, schedule)}
                           serviceType={item.service as 'livraison' | 'meetup'}
+                          customSchedules={item.service === 'livraison' ? customSchedules.livraison : customSchedules.meetup}
                         />
                       </div>
                     ))}
