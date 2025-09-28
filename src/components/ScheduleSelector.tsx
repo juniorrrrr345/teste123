@@ -6,7 +6,7 @@ import { Clock, Calendar } from 'lucide-react';
 interface ScheduleSelectorProps {
   selectedSchedule?: string;
   onScheduleSelect: (schedule: string) => void;
-  serviceType: 'livraison' | 'meetup';
+  serviceType: 'livraison' | 'meetup' | 'envoi';
   customSchedules?: string[];
 }
 
@@ -28,12 +28,19 @@ export default function ScheduleSelector({ selectedSchedule, onScheduleSelect, s
         'Soirée (17h-20h)',
         'Flexible (à convenir)'
       ];
-    } else { // meetup
+    } else if (serviceType === 'meetup') {
       return [
         'Lundi au Vendredi (9h-18h)',
         'Weekend (10h-17h)',
         'Soirée en semaine (18h-21h)',
         'Flexible (à convenir)'
+      ];
+    } else { // envoi
+      return [
+        'Envoi sous 24h',
+        'Envoi sous 48h',
+        'Envoi express',
+        'Délai à convenir'
       ];
     }
   };
@@ -50,8 +57,11 @@ export default function ScheduleSelector({ selectedSchedule, onScheduleSelect, s
   const getTitle = () => {
     if (serviceType === 'livraison') {
       return '📅 Choisissez un créneau de livraison :';
+    } else if (serviceType === 'meetup') {
+      return '📅 Choisissez un créneau de rendez-vous :';
+    } else {
+      return '📦 Choisissez vos options d\'envoi :';
     }
-    return '📅 Choisissez un créneau de rendez-vous :';
   };
 
   return (
@@ -83,15 +93,23 @@ export default function ScheduleSelector({ selectedSchedule, onScheduleSelect, s
         ))}
       </div>
 
-      {/* Créneau personnalisé */}
+      {/* Option personnalisée */}
       <div className="space-y-2">
-        <p className="text-sm text-gray-400">Ou spécifiez un créneau personnalisé :</p>
+        <p className="text-sm text-gray-400">
+          {serviceType === 'envoi' ? 
+            'Ou spécifiez une option d\'envoi personnalisée :' : 
+            'Ou spécifiez un créneau personnalisé :'
+          }
+        </p>
         <div className="flex gap-2">
           <input
             type="text"
             value={customSchedule}
             onChange={(e) => setCustomSchedule(e.target.value)}
-            placeholder="Ex: Mardi 15h ou Weekend matin..."
+            placeholder={serviceType === 'envoi' ? 
+              'Ex: Envoi international, Envoi sécurisé...' : 
+              'Ex: Mardi 15h ou Weekend matin...'
+            }
             className="flex-1 p-3 rounded-lg bg-gray-800 border border-gray-600 text-white placeholder-gray-400 focus:border-green-500 focus:outline-none"
             onKeyPress={(e) => {
               if (e.key === 'Enter') {

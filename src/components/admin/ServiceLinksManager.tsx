@@ -10,6 +10,7 @@ interface ServiceLinks {
 interface ServiceSchedules {
   livraison_schedules: string[];
   meetup_schedules: string[];
+  envoi_schedules: string[];
 }
 
 interface Settings extends ServiceLinks {
@@ -31,11 +32,13 @@ export default function ServiceLinksManager() {
   });
   const [serviceSchedules, setServiceSchedules] = useState<ServiceSchedules>({
     livraison_schedules: ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
-    meetup_schedules: ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
+    meetup_schedules: ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)'],
+    envoi_schedules: ['Envoi sous 24h', 'Envoi sous 48h', 'Envoi express', 'Délai à convenir']
   });
   const [newScheduleInput, setNewScheduleInput] = useState({
     livraison: '',
-    meetup: ''
+    meetup: '',
+    envoi: ''
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -62,12 +65,14 @@ export default function ServiceLinksManager() {
         // Charger les horaires personnalisés
         setServiceSchedules({
           livraison_schedules: data.livraison_schedules || ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
-          meetup_schedules: data.meetup_schedules || ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
+          meetup_schedules: data.meetup_schedules || ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)'],
+          envoi_schedules: data.envoi_schedules || ['Envoi sous 24h', 'Envoi sous 48h', 'Envoi express', 'Délai à convenir']
         });
         
         console.log('⏰ Horaires chargés dans ServiceLinksManager:', {
           livraison_schedules: data.livraison_schedules,
-          meetup_schedules: data.meetup_schedules
+          meetup_schedules: data.meetup_schedules,
+          envoi_schedules: data.envoi_schedules
         });
         console.log('📱 Liens chargés dans ServiceLinksManager:', {
           telegram_livraison: data.telegram_livraison,
@@ -109,7 +114,8 @@ export default function ServiceLinksManager() {
         meetup: serviceLinks.meetup,
         // Horaires personnalisés
         livraison_schedules: serviceSchedules.livraison_schedules,
-        meetup_schedules: serviceSchedules.meetup_schedules
+        meetup_schedules: serviceSchedules.meetup_schedules,
+        envoi_schedules: serviceSchedules.envoi_schedules
       };
       
       const response = await fetch('/api/cloudflare/settings', {
@@ -152,11 +158,12 @@ export default function ServiceLinksManager() {
     setServiceLinks(prev => ({ ...prev, [service]: value }));
   };
 
-  const addSchedule = (serviceType: 'livraison' | 'meetup') => {
+  const addSchedule = (serviceType: 'livraison' | 'meetup' | 'envoi') => {
     const newSchedule = newScheduleInput[serviceType].trim();
     if (!newSchedule) return;
     
-    const scheduleKey = serviceType === 'livraison' ? 'livraison_schedules' : 'meetup_schedules';
+    const scheduleKey = serviceType === 'livraison' ? 'livraison_schedules' : 
+                       serviceType === 'meetup' ? 'meetup_schedules' : 'envoi_schedules';
     
     setServiceSchedules(prev => ({
       ...prev,
@@ -169,8 +176,9 @@ export default function ServiceLinksManager() {
     }));
   };
 
-  const removeSchedule = (serviceType: 'livraison' | 'meetup', index: number) => {
-    const scheduleKey = serviceType === 'livraison' ? 'livraison_schedules' : 'meetup_schedules';
+  const removeSchedule = (serviceType: 'livraison' | 'meetup' | 'envoi', index: number) => {
+    const scheduleKey = serviceType === 'livraison' ? 'livraison_schedules' : 
+                       serviceType === 'meetup' ? 'meetup_schedules' : 'envoi_schedules';
     
     setServiceSchedules(prev => ({
       ...prev,
@@ -178,13 +186,15 @@ export default function ServiceLinksManager() {
     }));
   };
 
-  const resetToDefault = (serviceType: 'livraison' | 'meetup') => {
+  const resetToDefault = (serviceType: 'livraison' | 'meetup' | 'envoi') => {
     const defaultSchedules = {
       livraison: ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
-      meetup: ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
+      meetup: ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)'],
+      envoi: ['Envoi sous 24h', 'Envoi sous 48h', 'Envoi express', 'Délai à convenir']
     };
     
-    const scheduleKey = serviceType === 'livraison' ? 'livraison_schedules' : 'meetup_schedules';
+    const scheduleKey = serviceType === 'livraison' ? 'livraison_schedules' : 
+                       serviceType === 'meetup' ? 'meetup_schedules' : 'envoi_schedules';
     
     setServiceSchedules(prev => ({
       ...prev,
@@ -393,7 +403,7 @@ export default function ServiceLinksManager() {
         </div>
 
         {/* Horaires Meetup */}
-        <div className="mb-6">
+        <div className="mb-8">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-white font-medium flex items-center">
               <span className="mr-2">📍</span>
@@ -444,11 +454,67 @@ export default function ServiceLinksManager() {
           </div>
         </div>
 
+        {/* Horaires Envoi Postal */}
+        <div className="mb-6">
+          <div className="flex items-center justify-between mb-3">
+            <h4 className="text-white font-medium flex items-center">
+              <span className="mr-2">📦</span>
+              Options d'Envoi Postal
+            </h4>
+            <button
+              onClick={() => resetToDefault('envoi')}
+              className="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-2 py-1 rounded"
+            >
+              Remettre par défaut
+            </button>
+          </div>
+          
+          <div className="space-y-2 mb-3">
+            {serviceSchedules.envoi_schedules.map((schedule, index) => (
+              <div key={index} className="flex items-center justify-between bg-gray-700/50 rounded p-2">
+                <span className="text-gray-300">{schedule}</span>
+                <button
+                  onClick={() => removeSchedule('envoi', index)}
+                  className="text-red-400 hover:text-red-300 text-sm"
+                >
+                  🗑️
+                </button>
+              </div>
+            ))}
+          </div>
+          
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={newScheduleInput.envoi}
+              onChange={(e) => setNewScheduleInput(prev => ({...prev, envoi: e.target.value}))}
+              placeholder="Nouvelle option (ex: Envoi international, Envoi sécurisé...)"
+              className="flex-1 bg-gray-700 border border-gray-600 text-white rounded px-3 py-2 text-sm"
+              onKeyPress={(e) => {
+                if (e.key === 'Enter') {
+                  addSchedule('envoi');
+                }
+              }}
+            />
+            <button
+              onClick={() => addSchedule('envoi')}
+              disabled={!newScheduleInput.envoi.trim()}
+              className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white px-3 py-2 rounded text-sm"
+            >
+              Ajouter
+            </button>
+          </div>
+        </div>
+
         <div className="bg-blue-900/30 border border-blue-500/30 rounded-lg p-3">
           <p className="text-blue-100 text-sm">
-            💡 <strong>Note :</strong> Ces horaires s'afficheront automatiquement dans le panier quand les clients choisiront 
-            leurs créneaux pour les livraisons et meetups. Les clients pourront aussi saisir un créneau personnalisé.
+            💡 <strong>Note :</strong> Ces informations s'afficheront automatiquement dans le panier :
           </p>
+          <ul className="text-blue-100 text-xs mt-2 space-y-1">
+            <li>• 🚚 <strong>Livraison :</strong> Créneaux horaires pour les rendez-vous</li>
+            <li>• 📍 <strong>Meetup :</strong> Créneaux horaires pour les points de rencontre</li>
+            <li>• 📦 <strong>Envoi postal :</strong> Options de délais/types d'envoi disponibles</li>
+          </ul>
         </div>
       </div>
 

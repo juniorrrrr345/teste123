@@ -21,7 +21,7 @@ const DELIVERY_SERVICES: DeliveryService[] = [
     name: 'Envoi postal',
     icon: '📦',
     description: 'Envoi par courrier/transporteur',
-    needsSchedule: false
+    needsSchedule: true
   },
   {
     id: 'meetup',

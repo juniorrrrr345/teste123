@@ -63,7 +63,11 @@ export async function GET() {
         meetup_schedules: settings.meetup_schedules ? 
           (typeof settings.meetup_schedules === 'string' ? 
             JSON.parse(settings.meetup_schedules) : settings.meetup_schedules) : 
-          ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
+          ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)'],
+        envoi_schedules: settings.envoi_schedules ? 
+          (typeof settings.envoi_schedules === 'string' ? 
+            JSON.parse(settings.envoi_schedules) : settings.envoi_schedules) : 
+          ['Envoi sous 24h', 'Envoi sous 48h', 'Envoi express', 'Délai à convenir']
       };
       
       return NextResponse.json(mappedSettings);
@@ -87,7 +91,8 @@ export async function GET() {
         telegram_envoi: '',
         telegram_meetup: '',
         livraison_schedules: ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
-        meetup_schedules: ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
+        meetup_schedules: ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)'],
+        envoi_schedules: ['Envoi sous 24h', 'Envoi sous 48h', 'Envoi express', 'Délai à convenir']
       };
       
       return NextResponse.json(defaultSettings);
@@ -139,7 +144,8 @@ export async function PUT(request: NextRequest) {
       telegram_meetup,
       // Nouveaux champs pour les horaires personnalisés
       livraison_schedules,
-      meetup_schedules
+      meetup_schedules,
+      envoi_schedules
     } = body;
 
     // Utiliser les champs avec priorité aux versions snake_case
@@ -162,13 +168,15 @@ export async function PUT(request: NextRequest) {
     // Nouveaux champs pour les horaires personnalisés (stringifier les arrays)
     const finalLivraisonSchedules = livraison_schedules ? JSON.stringify(livraison_schedules) : JSON.stringify(['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)']);
     const finalMeetupSchedules = meetup_schedules ? JSON.stringify(meetup_schedules) : JSON.stringify(['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']);
+    const finalEnvoiSchedules = envoi_schedules ? JSON.stringify(envoi_schedules) : JSON.stringify(['Envoi sous 24h', 'Envoi sous 48h', 'Envoi express', 'Délai à convenir']);
     
     console.log('📱 Sauvegarde des nouveaux champs:', {
       telegram_livraison: finalTelegramLivraison,
       telegram_envoi: finalTelegramEnvoi,
       telegram_meetup: finalTelegramMeetup,
       livraison_schedules: finalLivraisonSchedules,
-      meetup_schedules: finalMeetupSchedules
+      meetup_schedules: finalMeetupSchedules,
+      envoi_schedules: finalEnvoiSchedules
     });
 
     // Vérifier si un enregistrement existe
@@ -192,7 +200,8 @@ export async function PUT(request: NextRequest) {
           telegram_envoi = ?,
           telegram_meetup = ?,
           livraison_schedules = ?,
-          meetup_schedules = ?
+          meetup_schedules = ?,
+          envoi_schedules = ?
         WHERE id = 1
       `, [
         finalBackgroundImage,
@@ -209,7 +218,8 @@ export async function PUT(request: NextRequest) {
         finalTelegramEnvoi,
         finalTelegramMeetup,
         finalLivraisonSchedules,
-        finalMeetupSchedules
+        finalMeetupSchedules,
+        finalEnvoiSchedules
       ]);
     } else {
       // INSERT
@@ -219,8 +229,8 @@ export async function PUT(request: NextRequest) {
           info_content, contact_content, shop_title, whatsapp_link,
           whatsapp_number, scrolling_text, theme_color,
           telegram_livraison, telegram_envoi, telegram_meetup,
-          livraison_schedules, meetup_schedules
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          livraison_schedules, meetup_schedules, envoi_schedules
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         1,
         finalBackgroundImage,
@@ -237,7 +247,8 @@ export async function PUT(request: NextRequest) {
         finalTelegramEnvoi,
         finalTelegramMeetup,
         finalLivraisonSchedules,
-        finalMeetupSchedules
+        finalMeetupSchedules,
+        finalEnvoiSchedules
       ]);
     }
 
@@ -262,10 +273,14 @@ export async function PUT(request: NextRequest) {
         (typeof settings.livraison_schedules === 'string' ? 
           JSON.parse(settings.livraison_schedules) : settings.livraison_schedules) : 
         ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
-      meetup_schedules: settings.meetup_schedules ? 
-        (typeof settings.meetup_schedules === 'string' ? 
-          JSON.parse(settings.meetup_schedules) : settings.meetup_schedules) : 
-        ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
+        meetup_schedules: settings.meetup_schedules ? 
+          (typeof settings.meetup_schedules === 'string' ? 
+            JSON.parse(settings.meetup_schedules) : settings.meetup_schedules) : 
+          ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)'],
+        envoi_schedules: settings.envoi_schedules ? 
+          (typeof settings.envoi_schedules === 'string' ? 
+            JSON.parse(settings.envoi_schedules) : settings.envoi_schedules) : 
+          ['Envoi sous 24h', 'Envoi sous 48h', 'Envoi express', 'Délai à convenir']
     };
 
     return NextResponse.json(mappedSettings);

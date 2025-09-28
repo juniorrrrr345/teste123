@@ -31,7 +31,8 @@ export default function Cart() {
   });
   const [customSchedules, setCustomSchedules] = useState({
     livraison: [] as string[],
-    meetup: [] as string[]
+    meetup: [] as string[],
+    envoi: [] as string[]
   });
   const [currentStep, setCurrentStep] = useState<'cart' | 'service' | 'schedule' | 'review'>('cart');
   
@@ -64,7 +65,8 @@ export default function Cart() {
         // Charger les horaires personnalisés
         setCustomSchedules({
           livraison: data.livraison_schedules || [],
-          meetup: data.meetup_schedules || []
+          meetup: data.meetup_schedules || [],
+          envoi: data.envoi_schedules || []
         });
         
         // Lien de commande principal (fallback)
@@ -92,7 +94,8 @@ export default function Cart() {
         
         console.log('⏰ Horaires personnalisés chargés:', {
           livraison: data.livraison_schedules,
-          meetup: data.meetup_schedules
+          meetup: data.meetup_schedules,
+          envoi: data.envoi_schedules
         });
       })
       .catch((error) => {
@@ -408,10 +411,10 @@ export default function Cart() {
                 {currentStep === 'schedule' && (
                   <div className="space-y-6">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
-                      Choisissez ou modifiez vos créneaux horaires
+                      Choisissez vos options de livraison/envoi
                     </div>
                     
-                    {items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup')).map((item) => (
+                    {items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi')).map((item) => (
                       <div key={`schedule-${item.productId}-${item.weight}`} className="space-y-3">
                         <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
                           <img src={item.image} alt={item.productName} className="w-12 h-12 object-cover rounded" />
@@ -419,7 +422,9 @@ export default function Cart() {
                             <p className="font-medium text-white">{item.productName}</p>
                             <p className="text-sm text-gray-400">{item.weight}</p>
                             <p className="text-sm text-green-400">
-                              {item.service === 'livraison' ? '🚚 Livraison' : '📍 Point de rencontre'}
+                              {item.service === 'livraison' ? '🚚 Livraison' : 
+                               item.service === 'envoi' ? '📦 Envoi postal' : 
+                               '📍 Point de rencontre'}
                             </p>
                             {item.schedule && (
                               <p className="text-xs text-blue-400 mt-1">
@@ -432,16 +437,20 @@ export default function Cart() {
                         <ScheduleSelector
                           selectedSchedule={item.schedule}
                           onScheduleSelect={(schedule) => updateSchedule(item.productId, item.weight, schedule)}
-                          serviceType={item.service as 'livraison' | 'meetup'}
-                          customSchedules={item.service === 'livraison' ? customSchedules.livraison : customSchedules.meetup}
+                          serviceType={item.service as 'livraison' | 'meetup' | 'envoi'}
+                          customSchedules={
+                            item.service === 'livraison' ? customSchedules.livraison : 
+                            item.service === 'meetup' ? customSchedules.meetup : 
+                            customSchedules.envoi
+                          }
                         />
                       </div>
                     ))}
                     
-                    {items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup')).length === 0 && (
+                    {items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi')).length === 0 && (
                       <div className="text-center text-gray-400 py-8">
-                        <p>Aucun article ne nécessite d'horaire.</p>
-                        <p className="text-sm mt-2">Les articles en "Envoi postal" n'ont pas besoin d'horaire.</p>
+                        <p>Aucun article n'a de service nécessitant des options.</p>
+                        <p className="text-sm mt-2">Retournez à l'étape précédente pour choisir vos services.</p>
                       </div>
                     )}
                   </div>
@@ -547,9 +556,9 @@ export default function Cart() {
                       onClick={() => {
                         const itemsNeedingService = getItemsNeedingService();
                         if (itemsNeedingService.length === 0) {
-                          // Tous les articles ont un service, vérifier si on a besoin d'horaires
+                          // Tous les articles ont un service, vérifier si on a besoin d'options/horaires
                           const itemsNeedingSchedule = items.filter(item => 
-                            item.service && (item.service === 'livraison' || item.service === 'meetup') && !item.schedule
+                            item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi') && !item.schedule
                           );
                           if (itemsNeedingSchedule.length > 0) {
                             setCurrentStep('schedule');
@@ -584,7 +593,7 @@ export default function Cart() {
                     <button
                       onClick={() => {
                         const itemsNeedingSchedule = items.filter(item => 
-                          item.service && (item.service === 'livraison' || item.service === 'meetup') && !item.schedule
+                          item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi') && !item.schedule
                         );
                         if (itemsNeedingSchedule.length === 0) {
                           setCurrentStep('review');
@@ -593,7 +602,7 @@ export default function Cart() {
                         }
                       }}
                       disabled={items.filter(item => 
-                        item.service && (item.service === 'livraison' || item.service === 'meetup') && !item.schedule
+                        item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi') && !item.schedule
                       ).length > 0}
                       className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
