@@ -10,6 +10,16 @@ export interface CartItem {
   quantity: number;
   originalPrice: number;
   discount: number;
+  service?: 'livraison' | 'envoi' | 'meetup';
+  schedule?: string;
+}
+
+export interface DeliveryService {
+  id: 'livraison' | 'envoi' | 'meetup';
+  name: string;
+  icon: string;
+  description: string;
+  needsSchedule: boolean;
 }
 
 interface CartStore {
@@ -18,10 +28,15 @@ interface CartStore {
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (productId: string, weight: string) => void;
   updateQuantity: (productId: string, weight: string, quantity: number) => void;
+  updateService: (productId: string, weight: string, service: 'livraison' | 'envoi' | 'meetup') => void;
+  updateSchedule: (productId: string, weight: string, schedule: string) => void;
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
   setIsOpen: (isOpen: boolean) => void;
+  getItemsNeedingService: () => CartItem[];
+  getItemsNeedingSchedule: () => CartItem[];
+  isCartReadyForOrder: () => boolean;
 }
 
 export const useCartStore = create<CartStore>()(
@@ -78,6 +93,45 @@ export const useCartStore = create<CartStore>()(
       getTotalItems: () => {
         const items = get().items;
         return items.reduce((total, item) => total + item.quantity, 0);
+      },
+      
+      updateService: (productId, weight, service) => set((state) => {
+        const newItems = state.items.map((item) =>
+          item.productId === productId && item.weight === weight
+            ? { ...item, service }
+            : item
+        );
+        return { items: newItems };
+      }),
+      
+      updateSchedule: (productId, weight, schedule) => set((state) => {
+        const newItems = state.items.map((item) =>
+          item.productId === productId && item.weight === weight
+            ? { ...item, schedule }
+            : item
+        );
+        return { items: newItems };
+      }),
+      
+      getItemsNeedingService: () => {
+        const items = get().items;
+        return items.filter(item => !item.service);
+      },
+      
+      getItemsNeedingSchedule: () => {
+        const items = get().items;
+        return items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup') && !item.schedule);
+      },
+      
+      isCartReadyForOrder: () => {
+        const items = get().items;
+        return items.length > 0 && items.every(item => {
+          // Chaque item doit avoir un service
+          if (!item.service) return false;
+          // Si le service nécessite un horaire (livraison ou meetup), il doit être défini
+          if ((item.service === 'livraison' || item.service === 'meetup') && !item.schedule) return false;
+          return true;
+        });
       },
       
       setIsOpen: (isOpen) => set({ isOpen })
