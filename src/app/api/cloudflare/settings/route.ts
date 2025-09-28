@@ -50,7 +50,20 @@ export async function GET() {
         whatsappLink: settings.whatsapp_link || '',
         whatsappNumber: settings.whatsapp_number || '',
         scrollingText: settings.scrolling_text || '',
-        titleStyle: settings.theme_color || 'glow'
+        titleStyle: settings.theme_color || 'glow',
+        // Nouveaux champs pour les liens Telegram par service
+        telegram_livraison: settings.telegram_livraison || '',
+        telegram_envoi: settings.telegram_envoi || '',
+        telegram_meetup: settings.telegram_meetup || '',
+        // Nouveaux champs pour les horaires personnalisés (parse JSON si string)
+        livraison_schedules: settings.livraison_schedules ? 
+          (typeof settings.livraison_schedules === 'string' ? 
+            JSON.parse(settings.livraison_schedules) : settings.livraison_schedules) : 
+          ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
+        meetup_schedules: settings.meetup_schedules ? 
+          (typeof settings.meetup_schedules === 'string' ? 
+            JSON.parse(settings.meetup_schedules) : settings.meetup_schedules) : 
+          ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
       };
       
       return NextResponse.json(mappedSettings);
@@ -68,7 +81,13 @@ export async function GET() {
         backgroundOpacity: 20,
         backgroundBlur: 5,
         shopTitle: 'LANATIONDULAIT',
-        shopName: 'LANATIONDULAIT'
+        shopName: 'LANATIONDULAIT',
+        // Valeurs par défaut pour les nouveaux champs
+        telegram_livraison: '',
+        telegram_envoi: '',
+        telegram_meetup: '',
+        livraison_schedules: ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
+        meetup_schedules: ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
       };
       
       return NextResponse.json(defaultSettings);
@@ -113,7 +132,14 @@ export async function PUT(request: NextRequest) {
       scrolling_text,
       scrollingText,
       theme_color,
-      titleStyle
+      titleStyle,
+      // Nouveaux champs pour les liens Telegram par service
+      telegram_livraison,
+      telegram_envoi,
+      telegram_meetup,
+      // Nouveaux champs pour les horaires personnalisés
+      livraison_schedules,
+      meetup_schedules
     } = body;
 
     // Utiliser les champs avec priorité aux versions snake_case
@@ -127,6 +153,23 @@ export async function PUT(request: NextRequest) {
     const finalWhatsappNumber = whatsapp_number || whatsappNumber || '';
     const finalScrollingText = scrolling_text || scrollingText || '';
     const finalThemeColor = theme_color || titleStyle || 'glow';
+    
+    // Nouveaux champs pour les liens Telegram par service
+    const finalTelegramLivraison = telegram_livraison || '';
+    const finalTelegramEnvoi = telegram_envoi || '';
+    const finalTelegramMeetup = telegram_meetup || '';
+    
+    // Nouveaux champs pour les horaires personnalisés (stringifier les arrays)
+    const finalLivraisonSchedules = livraison_schedules ? JSON.stringify(livraison_schedules) : JSON.stringify(['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)']);
+    const finalMeetupSchedules = meetup_schedules ? JSON.stringify(meetup_schedules) : JSON.stringify(['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']);
+    
+    console.log('📱 Sauvegarde des nouveaux champs:', {
+      telegram_livraison: finalTelegramLivraison,
+      telegram_envoi: finalTelegramEnvoi,
+      telegram_meetup: finalTelegramMeetup,
+      livraison_schedules: finalLivraisonSchedules,
+      meetup_schedules: finalMeetupSchedules
+    });
 
     // Vérifier si un enregistrement existe
     const checkResult = await executeSqlOnD1('SELECT id FROM settings WHERE id = 1');
@@ -144,7 +187,12 @@ export async function PUT(request: NextRequest) {
           whatsapp_link = ?,
           whatsapp_number = ?,
           scrolling_text = ?,
-          theme_color = ?
+          theme_color = ?,
+          telegram_livraison = ?,
+          telegram_envoi = ?,
+          telegram_meetup = ?,
+          livraison_schedules = ?,
+          meetup_schedules = ?
         WHERE id = 1
       `, [
         finalBackgroundImage,
@@ -156,7 +204,12 @@ export async function PUT(request: NextRequest) {
         finalWhatsappLink,
         finalWhatsappNumber,
         finalScrollingText,
-        finalThemeColor
+        finalThemeColor,
+        finalTelegramLivraison,
+        finalTelegramEnvoi,
+        finalTelegramMeetup,
+        finalLivraisonSchedules,
+        finalMeetupSchedules
       ]);
     } else {
       // INSERT
@@ -164,8 +217,10 @@ export async function PUT(request: NextRequest) {
         INSERT INTO settings (
           id, background_image, background_opacity, background_blur, 
           info_content, contact_content, shop_title, whatsapp_link,
-          whatsapp_number, scrolling_text, theme_color
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          whatsapp_number, scrolling_text, theme_color,
+          telegram_livraison, telegram_envoi, telegram_meetup,
+          livraison_schedules, meetup_schedules
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `, [
         1,
         finalBackgroundImage,
@@ -177,7 +232,12 @@ export async function PUT(request: NextRequest) {
         finalWhatsappLink,
         finalWhatsappNumber,
         finalScrollingText,
-        finalThemeColor
+        finalThemeColor,
+        finalTelegramLivraison,
+        finalTelegramEnvoi,
+        finalTelegramMeetup,
+        finalLivraisonSchedules,
+        finalMeetupSchedules
       ]);
     }
 
@@ -193,7 +253,19 @@ export async function PUT(request: NextRequest) {
       backgroundOpacity: settings.background_opacity,
       backgroundBlur: settings.background_blur,
       shopTitle: 'LANATIONDULAIT',
-      shopName: 'LANATIONDULAIT'
+      shopName: 'LANATIONDULAIT',
+      // Inclure les nouveaux champs dans la réponse
+      telegram_livraison: settings.telegram_livraison || '',
+      telegram_envoi: settings.telegram_envoi || '',
+      telegram_meetup: settings.telegram_meetup || '',
+      livraison_schedules: settings.livraison_schedules ? 
+        (typeof settings.livraison_schedules === 'string' ? 
+          JSON.parse(settings.livraison_schedules) : settings.livraison_schedules) : 
+        ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
+      meetup_schedules: settings.meetup_schedules ? 
+        (typeof settings.meetup_schedules === 'string' ? 
+          JSON.parse(settings.meetup_schedules) : settings.meetup_schedules) : 
+        ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
     };
 
     return NextResponse.json(mappedSettings);

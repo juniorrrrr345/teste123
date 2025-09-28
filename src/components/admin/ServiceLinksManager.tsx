@@ -64,6 +64,16 @@ export default function ServiceLinksManager() {
           livraison_schedules: data.livraison_schedules || ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
           meetup_schedules: data.meetup_schedules || ['Lundi au Vendredi (9h-18h)', 'Weekend (10h-17h)', 'Soirée en semaine (18h-21h)', 'Flexible (à convenir)']
         });
+        
+        console.log('⏰ Horaires chargés dans ServiceLinksManager:', {
+          livraison_schedules: data.livraison_schedules,
+          meetup_schedules: data.meetup_schedules
+        });
+        console.log('📱 Liens chargés dans ServiceLinksManager:', {
+          telegram_livraison: data.telegram_livraison,
+          telegram_envoi: data.telegram_envoi,
+          telegram_meetup: data.telegram_meetup
+        });
       }
     } catch (error) {
       console.error('Erreur lors du chargement des liens de service:', error);
@@ -111,7 +121,9 @@ export default function ServiceLinksManager() {
       });
 
       if (response.ok) {
-        setMessage('✅ Liens de service sauvegardés avec succès !');
+        const savedData = await response.json();
+        console.log('✅ Données sauvegardées avec succès:', savedData);
+        setMessage('✅ Liens de service et horaires sauvegardés avec succès !');
         setTimeout(() => setMessage(''), 5000);
         
         // Invalider le cache
@@ -222,14 +234,29 @@ export default function ServiceLinksManager() {
             Configurez un lien Telegram différent et des horaires personnalisés pour chaque type de service
           </p>
         </div>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-all"
-        >
-          <span>💾</span>
-          <span>{saving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-green-600 hover:bg-green-700 disabled:bg-gray-600 text-white font-medium py-2 px-4 rounded-lg flex items-center gap-2 transition-all"
+          >
+            <span>💾</span>
+            <span>{saving ? 'Sauvegarde...' : 'Sauvegarder'}</span>
+          </button>
+          
+          {process.env.NODE_ENV === 'development' && (
+            <button
+              onClick={() => {
+                console.log('🔍 État actuel du composant:');
+                console.log('Links:', serviceLinks);
+                console.log('Schedules:', serviceSchedules);
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-3 rounded-lg text-sm"
+            >
+              🔍 Debug
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Message de feedback */}
