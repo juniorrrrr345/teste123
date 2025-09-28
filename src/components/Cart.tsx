@@ -126,7 +126,8 @@ export default function Cart() {
     const serviceIcon = targetService === 'livraison' ? '🚚' : targetService === 'envoi' ? '📦' : '📍';
     const serviceName = targetService === 'livraison' ? 'Livraison à domicile' : targetService === 'envoi' ? 'Envoi postal' : 'Point de rencontre';
     
-    let message = `${serviceIcon} *COMMANDE ${serviceName.toUpperCase()}:*\n\n`;
+    // Format optimisé pour Telegram (sans markdown qui peut causer des problèmes)
+    let message = `${serviceIcon} COMMANDE ${serviceName.toUpperCase()}:\n\n`;
     
     serviceItems.forEach((item, index) => {
       const itemTotal = item.price * item.quantity;
@@ -147,8 +148,9 @@ export default function Cart() {
       message += '\n';
     });
     
-    message += `💰 *TOTAL ${serviceName.toUpperCase()}: ${serviceTotal.toFixed(2)}€*\n\n`;
-    message += `📍 Service: ${serviceIcon} ${serviceName}`;
+    message += `💰 TOTAL ${serviceName.toUpperCase()}: ${serviceTotal.toFixed(2)}€\n\n`;
+    message += `📍 Service: ${serviceIcon} ${serviceName}\n\n`;
+    message += `Commande générée automatiquement depuis le site web`;
     
     // Choisir le bon lien selon le service
     let chosenLink = orderLink; // Fallback par défaut
@@ -171,17 +173,36 @@ export default function Cart() {
       finalUrl = `${chosenLink}?text=${encodedMessage}`;
     } else if (chosenLink.includes('t.me')) {
       // Telegram : ajouter le message pré-rempli
-      if (chosenLink.includes('?')) {
-        finalUrl = `${chosenLink}&text=${encodedMessage}`;
+      // Note: Les liens d'invitation Telegram (avec +) ne supportent pas le paramètre text
+      if (chosenLink.includes('/+')) {
+        // Lien d'invitation : on ouvre sans message pré-rempli mais on copie dans le presse-papiers
+        finalUrl = chosenLink;
+        console.log('⚠️ Lien d\'invitation Telegram détecté, copie dans le presse-papiers');
+        try {
+          navigator.clipboard.writeText(message);
+          toast.success('📋 Message copié ! Collez-le dans Telegram après avoir rejoint');
+        } catch (err) {
+          console.log('Clipboard non disponible');
+        }
       } else {
-        finalUrl = `${chosenLink}?text=${encodedMessage}`;
+        // Lien direct : on peut utiliser le paramètre text
+        if (chosenLink.includes('?')) {
+          finalUrl = `${chosenLink}&text=${encodedMessage}`;
+        } else {
+          finalUrl = `${chosenLink}?text=${encodedMessage}`;
+        }
       }
     } else {
+      // Autre lien : essayer d'ajouter le message quand même
       const separator = chosenLink.includes('?') ? '&' : '?';
       finalUrl = `${chosenLink}${separator}text=${encodedMessage}`;
     }
     
-    console.log(`📱 Ouverture lien ${targetService}:`, finalUrl);
+    console.log(`📱 Service: ${targetService}`);
+    console.log(`📱 Lien choisi: ${chosenLink}`);
+    console.log(`📱 Message brut:`, message);
+    console.log(`📱 Message encodé:`, encodedMessage);
+    console.log(`📱 URL finale:`, finalUrl);
     
     // Ouvrir le lien de commande avec le message pré-rempli
     window.open(finalUrl, '_blank');
@@ -503,7 +524,10 @@ export default function Cart() {
                 {currentStep === 'service' && (
                   <div className="flex gap-3">
                     <button
-                      onClick={() => setCurrentStep('cart')}
+                      onClick={() => {
+                        // Retourner au panier (étape précédente)
+                        setCurrentStep('cart');
+                      }}
                       className="flex-1 rounded-lg bg-gray-700 py-3 font-medium text-white hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-4 h-4" />
@@ -533,7 +557,10 @@ export default function Cart() {
                 {currentStep === 'schedule' && (
                   <div className="flex gap-3">
                     <button
-                      onClick={() => setCurrentStep('service')}
+                      onClick={() => {
+                        // Retourner à l'étape précédente (service)
+                        setCurrentStep('service');
+                      }}
                       className="flex-1 rounded-lg bg-gray-700 py-3 font-medium text-white hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
                     >
                       <ArrowLeft className="w-4 h-4" />
@@ -649,16 +676,19 @@ export default function Cart() {
                     <div className="flex gap-3">
                       <button
                         onClick={() => {
+                          // Navigation intelligente vers l'étape précédente
                           if (getItemsNeedingSchedule().length > 0) {
                             setCurrentStep('schedule');
-                          } else {
+                          } else if (getItemsNeedingService().length > 0) {
                             setCurrentStep('service');
+                          } else {
+                            setCurrentStep('cart');
                           }
                         }}
                         className="flex-1 rounded-lg bg-gray-700 py-3 font-medium text-white hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
                       >
                         <ArrowLeft className="w-4 h-4" />
-                        Modifier
+                        Retour
                       </button>
                       <button
                         onClick={() => setCurrentStep('cart')}
