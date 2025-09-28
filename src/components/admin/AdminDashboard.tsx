@@ -5,13 +5,14 @@ import CategoriesManager from './CategoriesManager';
 import SocialLinksManager from './SocialLinksManager';
 import SettingsManager from './SettingsManager';
 import PagesManager from './PagesManager';
+import ServiceLinksManager from './ServiceLinksManager';
 
 
 interface AdminDashboardProps {
   onLogout: () => void;
 }
 
-type SectionType = 'products' | 'categories' | 'settings' | 'pages' | 'social';
+type SectionType = 'products' | 'categories' | 'settings' | 'pages' | 'social' | 'servicelinks';
 
 export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const [activeSection, setActiveSection] = useState<SectionType>('products');
@@ -21,6 +22,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
     { id: 'products' as SectionType, label: 'Produits', icon: '🛍️' },
     { id: 'categories' as SectionType, label: 'Catégories', icon: '🏷️' },
     { id: 'settings' as SectionType, label: 'Configuration', icon: '⚙️' },
+    { id: 'servicelinks' as SectionType, label: 'Liens Telegram', icon: '📱' },
     { id: 'pages' as SectionType, label: 'Pages', icon: '📄' },
     { id: 'social' as SectionType, label: 'Réseaux sociaux', icon: '🌐' },
   ];
@@ -33,6 +35,8 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
         return <CategoriesManager />;
       case 'settings':
         return <SettingsManager />;
+      case 'servicelinks':
+        return <ServiceLinksManager />;
       case 'pages':
         return <PagesManager />;
       case 'social':

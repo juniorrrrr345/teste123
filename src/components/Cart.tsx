@@ -24,6 +24,11 @@ export default function Cart() {
     isCartReadyForOrder
   } = useCartStore();
   const [orderLink, setOrderLink] = useState('#'); // Lien de commande par défaut
+  const [serviceLinks, setServiceLinks] = useState({
+    livraison: '',
+    envoi: '',
+    meetup: ''
+  });
   const [currentStep, setCurrentStep] = useState<'cart' | 'service' | 'schedule' | 'review'>('cart');
   
   // Auto-navigation entre les étapes
@@ -48,16 +53,24 @@ export default function Cart() {
   }, [items, getItemsNeedingService, getItemsNeedingSchedule, currentStep]);
   
   useEffect(() => {
-    // Charger le lien de commande depuis les settings Cloudflare
+    // Charger les liens de commande depuis les settings Cloudflare
     fetch('/api/cloudflare/settings')
       .then(res => res.json())
       .then(data => {
         console.log('📱 Settings reçus pour commandes:', data);
         
+        // Charger les liens de service spécifiques
+        setServiceLinks({
+          livraison: data.telegram_livraison || data.livraison || '',
+          envoi: data.telegram_envoi || data.envoi || '',
+          meetup: data.telegram_meetup || data.meetup || ''
+        });
+        
+        // Lien de commande principal (fallback)
         // Priorité 1: whatsapp_link (colonne dédiée)
         if (data.whatsapp_link) {
           setOrderLink(data.whatsapp_link);
-          console.log('📱 Lien de commande configuré:', data.whatsapp_link);
+          console.log('📱 Lien de commande principal configuré:', data.whatsapp_link);
         }
         // Priorité 2: contact_info (fallback)
         else if (data.contact_info) {
@@ -69,6 +82,12 @@ export default function Cart() {
           setOrderLink(data.whatsappLink);
           console.log('📱 Lien WhatsApp (legacy):', data.whatsappLink);
         }
+        
+        console.log('📱 Liens de service chargés:', {
+          livraison: data.telegram_livraison || data.livraison,
+          envoi: data.telegram_envoi || data.envoi,
+          meetup: data.telegram_meetup || data.meetup
+        });
       })
       .catch((error) => {
         console.error('❌ Erreur chargement settings commande:', error);
@@ -138,29 +157,49 @@ export default function Cart() {
       });
     });
     
+    // Déterminer le service principal de la commande
+    const primaryService = items.reduce((acc: Record<string, number>, item) => {
+      const service = item.service!;
+      acc[service] = (acc[service] || 0) + 1;
+      return acc;
+    }, {});
+    
+    // Trouver le service le plus utilisé
+    const dominantService = Object.entries(primaryService).sort(([,a], [,b]) => b - a)[0]?.[0] as 'livraison' | 'envoi' | 'meetup';
+    
+    // Choisir le bon lien selon le service dominant
+    let chosenLink = orderLink; // Fallback par défaut
+    
+    if (dominantService && serviceLinks[dominantService]) {
+      chosenLink = serviceLinks[dominantService];
+      console.log(`📱 Utilisation du lien spécifique pour ${dominantService}:`, chosenLink);
+    } else {
+      console.log('📱 Utilisation du lien principal (fallback):', chosenLink);
+    }
+    
     // Encoder le message pour l'URL
     const encodedMessage = encodeURIComponent(message);
     
     // Construire l'URL selon le type de lien
-    let finalUrl = orderLink;
+    let finalUrl = chosenLink;
     
-    if (orderLink.includes('wa.me')) {
+    if (chosenLink.includes('wa.me')) {
       // WhatsApp : ajouter le message
-      finalUrl = `${orderLink}?text=${encodedMessage}`;
-    } else if (orderLink.includes('t.me')) {
+      finalUrl = `${chosenLink}?text=${encodedMessage}`;
+    } else if (chosenLink.includes('t.me')) {
       // Telegram : ajouter le message pré-rempli
       // Gérer différents formats de liens Telegram
-      if (orderLink.includes('?')) {
+      if (chosenLink.includes('?')) {
         // Le lien a déjà des paramètres
-        finalUrl = `${orderLink}&text=${encodedMessage}`;
+        finalUrl = `${chosenLink}&text=${encodedMessage}`;
       } else {
         // Lien simple, ajouter le paramètre text
-        finalUrl = `${orderLink}?text=${encodedMessage}`;
+        finalUrl = `${chosenLink}?text=${encodedMessage}`;
       }
     } else {
       // Autre lien : essayer d'ajouter le message quand même
-      const separator = orderLink.includes('?') ? '&' : '?';
-      finalUrl = `${orderLink}${separator}text=${encodedMessage}`;
+      const separator = chosenLink.includes('?') ? '&' : '?';
+      finalUrl = `${chosenLink}${separator}text=${encodedMessage}`;
     }
     
     console.log('📱 Ouverture lien commande:', finalUrl);
@@ -382,6 +421,28 @@ export default function Cart() {
                           • Il vous suffira de cliquer "Envoyer" dans Telegram<br/>
                           • Aucune copie/collage nécessaire !
                         </div>
+                        {(() => {
+                          const primaryService = items.reduce((acc: Record<string, number>, item) => {
+                            const service = item.service!;
+                            acc[service] = (acc[service] || 0) + 1;
+                            return acc;
+                          }, {});
+                          const dominantService = Object.entries(primaryService).sort(([,a], [,b]) => b - a)[0]?.[0] as 'livraison' | 'envoi' | 'meetup';
+                          
+                          if (dominantService && serviceLinks[dominantService]) {
+                            const serviceNames = {
+                              livraison: 'Livraison à domicile',
+                              envoi: 'Envoi postal', 
+                              meetup: 'Point de rencontre'
+                            };
+                            return (
+                              <div className="text-xs text-green-400 mt-2 p-2 bg-green-500/10 rounded border border-green-500/20">
+                                🎯 Direction: Canal {serviceNames[dominantService]}
+                              </div>
+                            );
+                          }
+                          return null;
+                        })()}
                       </div>
                     </div>
                     
