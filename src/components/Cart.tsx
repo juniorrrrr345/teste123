@@ -375,7 +375,7 @@ export default function Cart() {
                 {currentStep === 'service' && (
                   <div className="space-y-6">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
-                      Choisissez ou modifiez le mode de réception pour vos articles
+                      Choisissez votre mode de réception :
                     </div>
                     
                     {items.map((item) => (
