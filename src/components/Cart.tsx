@@ -821,7 +821,7 @@ export default function Cart() {
                           if (hasDelivery) {
                             setCurrentStep('delivery');
                           } else {
-                            setCurrentStep('clientType');
+                            setCurrentStep('review');
                           }
                         } else {
                           toast.error('Veuillez choisir des options pour tous les articles nécessaires');
