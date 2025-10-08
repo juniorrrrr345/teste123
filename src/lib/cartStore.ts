@@ -12,6 +12,14 @@ export interface CartItem {
   discount: number;
   service?: 'livraison' | 'envoi' | 'meetup';
   schedule?: string;
+  // Champs pour la livraison à domicile
+  deliveryAddress?: string;
+  deliveryPostalCode?: string;
+  deliveryCity?: string;
+}
+
+export interface CartMetadata {
+  clientType?: 'nouveau' | 'confirme';
 }
 
 export interface DeliveryService {
@@ -25,17 +33,21 @@ export interface DeliveryService {
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
+  clientType?: 'nouveau' | 'confirme';
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (productId: string, weight: string) => void;
   updateQuantity: (productId: string, weight: string, quantity: number) => void;
   updateService: (productId: string, weight: string, service: 'livraison' | 'envoi' | 'meetup') => void;
   updateSchedule: (productId: string, weight: string, schedule: string) => void;
+  updateDeliveryInfo: (productId: string, weight: string, address: string, postalCode: string, city: string) => void;
+  setClientType: (type: 'nouveau' | 'confirme') => void;
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
   setIsOpen: (isOpen: boolean) => void;
   getItemsNeedingService: () => CartItem[];
   getItemsNeedingSchedule: () => CartItem[];
+  getItemsNeedingDeliveryInfo: () => CartItem[];
   isCartReadyForOrder: () => boolean;
 }
 
@@ -44,6 +56,7 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       isOpen: false,
+      clientType: undefined,
       
       addItem: (item) => set((state) => {
         const existingItemIndex = state.items.findIndex(
@@ -113,6 +126,17 @@ export const useCartStore = create<CartStore>()(
         return { items: newItems };
       }),
       
+      updateDeliveryInfo: (productId, weight, address, postalCode, city) => set((state) => {
+        const newItems = state.items.map((item) =>
+          item.productId === productId && item.weight === weight
+            ? { ...item, deliveryAddress: address, deliveryPostalCode: postalCode, deliveryCity: city }
+            : item
+        );
+        return { items: newItems };
+      }),
+      
+      setClientType: (type) => set({ clientType: type }),
+      
       getItemsNeedingService: () => {
         const items = get().items;
         return items.filter(item => !item.service);
@@ -123,13 +147,32 @@ export const useCartStore = create<CartStore>()(
         return items.filter(item => item.service && !item.schedule);
       },
       
+      getItemsNeedingDeliveryInfo: () => {
+        const items = get().items;
+        return items.filter(item => 
+          item.service === 'livraison' && 
+          (!item.deliveryAddress || !item.deliveryPostalCode || !item.deliveryCity)
+        );
+      },
+      
       isCartReadyForOrder: () => {
         const items = get().items;
+        const clientType = get().clientType;
+        
+        // Vérifier que le type de client est choisi
+        if (!clientType) return false;
+        
         return items.length > 0 && items.every(item => {
           // Chaque item doit avoir un service
           if (!item.service) return false;
           // Tous les services nécessitent maintenant une option/horaire
           if (!item.schedule) return false;
+          // Si c'est une livraison, vérifier les informations d'adresse
+          if (item.service === 'livraison') {
+            if (!item.deliveryAddress || !item.deliveryPostalCode || !item.deliveryCity) {
+              return false;
+            }
+          }
           return true;
         });
       },

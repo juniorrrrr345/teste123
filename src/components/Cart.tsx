@@ -19,22 +19,28 @@ export default function Cart() {
     getTotalPrice,
     updateService,
     updateSchedule,
+    updateDeliveryInfo,
     getItemsNeedingService,
     getItemsNeedingSchedule,
-    isCartReadyForOrder
+    getItemsNeedingDeliveryInfo,
+    isCartReadyForOrder,
+    clientType,
+    setClientType
   } = useCartStore();
   const [orderLink, setOrderLink] = useState('#'); // Lien de commande par défaut
   const [serviceLinks, setServiceLinks] = useState({
     livraison: '',
     envoi: '',
-    meetup: ''
+    meetup: '',
+    nouveau_laitier: '',
+    laitier_confirme: ''
   });
   const [customSchedules, setCustomSchedules] = useState({
     livraison: [] as string[],
     meetup: [] as string[],
     envoi: [] as string[]
   });
-  const [currentStep, setCurrentStep] = useState<'cart' | 'service' | 'schedule' | 'review'>('cart');
+  const [currentStep, setCurrentStep] = useState<'cart' | 'service' | 'schedule' | 'delivery' | 'clientType' | 'review'>('cart');
   
   // Auto-navigation entre les étapes (désactivée pour permettre la modification)
   useEffect(() => {
@@ -59,7 +65,9 @@ export default function Cart() {
         setServiceLinks({
           livraison: data.telegram_livraison || data.livraison || '',
           envoi: data.telegram_envoi || data.envoi || '',
-          meetup: data.telegram_meetup || data.meetup || ''
+          meetup: data.telegram_meetup || data.meetup || '',
+          nouveau_laitier: data.telegram_nouveau_laitier || '',
+          laitier_confirme: data.telegram_laitier_confirme || ''
         });
         
         // Charger les horaires personnalisés
@@ -118,42 +126,74 @@ export default function Cart() {
     
     // Construire le message pour ce service spécifique
     const serviceIcon = targetService === 'livraison' ? '🚚' : targetService === 'envoi' ? '📦' : '📍';
-    const serviceName = targetService === 'livraison' ? 'Livraison à domicile' : targetService === 'envoi' ? 'Envoi postal' : 'Point de rencontre';
+    const serviceName = targetService === 'livraison' ? 'LIVRAISON À DOMICILE' : targetService === 'envoi' ? 'ENVOI POSTAL' : 'POINT DE RENCONTRE';
     
-    // Format optimisé pour Telegram (sans markdown qui peut causer des problèmes)
-    let message = `${serviceIcon} COMMANDE ${serviceName.toUpperCase()}:\n\n`;
+    // Format avec emojis et structure spécifique
+    let message = `${serviceIcon} COMMANDE ${serviceName}:\n\n`;
+    
+    // Si c'est une livraison, afficher l'adresse en premier
+    if (targetService === 'livraison' && serviceItems.length > 0 && serviceItems[0].deliveryAddress) {
+      message += `${serviceItems[0].deliveryAddress}\n`;
+      message += `${serviceItems[0].deliveryPostalCode}\n`;
+      message += `${serviceItems[0].deliveryCity}\n`;
+      if (serviceItems[0].schedule) {
+        message += `Horaire demandé: ${serviceItems[0].schedule}\n`;
+      }
+      message += `\n`;
+    }
     
     serviceItems.forEach((item, index) => {
-      const itemTotal = item.price * item.quantity;
-      
-      message += `${index + 1}. ${item.productName}\n`;
-      message += `• Quantité: ${item.quantity}x ${item.weight}\n`;
-      message += `• Prix unitaire: ${item.originalPrice}€\n`;
-      message += `• Total: ${itemTotal.toFixed(2)}€\n`;
-      
-      if (item.discount > 0) {
-        message += `• Remise: -${item.discount}%\n`;
+      // Déterminer l'emoji selon le type de produit
+      let productEmoji = '🌿'; // Par défaut
+      const productLower = item.productName.toLowerCase();
+      if (productLower.includes('mint') || productLower.includes('triangle')) {
+        productEmoji = '🌵';
+      } else if (productLower.includes('tropic') || productLower.includes('smooth')) {
+        productEmoji = '🌴';
+      } else if (productLower.includes('chocolate') || productLower.includes('dubai')) {
+        productEmoji = '🌍';
       }
       
-      if (item.schedule) {
-        message += `• Horaire demandé: ${item.schedule}\n`;
+      message += `${index + 1}. ${item.productName.toUpperCase()} ${productEmoji}\n`;
+      message += `• Quantité: ${item.quantity}x ${item.weight}\n`;
+      
+      if (item.schedule && targetService !== 'livraison') {
+        message += `• ${item.schedule}\n`;
       }
       
       message += '\n';
     });
     
-    message += `💰 TOTAL ${serviceName.toUpperCase()}: ${serviceTotal.toFixed(2)}€\n\n`;
-    message += `📍 Service: ${serviceIcon} ${serviceName}\n\n`;
-    message += `Commande générée automatiquement depuis le site web`;
+    message += `💰 TOTAL ${serviceTotal.toFixed(2)}€\n\n`;
     
-    // Choisir le bon lien selon le service
+    if (targetService === 'livraison') {
+      message += `Les frais de routes seront indiqué par le standard\n\n`;
+    }
+    
+    message += `Commande générée automatiquement depuis le site web\n\n`;
+    
+    // Ajouter le type de client à la fin
+    if (clientType) {
+      message += `👤 ${clientType === 'nouveau' ? '🆕 Je suis nouveau laitier' : '☑️ Je suis laitier confirmé'}`;
+    }
+    
+    // Choisir le bon lien selon le service ET le type de client
     let chosenLink = orderLink; // Fallback par défaut
     
-    if (serviceLinks[targetService]) {
+    // Priorité 1: Lien selon le type de client (nouveau/confirmé)
+    if (clientType === 'nouveau' && serviceLinks.nouveau_laitier) {
+      chosenLink = serviceLinks.nouveau_laitier;
+      console.log(`📱 Utilisation du lien pour nouveau laitier:`, chosenLink);
+    } else if (clientType === 'confirme' && serviceLinks.laitier_confirme) {
+      chosenLink = serviceLinks.laitier_confirme;
+      console.log(`📱 Utilisation du lien pour laitier confirmé:`, chosenLink);
+    }
+    // Priorité 2: Lien selon le service
+    else if (serviceLinks[targetService]) {
       chosenLink = serviceLinks[targetService];
       console.log(`📱 Utilisation du lien spécifique pour ${targetService}:`, chosenLink);
     } else {
-      console.log(`📱 Pas de lien configuré pour ${targetService}, utilisation du lien principal`);
+      console.log(`📱 Pas de lien configuré, utilisation du lien principal`);
     }
     
     // Encoder le message pour l'URL
@@ -203,6 +243,69 @@ export default function Cart() {
     
     // Afficher un message de succès
     toast.success(`📱 Commande ${serviceName} envoyée !`);
+  };
+
+  // Fonction pour copier le message dans le presse-papiers
+  const copyOrderMessage = async (targetService: 'livraison' | 'envoi' | 'meetup') => {
+    const serviceItems = items.filter(item => item.service === targetService);
+    const serviceTotal = serviceItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    const serviceIcon = targetService === 'livraison' ? '🚚' : targetService === 'envoi' ? '📦' : '📍';
+    const serviceName = targetService === 'livraison' ? 'LIVRAISON À DOMICILE' : targetService === 'envoi' ? 'ENVOI POSTAL' : 'POINT DE RENCONTRE';
+    
+    let message = `${serviceIcon} COMMANDE ${serviceName}:\n\n`;
+    
+    if (targetService === 'livraison' && serviceItems.length > 0 && serviceItems[0].deliveryAddress) {
+      message += `${serviceItems[0].deliveryAddress}\n`;
+      message += `${serviceItems[0].deliveryPostalCode}\n`;
+      message += `${serviceItems[0].deliveryCity}\n`;
+      if (serviceItems[0].schedule) {
+        message += `Horaire demandé: ${serviceItems[0].schedule}\n`;
+      }
+      message += `\n`;
+    }
+    
+    serviceItems.forEach((item, index) => {
+      let productEmoji = '🌿';
+      const productLower = item.productName.toLowerCase();
+      if (productLower.includes('mint') || productLower.includes('triangle')) {
+        productEmoji = '🌵';
+      } else if (productLower.includes('tropic') || productLower.includes('smooth')) {
+        productEmoji = '🌴';
+      } else if (productLower.includes('chocolate') || productLower.includes('dubai')) {
+        productEmoji = '🌍';
+      }
+      
+      message += `${index + 1}. ${item.productName.toUpperCase()} ${productEmoji}\n`;
+      message += `• Quantité: ${item.quantity}x ${item.weight}\n`;
+      
+      if (item.schedule && targetService !== 'livraison') {
+        message += `• ${item.schedule}\n`;
+      }
+      
+      message += '\n';
+    });
+    
+    message += `💰 TOTAL ${serviceTotal.toFixed(2)}€\n\n`;
+    
+    if (targetService === 'livraison') {
+      message += `Les frais de routes seront indiqué par le standard\n\n`;
+    }
+    
+    message += `Commande générée automatiquement depuis le site web\n\n`;
+    
+    if (clientType) {
+      message += `👤 ${clientType === 'nouveau' ? '🆕 Je suis nouveau laitier' : '☑️ Je suis laitier confirmé'}`;
+    }
+    
+    try {
+      await navigator.clipboard.writeText(message);
+      toast.success('📋 Message copié ! Collez-le dans Telegram');
+      return true;
+    } catch (err) {
+      console.error('Erreur copie:', err);
+      toast.error('Impossible de copier le message');
+      return false;
+    }
   };
 
   // Fonction pour envoyer toute la commande (comportement original)
@@ -267,6 +370,8 @@ export default function Cart() {
                   {currentStep === 'cart' && 'Mon Panier'}
                   {currentStep === 'service' && 'Mode de livraison'}
                   {currentStep === 'schedule' && 'Options & Horaires'}
+                  {currentStep === 'delivery' && 'Adresse de livraison'}
+                  {currentStep === 'clientType' && 'Type de client'}
                   {currentStep === 'review' && 'Récapitulatif'}
                 </h2>
                 <span className="rounded-full bg-green-500 px-2 py-1 text-sm font-medium text-black">
@@ -283,25 +388,35 @@ export default function Cart() {
             
             {/* Indicateur d'étapes */}
             {items.length > 0 && (
-              <div className="flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-1 text-xs overflow-x-auto">
                 <div className={`flex items-center gap-1 ${currentStep === 'cart' ? 'text-green-400' : 'text-gray-400'}`}>
                   <span className={`w-2 h-2 rounded-full ${currentStep === 'cart' ? 'bg-green-400' : 'bg-gray-600'}`}></span>
                   Panier
                 </div>
                 <ArrowRight className="w-3 h-3 text-gray-600" />
                 <div className={`flex items-center gap-1 ${currentStep === 'service' ? 'text-green-400' : 'text-gray-400'}`}>
-                  <span className={`w-2 h-2 rounded-full ${currentStep === 'service' || (currentStep === 'schedule' || currentStep === 'review') && getItemsNeedingService().length === 0 ? 'bg-green-400' : 'bg-gray-600'}`}></span>
+                  <span className={`w-2 h-2 rounded-full ${getItemsNeedingService().length === 0 ? 'bg-green-400' : 'bg-gray-600'}`}></span>
                   Service
                 </div>
                 <ArrowRight className="w-3 h-3 text-gray-600" />
                 <div className={`flex items-center gap-1 ${currentStep === 'schedule' ? 'text-green-400' : 'text-gray-400'}`}>
-                  <span className={`w-2 h-2 rounded-full ${currentStep === 'schedule' || (currentStep === 'review' && getItemsNeedingSchedule().length === 0) ? 'bg-green-400' : 'bg-gray-600'}`}></span>
-                  Options
+                  <span className={`w-2 h-2 rounded-full ${getItemsNeedingSchedule().length === 0 ? 'bg-green-400' : 'bg-gray-600'}`}></span>
+                  Horaire
+                </div>
+                <ArrowRight className="w-3 h-3 text-gray-600" />
+                <div className={`flex items-center gap-1 ${currentStep === 'delivery' ? 'text-green-400' : 'text-gray-400'}`}>
+                  <span className={`w-2 h-2 rounded-full ${getItemsNeedingDeliveryInfo().length === 0 ? 'bg-green-400' : 'bg-gray-600'}`}></span>
+                  Adresse
+                </div>
+                <ArrowRight className="w-3 h-3 text-gray-600" />
+                <div className={`flex items-center gap-1 ${currentStep === 'clientType' ? 'text-green-400' : 'text-gray-400'}`}>
+                  <span className={`w-2 h-2 rounded-full ${clientType ? 'bg-green-400' : 'bg-gray-600'}`}></span>
+                  Type
                 </div>
                 <ArrowRight className="w-3 h-3 text-gray-600" />
                 <div className={`flex items-center gap-1 ${currentStep === 'review' ? 'text-green-400' : 'text-gray-400'}`}>
                   <span className={`w-2 h-2 rounded-full ${currentStep === 'review' ? 'bg-green-400' : 'bg-gray-600'}`}></span>
-                  Commande
+                  Envoi
                 </div>
               </div>
             )}
@@ -456,22 +571,192 @@ export default function Cart() {
                   </div>
                 )}
 
-                {/* Étape 4: Récapitulatif */}
+                {/* Étape 4: Adresse de livraison */}
+                {currentStep === 'delivery' && (
+                  <div className="space-y-6">
+                    <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
+                      🏠 Renseignez votre adresse pour les articles en livraison à domicile
+                    </div>
+                    
+                    {items.filter(item => item.service === 'livraison').map((item) => (
+                      <div key={`delivery-${item.productId}-${item.weight}`} className="space-y-3">
+                        <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
+                          <img src={item.image} alt={item.productName} className="w-12 h-12 object-cover rounded" />
+                          <div className="flex-1">
+                            <p className="font-medium text-white">{item.productName}</p>
+                            <p className="text-sm text-gray-400">{item.weight}</p>
+                            <p className="text-sm text-green-400">🚚 Livraison à domicile</p>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-gray-800/30 p-4 rounded-lg space-y-3">
+                          <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                              Adresse
+                            </label>
+                            <input
+                              type="text"
+                              value={item.deliveryAddress || ''}
+                              onChange={(e) => updateDeliveryInfo(
+                                item.productId, 
+                                item.weight, 
+                                e.target.value,
+                                item.deliveryPostalCode || '',
+                                item.deliveryCity || ''
+                              )}
+                              placeholder="12 rue des tulipes"
+                              className="w-full bg-gray-700 border border-white/20 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            />
+                          </div>
+                          
+                          <div className="grid grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-300 mb-2">
+                                Code postal
+                              </label>
+                              <input
+                                type="text"
+                                value={item.deliveryPostalCode || ''}
+                                onChange={(e) => updateDeliveryInfo(
+                                  item.productId, 
+                                  item.weight,
+                                  item.deliveryAddress || '',
+                                  e.target.value,
+                                  item.deliveryCity || ''
+                                )}
+                                placeholder="92000"
+                                className="w-full bg-gray-700 border border-white/20 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                              />
+                            </div>
+                            
+                            <div>
+                              <label className="block text-sm font-medium text-gray-300 mb-2">
+                                Ville
+                              </label>
+                              <input
+                                type="text"
+                                value={item.deliveryCity || ''}
+                                onChange={(e) => updateDeliveryInfo(
+                                  item.productId, 
+                                  item.weight,
+                                  item.deliveryAddress || '',
+                                  item.deliveryPostalCode || '',
+                                  e.target.value
+                                )}
+                                placeholder="Nanterre"
+                                className="w-full bg-gray-700 border border-white/20 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                              />
+                            </div>
+                          </div>
+                          
+                          {item.deliveryAddress && item.deliveryPostalCode && item.deliveryCity && (
+                            <div className="text-xs text-green-400 bg-green-500/10 p-2 rounded">
+                              ✓ Adresse complète
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {items.filter(item => item.service === 'livraison').length === 0 && (
+                      <div className="text-center text-gray-400 py-8">
+                        <p>Aucun article avec livraison à domicile</p>
+                        <p className="text-sm mt-2">Passez à l'étape suivante</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Étape 5: Type de client */}
+                {currentStep === 'clientType' && (
+                  <div className="space-y-6">
+                    <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
+                      👤 Indiquez si vous êtes un nouveau client ou un client confirmé
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <button
+                        onClick={() => setClientType('nouveau')}
+                        className={`w-full p-4 rounded-lg border-2 transition-all ${
+                          clientType === 'nouveau'
+                            ? 'border-green-500 bg-green-500/20 text-white'
+                            : 'border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                            clientType === 'nouveau' ? 'border-green-500 bg-green-500' : 'border-gray-500'
+                          }`}>
+                            {clientType === 'nouveau' && <span className="text-white text-xs">✓</span>}
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="font-medium text-lg">🆕 Je suis nouveau laitier</p>
+                            <p className="text-sm text-gray-400 mt-1">Première commande ou client occasionnel</p>
+                          </div>
+                        </div>
+                      </button>
+                      
+                      <button
+                        onClick={() => setClientType('confirme')}
+                        className={`w-full p-4 rounded-lg border-2 transition-all ${
+                          clientType === 'confirme'
+                            ? 'border-green-500 bg-green-500/20 text-white'
+                            : 'border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
+                            clientType === 'confirme' ? 'border-green-500 bg-green-500' : 'border-gray-500'
+                          }`}>
+                            {clientType === 'confirme' && <span className="text-white text-xs">✓</span>}
+                          </div>
+                          <div className="flex-1 text-left">
+                            <p className="font-medium text-lg">☑️ Je suis laitier confirmé</p>
+                            <p className="text-sm text-gray-400 mt-1">Client régulier avec historique de commandes</p>
+                          </div>
+                        </div>
+                      </button>
+                    </div>
+                    
+                    {clientType && (
+                      <div className="text-sm text-green-400 bg-green-500/10 p-3 rounded-lg border border-green-500/20">
+                        ✓ Type de client sélectionné : {clientType === 'nouveau' ? '🆕 Nouveau laitier' : '☑️ Laitier confirmé'}
+                      </div>
+                    )}
+                  </div>
+                )}
+
+                {/* Étape 6: Récapitulatif */}
                 {currentStep === 'review' && (
                   <div className="space-y-4">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
                       Vérifiez votre commande avant envoi
                     </div>
                     
+                    {/* Récapitulatif du type de client */}
+                    {clientType && (
+                      <div className="text-sm bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg flex items-center gap-2">
+                        <span className="text-lg">👤</span>
+                        <div className="flex-1">
+                          <div className="font-medium text-purple-300">Type de client :</div>
+                          <div className="text-purple-200 mt-1">
+                            {clientType === 'nouveau' ? '🆕 Nouveau laitier' : '☑️ Laitier confirmé'}
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                    
                     <div className="text-sm text-blue-400 bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg flex items-start gap-2">
                       <span className="text-lg">📱</span>
                       <div>
                         <div className="font-medium">Comment ça marche :</div>
                         <div className="text-xs opacity-90 mt-1">
-                          • Telegram s'ouvrira avec votre commande pré-remplie<br/>
-                          • Chaque service est dirigé vers son canal dédié<br/>
-                          • Il vous suffira de cliquer "Envoyer" dans Telegram<br/>
-                          • Aucune copie/collage nécessaire !
+                          • Copiez le message avec le bouton ci-dessous<br/>
+                          • Collez-le dans Telegram et envoyez<br/>
+                          • Votre commande sera dirigée vers le bon canal<br/>
+                          {(serviceLinks.nouveau_laitier || serviceLinks.laitier_confirme) && (
+                            <>• Canal dédié selon votre type (nouveau/confirmé)</>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -596,7 +881,13 @@ export default function Cart() {
                           item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi') && !item.schedule
                         );
                         if (itemsNeedingSchedule.length === 0) {
-                          setCurrentStep('review');
+                          // Vérifier s'il y a des articles avec livraison
+                          const hasDelivery = items.some(item => item.service === 'livraison');
+                          if (hasDelivery) {
+                            setCurrentStep('delivery');
+                          } else {
+                            setCurrentStep('clientType');
+                          }
                         } else {
                           toast.error('Veuillez choisir des options pour tous les articles nécessaires');
                         }
@@ -604,6 +895,66 @@ export default function Cart() {
                       disabled={items.filter(item => 
                         item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi') && !item.schedule
                       ).length > 0}
+                      className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Continuer
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                {currentStep === 'delivery' && (
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => setCurrentStep('schedule')}
+                      className="flex-1 rounded-lg bg-gray-700 py-3 font-medium text-white hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Retour
+                    </button>
+                    <button
+                      onClick={() => {
+                        const itemsNeedingDeliveryInfo = getItemsNeedingDeliveryInfo();
+                        if (itemsNeedingDeliveryInfo.length === 0) {
+                          setCurrentStep('clientType');
+                        } else {
+                          toast.error('Veuillez renseigner toutes les adresses de livraison');
+                        }
+                      }}
+                      disabled={getItemsNeedingDeliveryInfo().length > 0}
+                      className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                      Continuer
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+
+                {currentStep === 'clientType' && (
+                  <div className="flex gap-3">
+                    <button
+                      onClick={() => {
+                        const hasDelivery = items.some(item => item.service === 'livraison');
+                        if (hasDelivery) {
+                          setCurrentStep('delivery');
+                        } else {
+                          setCurrentStep('schedule');
+                        }
+                      }}
+                      className="flex-1 rounded-lg bg-gray-700 py-3 font-medium text-white hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
+                    >
+                      <ArrowLeft className="w-4 h-4" />
+                      Retour
+                    </button>
+                    <button
+                      onClick={() => {
+                        if (clientType) {
+                          setCurrentStep('review');
+                        } else {
+                          toast.error('Veuillez sélectionner votre type de client');
+                        }
+                      }}
+                      disabled={!clientType}
                       className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Finaliser
@@ -636,9 +987,22 @@ export default function Cart() {
                           <div className="space-y-2">
                             {hasConfiguredLink && (
                               <div className="text-xs text-green-400 bg-green-500/10 p-2 rounded border border-green-500/20">
-                                🎯 Direction: Canal {serviceName}
+                                🎯 Direction: {clientType === 'nouveau' && serviceLinks.nouveau_laitier ? 'Canal Nouveau laitier' : clientType === 'confirme' && serviceLinks.laitier_confirme ? 'Canal Laitier confirmé' : `Canal ${serviceName}`}
                               </div>
                             )}
+                            
+                            {/* Bouton copier message */}
+                            <button
+                              onClick={() => copyOrderMessage(service)}
+                              className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2"
+                            >
+                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                              </svg>
+                              📋 Copier le message {serviceIcon}
+                            </button>
+                            
+                            {/* Bouton envoyer vers Telegram */}
                             <button
                               onClick={() => handleSendOrderByService(service)}
                               disabled={!isCartReadyForOrder()}
@@ -647,7 +1011,7 @@ export default function Cart() {
                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.66-.52-.38L8.74 13.5l-4.4-1.39c-.96-.3-.96-1.22.07-1.57L22.61 3.6c.84-.35 1.63.34 1.28 1.28l-6.94 18.2c-.35.82-1.27.52-1.57-.07l-1.89-4.48c-.18-.42-.61-.68-1.07-.68-.46 0-.89.26-1.07.68l-1.89 4.48c-.3.59-1.22.89-1.57.07z"/>
                               </svg>
-                              {serviceIcon} Envoyer vers Telegram {serviceName}
+                              {serviceIcon} Ouvrir Telegram
                             </button>
                           </div>
                         );
@@ -669,16 +1033,26 @@ export default function Cart() {
                               const hasConfiguredLink = serviceLinks[service];
                               
                               return (
-                                <div key={service} className="space-y-1">
+                                <div key={service} className="space-y-2">
+                                  <div className="text-xs text-gray-400">{serviceIcon} {serviceName} • {serviceTotal.toFixed(2)}€ • {serviceItems.length} article{serviceItems.length > 1 ? 's' : ''}</div>
+                                  
+                                  {/* Bouton copier */}
+                                  <button
+                                    onClick={() => copyOrderMessage(service)}
+                                    className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-2 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2"
+                                  >
+                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                                    </svg>
+                                    📋 Copier
+                                  </button>
+                                  
+                                  {/* Bouton envoyer */}
                                   <button
                                     onClick={() => handleSendOrderByService(service)}
-                                    className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-between px-4"
+                                    className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-2 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
                                   >
-                                    <span className="flex items-center gap-2">
-                                      {serviceIcon} {serviceName}
-                                      {hasConfiguredLink && <span className="text-xs bg-white/20 px-1 rounded">Canal dédié</span>}
-                                    </span>
-                                    <span className="text-sm">{serviceTotal.toFixed(2)}€ • {serviceItems.length} art.</span>
+                                    {serviceIcon} Ouvrir Telegram
                                   </button>
                                 </div>
                               );

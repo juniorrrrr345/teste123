@@ -5,6 +5,8 @@ interface ServiceLinks {
   livraison: string;
   envoi: string;
   meetup: string;
+  nouveau_laitier: string;
+  laitier_confirme: string;
 }
 
 interface ServiceSchedules {
@@ -28,7 +30,9 @@ export default function ServiceLinksManager() {
   const [serviceLinks, setServiceLinks] = useState<ServiceLinks>({
     livraison: '',
     envoi: '',
-    meetup: ''
+    meetup: '',
+    nouveau_laitier: '',
+    laitier_confirme: ''
   });
   const [serviceSchedules, setServiceSchedules] = useState<ServiceSchedules>({
     livraison_schedules: ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
@@ -59,7 +63,9 @@ export default function ServiceLinksManager() {
         setServiceLinks({
           livraison: data.telegram_livraison || data.livraison || '',
           envoi: data.telegram_envoi || data.envoi || '',
-          meetup: data.telegram_meetup || data.meetup || ''
+          meetup: data.telegram_meetup || data.meetup || '',
+          nouveau_laitier: data.telegram_nouveau_laitier || '',
+          laitier_confirme: data.telegram_laitier_confirme || ''
         });
         
         // Charger les horaires personnalisés
@@ -108,6 +114,8 @@ export default function ServiceLinksManager() {
         telegram_livraison: serviceLinks.livraison,
         telegram_envoi: serviceLinks.envoi,
         telegram_meetup: serviceLinks.meetup,
+        telegram_nouveau_laitier: serviceLinks.nouveau_laitier,
+        telegram_laitier_confirme: serviceLinks.laitier_confirme,
         // Conserver aussi l'ancien format pour compatibilité
         livraison: serviceLinks.livraison,
         envoi: serviceLinks.envoi,
@@ -220,6 +228,18 @@ export default function ServiceLinksManager() {
       name: 'Point de rencontre',
       icon: '📍',
       description: 'Lien Telegram pour les commandes de point de rencontre'
+    },
+    {
+      key: 'nouveau_laitier' as keyof ServiceLinks,
+      name: 'Telegram Nouveau laitier',
+      icon: '🆕',
+      description: 'Lien Telegram dédié pour les nouveaux clients'
+    },
+    {
+      key: 'laitier_confirme' as keyof ServiceLinks,
+      name: 'Telegram Laitier confirmé',
+      icon: '☑️',
+      description: 'Lien Telegram dédié pour les clients confirmés'
     }
   ];
 
@@ -334,9 +354,26 @@ export default function ServiceLinksManager() {
         </h4>
         <ul className="text-blue-100 text-sm space-y-1">
           <li>• Chaque service aura son propre lien Telegram</li>
-          <li>• Les commandes seront automatiquement dirigées vers le bon canal</li>
-          <li>• Le message inclura le type de service choisi par le client</li>
-          <li>• Si un lien n'est pas configuré, le système utilisera le lien principal</li>
+          <li>• <strong>Priorité 1:</strong> Si configurés, les liens "Nouveau laitier" ou "Laitier confirmé" sont utilisés selon le choix du client</li>
+          <li>• <strong>Priorité 2:</strong> Sinon, le lien spécifique au service (Livraison/Envoi/Meetup) est utilisé</li>
+          <li>• <strong>Priorité 3:</strong> Si aucun lien n'est configuré, le système utilise le lien principal</li>
+          <li>• Le message inclura toutes les informations : adresse (si livraison), type de client, produits commandés</li>
+        </ul>
+      </div>
+      
+      {/* Nouvelle section d'information pour les types de clients */}
+      <div className="mt-4 bg-purple-900/30 border border-purple-500/30 rounded-lg p-4">
+        <h4 className="text-purple-400 font-medium mb-2 flex items-center">
+          <span className="mr-2">👤</span>
+          Types de clients (Nouveau laitier / Laitier confirmé)
+        </h4>
+        <p className="text-purple-100 text-sm mb-2">
+          Les clients devront choisir leur type lors de la commande. Cela permet de diriger les commandes vers des canaux différents selon leur profil :
+        </p>
+        <ul className="text-purple-100 text-sm space-y-1">
+          <li>• 🆕 <strong>Nouveau laitier :</strong> Première commande ou client occasionnel</li>
+          <li>• ☑️ <strong>Laitier confirmé :</strong> Client régulier avec historique</li>
+          <li>• Les liens ci-dessus ont priorité sur les liens de service si configurés</li>
         </ul>
       </div>
 
