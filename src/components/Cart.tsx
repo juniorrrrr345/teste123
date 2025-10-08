@@ -170,10 +170,10 @@ export default function Cart() {
     
     message += `Commande générée automatiquement depuis le site web\n\n`;
     
-    // Ajouter le type de client à la fin
-    if (clientType) {
-      message += `👤 ${clientType === 'nouveau' ? '🆕 Je suis nouveau laitier' : '☑️ Je suis laitier confirmé'}`;
-    }
+    // Ajouter la question pour le type de client
+    message += `❓ Êtes-vous nouveau laitier ?\n`;
+    message += `   □ Oui, je suis nouveau\n`;
+    message += `   □ Non, je suis client confirmé`;
     
     // Choisir le bon lien selon le service
     let chosenLink = orderLink; // Fallback par défaut
@@ -283,9 +283,10 @@ export default function Cart() {
     
     message += `Commande générée automatiquement depuis le site web\n\n`;
     
-    if (clientType) {
-      message += `👤 ${clientType === 'nouveau' ? '🆕 Je suis nouveau laitier' : '☑️ Je suis laitier confirmé'}`;
-    }
+    // Ajouter la question pour le type de client
+    message += `❓ Êtes-vous nouveau laitier ?\n`;
+    message += `   □ Oui, je suis nouveau\n`;
+    message += `   □ Non, je suis client confirmé`;
     
     try {
       await navigator.clipboard.writeText(message);
