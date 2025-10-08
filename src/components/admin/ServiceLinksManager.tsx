@@ -5,8 +5,7 @@ interface ServiceLinks {
   livraison: string;
   envoi: string;
   meetup: string;
-  nouveau_laitier: string;
-  laitier_confirme: string;
+  telegram_passer_commande: string;
 }
 
 interface ServiceSchedules {
@@ -31,8 +30,7 @@ export default function ServiceLinksManager() {
     livraison: '',
     envoi: '',
     meetup: '',
-    nouveau_laitier: '',
-    laitier_confirme: ''
+    telegram_passer_commande: ''
   });
   const [serviceSchedules, setServiceSchedules] = useState<ServiceSchedules>({
     livraison_schedules: ['Matin (9h-12h)', 'Après-midi (14h-17h)', 'Soirée (17h-20h)', 'Flexible (à convenir)'],
@@ -64,8 +62,7 @@ export default function ServiceLinksManager() {
           livraison: data.telegram_livraison || data.livraison || '',
           envoi: data.telegram_envoi || data.envoi || '',
           meetup: data.telegram_meetup || data.meetup || '',
-          nouveau_laitier: data.telegram_nouveau_laitier || '',
-          laitier_confirme: data.telegram_laitier_confirme || ''
+          telegram_passer_commande: data.telegram_passer_commande || ''
         });
         
         // Charger les horaires personnalisés
@@ -114,8 +111,7 @@ export default function ServiceLinksManager() {
         telegram_livraison: serviceLinks.livraison,
         telegram_envoi: serviceLinks.envoi,
         telegram_meetup: serviceLinks.meetup,
-        telegram_nouveau_laitier: serviceLinks.nouveau_laitier,
-        telegram_laitier_confirme: serviceLinks.laitier_confirme,
+        telegram_passer_commande: serviceLinks.telegram_passer_commande,
         // Conserver aussi l'ancien format pour compatibilité
         livraison: serviceLinks.livraison,
         envoi: serviceLinks.envoi,
@@ -230,16 +226,10 @@ export default function ServiceLinksManager() {
       description: 'Lien Telegram pour les commandes de point de rencontre'
     },
     {
-      key: 'nouveau_laitier' as keyof ServiceLinks,
-      name: 'Telegram Nouveau laitier',
-      icon: '🆕',
-      description: 'Lien Telegram dédié pour les nouveaux clients'
-    },
-    {
-      key: 'laitier_confirme' as keyof ServiceLinks,
-      name: 'Telegram Laitier confirmé',
-      icon: '☑️',
-      description: 'Lien Telegram dédié pour les clients confirmés'
+      key: 'telegram_passer_commande' as keyof ServiceLinks,
+      name: 'Lien telegram passer ma commande',
+      icon: '👩‍💻',
+      description: 'Lien pour le bouton "Passer ma première commande" (pour les nouveaux clients)'
     }
   ];
 
@@ -353,27 +343,11 @@ export default function ServiceLinksManager() {
           Comment ça fonctionne
         </h4>
         <ul className="text-blue-100 text-sm space-y-1">
-          <li>• Chaque service aura son propre lien Telegram</li>
-          <li>• <strong>Priorité 1:</strong> Si configurés, les liens "Nouveau laitier" ou "Laitier confirmé" sont utilisés selon le choix du client</li>
-          <li>• <strong>Priorité 2:</strong> Sinon, le lien spécifique au service (Livraison/Envoi/Meetup) est utilisé</li>
-          <li>• <strong>Priorité 3:</strong> Si aucun lien n'est configuré, le système utilise le lien principal</li>
-          <li>• Le message inclura toutes les informations : adresse (si livraison), type de client, produits commandés</li>
-        </ul>
-      </div>
-      
-      {/* Nouvelle section d'information pour les types de clients */}
-      <div className="mt-4 bg-purple-900/30 border border-purple-500/30 rounded-lg p-4">
-        <h4 className="text-purple-400 font-medium mb-2 flex items-center">
-          <span className="mr-2">👤</span>
-          Types de clients (Nouveau laitier / Laitier confirmé)
-        </h4>
-        <p className="text-purple-100 text-sm mb-2">
-          Les clients devront choisir leur type lors de la commande. Cela permet de diriger les commandes vers des canaux différents selon leur profil :
-        </p>
-        <ul className="text-purple-100 text-sm space-y-1">
-          <li>• 🆕 <strong>Nouveau laitier :</strong> Première commande ou client occasionnel</li>
-          <li>• ☑️ <strong>Laitier confirmé :</strong> Client régulier avec historique</li>
-          <li>• Les liens ci-dessus ont priorité sur les liens de service si configurés</li>
+          <li>• Chaque service aura son propre lien Telegram (Livraison/Envoi/Meetup)</li>
+          <li>• Le bouton "Copier mon Recap' commande 📝" copie le message dans le presse-papiers</li>
+          <li>• Le bouton "Passer ma première commande 👩‍💻" redirige vers le lien configuré ci-dessus</li>
+          <li>• Si le lien "Passer ma commande" n'est pas configuré, il utilisera le lien principal</li>
+          <li>• Le message inclura toutes les informations : adresse (si livraison), produits commandés</li>
         </ul>
       </div>
 

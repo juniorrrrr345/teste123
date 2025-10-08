@@ -32,8 +32,7 @@ export default function Cart() {
     livraison: '',
     envoi: '',
     meetup: '',
-    nouveau_laitier: '',
-    laitier_confirme: ''
+    telegram_passer_commande: ''
   });
   const [customSchedules, setCustomSchedules] = useState({
     livraison: [] as string[],
@@ -66,8 +65,7 @@ export default function Cart() {
           livraison: data.telegram_livraison || data.livraison || '',
           envoi: data.telegram_envoi || data.envoi || '',
           meetup: data.telegram_meetup || data.meetup || '',
-          nouveau_laitier: data.telegram_nouveau_laitier || '',
-          laitier_confirme: data.telegram_laitier_confirme || ''
+          telegram_passer_commande: data.telegram_passer_commande || ''
         });
         
         // Charger les horaires personnalisés
@@ -177,19 +175,11 @@ export default function Cart() {
       message += `👤 ${clientType === 'nouveau' ? '🆕 Je suis nouveau laitier' : '☑️ Je suis laitier confirmé'}`;
     }
     
-    // Choisir le bon lien selon le service ET le type de client
+    // Choisir le bon lien selon le service
     let chosenLink = orderLink; // Fallback par défaut
     
-    // Priorité 1: Lien selon le type de client (nouveau/confirmé)
-    if (clientType === 'nouveau' && serviceLinks.nouveau_laitier) {
-      chosenLink = serviceLinks.nouveau_laitier;
-      console.log(`📱 Utilisation du lien pour nouveau laitier:`, chosenLink);
-    } else if (clientType === 'confirme' && serviceLinks.laitier_confirme) {
-      chosenLink = serviceLinks.laitier_confirme;
-      console.log(`📱 Utilisation du lien pour laitier confirmé:`, chosenLink);
-    }
-    // Priorité 2: Lien selon le service
-    else if (serviceLinks[targetService]) {
+    // Priorité: Lien selon le service
+    if (serviceLinks[targetService]) {
       chosenLink = serviceLinks[targetService];
       console.log(`📱 Utilisation du lien spécifique pour ${targetService}:`, chosenLink);
     } else {
@@ -877,7 +867,7 @@ export default function Cart() {
                           <div className="space-y-2">
                             {hasConfiguredLink && (
                               <div className="text-xs text-green-400 bg-green-500/10 p-2 rounded border border-green-500/20">
-                                🎯 Direction: {clientType === 'nouveau' && serviceLinks.nouveau_laitier ? 'Canal Nouveau laitier' : clientType === 'confirme' && serviceLinks.laitier_confirme ? 'Canal Laitier confirmé' : `Canal ${serviceName}`}
+                                🎯 Direction: Canal {serviceName}
                               </div>
                             )}
                             
@@ -895,12 +885,12 @@ export default function Cart() {
                             {/* Bouton première commande */}
                             <button
                               onClick={() => {
-                                const nouveauLaitierLink = serviceLinks.nouveau_laitier || orderLink;
-                                if (nouveauLaitierLink && nouveauLaitierLink !== '#') {
-                                  window.open(nouveauLaitierLink, '_blank');
-                                  toast.success('🆕 Redirection vers le canal nouveau laitier !');
+                                const passerCommandeLink = serviceLinks.telegram_passer_commande || orderLink;
+                                if (passerCommandeLink && passerCommandeLink !== '#') {
+                                  window.open(passerCommandeLink, '_blank');
+                                  toast.success('👩‍💻 Redirection vers le canal de commande !');
                                 } else {
-                                  toast.error('Aucun lien configuré pour les nouveaux laitiers');
+                                  toast.error('Aucun lien configuré pour passer commande');
                                 }
                               }}
                               className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-3 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
@@ -947,12 +937,12 @@ export default function Cart() {
                                   {/* Bouton première commande */}
                                   <button
                                     onClick={() => {
-                                      const nouveauLaitierLink = serviceLinks.nouveau_laitier || orderLink;
-                                      if (nouveauLaitierLink && nouveauLaitierLink !== '#') {
-                                        window.open(nouveauLaitierLink, '_blank');
-                                        toast.success('🆕 Redirection vers le canal nouveau laitier !');
+                                      const passerCommandeLink = serviceLinks.telegram_passer_commande || orderLink;
+                                      if (passerCommandeLink && passerCommandeLink !== '#') {
+                                        window.open(passerCommandeLink, '_blank');
+                                        toast.success('👩‍💻 Redirection vers le canal de commande !');
                                       } else {
-                                        toast.error('Aucun lien configuré pour les nouveaux laitiers');
+                                        toast.error('Aucun lien configuré pour passer commande');
                                       }
                                     }}
                                     className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-2 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
