@@ -885,14 +885,90 @@ export default function Cart() {
                             
                             {/* Bouton première commande */}
                             <button
-                              onClick={() => {
+                              onClick={async () => {
                                 const passerCommandeLink = serviceLinks.telegram_passer_commande || orderLink;
-                                if (passerCommandeLink && passerCommandeLink !== '#') {
-                                  window.open(passerCommandeLink, '_blank');
-                                  toast.success('👩‍💻 Redirection vers le canal de commande !');
-                                } else {
+                                if (!passerCommandeLink || passerCommandeLink === '#') {
                                   toast.error('Aucun lien configuré pour passer commande');
+                                  return;
                                 }
+                                
+                                // Construire le message de commande complet
+                                const serviceItems = items.filter(item => item.service === service);
+                                const serviceTotal = serviceItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                                const serviceIcon = service === 'livraison' ? '🚚' : service === 'envoi' ? '📦' : '📍';
+                                const serviceName = service === 'livraison' ? 'LIVRAISON À DOMICILE' : service === 'envoi' ? 'ENVOI POSTAL' : 'POINT DE RENCONTRE';
+                                
+                                let message = `${serviceIcon} COMMANDE ${serviceName}:\n\n`;
+                                
+                                if (service === 'livraison' && serviceItems.length > 0 && serviceItems[0].deliveryAddress) {
+                                  message += `${serviceItems[0].deliveryAddress}\n`;
+                                  message += `${serviceItems[0].deliveryPostalCode}\n`;
+                                  message += `${serviceItems[0].deliveryCity}\n`;
+                                  if (serviceItems[0].schedule) {
+                                    message += `Horaire demandé: ${serviceItems[0].schedule}\n`;
+                                  }
+                                  message += `\n`;
+                                }
+                                
+                                serviceItems.forEach((item, index) => {
+                                  let productEmoji = '🌿';
+                                  const productLower = item.productName.toLowerCase();
+                                  if (productLower.includes('mint') || productLower.includes('triangle')) {
+                                    productEmoji = '🌵';
+                                  } else if (productLower.includes('tropic') || productLower.includes('smooth')) {
+                                    productEmoji = '🌴';
+                                  } else if (productLower.includes('chocolate') || productLower.includes('dubai')) {
+                                    productEmoji = '🌍';
+                                  }
+                                  
+                                  message += `${index + 1}. ${item.productName.toUpperCase()} ${productEmoji}\n`;
+                                  message += `• Quantité: ${item.quantity}x ${item.weight}\n`;
+                                  
+                                  if (item.schedule && service !== 'livraison') {
+                                    message += `• ${item.schedule}\n`;
+                                  }
+                                  
+                                  message += '\n';
+                                });
+                                
+                                message += `💰 TOTAL ${serviceTotal.toFixed(2)}€\n\n`;
+                                
+                                if (service === 'livraison') {
+                                  message += `Les frais de routes seront indiqué par le standard\n\n`;
+                                }
+                                
+                                message += `Commande générée automatiquement depuis le site web\n\n`;
+                                message += `❓ Êtes-vous nouveau laitier ?\n`;
+                                message += `   □ Oui, je suis nouveau\n`;
+                                message += `   □ Non, je suis client confirmé`;
+                                
+                                // Encoder le message
+                                const encodedMessage = encodeURIComponent(message);
+                                
+                                // Construire l'URL avec le message pré-rempli
+                                let finalUrl = passerCommandeLink;
+                                if (passerCommandeLink.includes('t.me')) {
+                                  if (passerCommandeLink.includes('/+')) {
+                                    // Lien d'invitation : copier dans le presse-papiers
+                                    try {
+                                      await navigator.clipboard.writeText(message);
+                                      toast.success('📋 Message copié ! Collez-le dans Telegram après avoir rejoint');
+                                    } catch (err) {
+                                      console.log('Clipboard non disponible');
+                                    }
+                                  } else {
+                                    // Lien direct : ajouter le message
+                                    const separator = passerCommandeLink.includes('?') ? '&' : '?';
+                                    finalUrl = `${passerCommandeLink}${separator}text=${encodedMessage}`;
+                                  }
+                                } else {
+                                  // Autre lien : essayer d'ajouter le message
+                                  const separator = passerCommandeLink.includes('?') ? '&' : '?';
+                                  finalUrl = `${passerCommandeLink}${separator}text=${encodedMessage}`;
+                                }
+                                
+                                window.open(finalUrl, '_blank');
+                                toast.success('👩‍💻 Redirection vers le canal de commande !');
                               }}
                               className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-3 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
                             >
@@ -937,14 +1013,87 @@ export default function Cart() {
                                   
                                   {/* Bouton première commande */}
                                   <button
-                                    onClick={() => {
+                                    onClick={async () => {
                                       const passerCommandeLink = serviceLinks.telegram_passer_commande || orderLink;
-                                      if (passerCommandeLink && passerCommandeLink !== '#') {
-                                        window.open(passerCommandeLink, '_blank');
-                                        toast.success('👩‍💻 Redirection vers le canal de commande !');
-                                      } else {
+                                      if (!passerCommandeLink || passerCommandeLink === '#') {
                                         toast.error('Aucun lien configuré pour passer commande');
+                                        return;
                                       }
+                                      
+                                      // Construire le message de commande complet pour ce service
+                                      const serviceTotal = serviceItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+                                      
+                                      let message = `${serviceIcon} COMMANDE ${serviceName}:\n\n`;
+                                      
+                                      if (service === 'livraison' && serviceItems.length > 0 && serviceItems[0].deliveryAddress) {
+                                        message += `${serviceItems[0].deliveryAddress}\n`;
+                                        message += `${serviceItems[0].deliveryPostalCode}\n`;
+                                        message += `${serviceItems[0].deliveryCity}\n`;
+                                        if (serviceItems[0].schedule) {
+                                          message += `Horaire demandé: ${serviceItems[0].schedule}\n`;
+                                        }
+                                        message += `\n`;
+                                      }
+                                      
+                                      serviceItems.forEach((item, index) => {
+                                        let productEmoji = '🌿';
+                                        const productLower = item.productName.toLowerCase();
+                                        if (productLower.includes('mint') || productLower.includes('triangle')) {
+                                          productEmoji = '🌵';
+                                        } else if (productLower.includes('tropic') || productLower.includes('smooth')) {
+                                          productEmoji = '🌴';
+                                        } else if (productLower.includes('chocolate') || productLower.includes('dubai')) {
+                                          productEmoji = '🌍';
+                                        }
+                                        
+                                        message += `${index + 1}. ${item.productName.toUpperCase()} ${productEmoji}\n`;
+                                        message += `• Quantité: ${item.quantity}x ${item.weight}\n`;
+                                        
+                                        if (item.schedule && service !== 'livraison') {
+                                          message += `• ${item.schedule}\n`;
+                                        }
+                                        
+                                        message += '\n';
+                                      });
+                                      
+                                      message += `💰 TOTAL ${serviceTotal.toFixed(2)}€\n\n`;
+                                      
+                                      if (service === 'livraison') {
+                                        message += `Les frais de routes seront indiqué par le standard\n\n`;
+                                      }
+                                      
+                                      message += `Commande générée automatiquement depuis le site web\n\n`;
+                                      message += `❓ Êtes-vous nouveau laitier ?\n`;
+                                      message += `   □ Oui, je suis nouveau\n`;
+                                      message += `   □ Non, je suis client confirmé`;
+                                      
+                                      // Encoder le message
+                                      const encodedMessage = encodeURIComponent(message);
+                                      
+                                      // Construire l'URL avec le message pré-rempli
+                                      let finalUrl = passerCommandeLink;
+                                      if (passerCommandeLink.includes('t.me')) {
+                                        if (passerCommandeLink.includes('/+')) {
+                                          // Lien d'invitation : copier dans le presse-papiers
+                                          try {
+                                            await navigator.clipboard.writeText(message);
+                                            toast.success('📋 Message copié ! Collez-le dans Telegram après avoir rejoint');
+                                          } catch (err) {
+                                            console.log('Clipboard non disponible');
+                                          }
+                                        } else {
+                                          // Lien direct : ajouter le message
+                                          const separator = passerCommandeLink.includes('?') ? '&' : '?';
+                                          finalUrl = `${passerCommandeLink}${separator}text=${encodedMessage}`;
+                                        }
+                                      } else {
+                                        // Autre lien : essayer d'ajouter le message
+                                        const separator = passerCommandeLink.includes('?') ? '&' : '?';
+                                        finalUrl = `${passerCommandeLink}${separator}text=${encodedMessage}`;
+                                      }
+                                      
+                                      window.open(finalUrl, '_blank');
+                                      toast.success('👩‍💻 Redirection vers le canal de commande !');
                                     }}
                                     className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-2 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
                                   >
