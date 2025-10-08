@@ -894,9 +894,16 @@ export default function Cart() {
                             
                             {/* Bouton première commande */}
                             <button
-                              onClick={() => handleSendOrderByService(service)}
-                              disabled={!isCartReadyForOrder()}
-                              className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-3 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                              onClick={() => {
+                                const nouveauLaitierLink = serviceLinks.nouveau_laitier || orderLink;
+                                if (nouveauLaitierLink && nouveauLaitierLink !== '#') {
+                                  window.open(nouveauLaitierLink, '_blank');
+                                  toast.success('🆕 Redirection vers le canal nouveau laitier !');
+                                } else {
+                                  toast.error('Aucun lien configuré pour les nouveaux laitiers');
+                                }
+                              }}
+                              className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-3 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
                             >
                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.66-.52-.38L8.74 13.5l-4.4-1.39c-.96-.3-.96-1.22.07-1.57L22.61 3.6c.84-.35 1.63.34 1.28 1.28l-6.94 18.2c-.35.82-1.27.52-1.57-.07l-1.89-4.48c-.18-.42-.61-.68-1.07-.68-.46 0-.89.26-1.07.68l-1.89 4.48c-.3.59-1.22.89-1.57.07z"/>
@@ -939,7 +946,15 @@ export default function Cart() {
                                   
                                   {/* Bouton première commande */}
                                   <button
-                                    onClick={() => handleSendOrderByService(service)}
+                                    onClick={() => {
+                                      const nouveauLaitierLink = serviceLinks.nouveau_laitier || orderLink;
+                                      if (nouveauLaitierLink && nouveauLaitierLink !== '#') {
+                                        window.open(nouveauLaitierLink, '_blank');
+                                        toast.success('🆕 Redirection vers le canal nouveau laitier !');
+                                      } else {
+                                        toast.error('Aucun lien configuré pour les nouveaux laitiers');
+                                      }
+                                    }}
                                     className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-2 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
                                   >
                                     Passer ma première commande 👩‍💻
