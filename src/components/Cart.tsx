@@ -40,7 +40,7 @@ export default function Cart() {
     meetup: [] as string[],
     envoi: [] as string[]
   });
-  const [currentStep, setCurrentStep] = useState<'cart' | 'service' | 'schedule' | 'delivery' | 'clientType' | 'review'>('cart');
+  const [currentStep, setCurrentStep] = useState<'cart' | 'service' | 'schedule' | 'delivery' | 'review'>('cart');
   
   // Auto-navigation entre les étapes (désactivée pour permettre la modification)
   useEffect(() => {
@@ -371,7 +371,6 @@ export default function Cart() {
                   {currentStep === 'service' && 'Mode de livraison'}
                   {currentStep === 'schedule' && 'Options & Horaires'}
                   {currentStep === 'delivery' && 'Adresse de livraison'}
-                  {currentStep === 'clientType' && 'Type de client'}
                   {currentStep === 'review' && 'Récapitulatif'}
                 </h2>
                 <span className="rounded-full bg-green-500 px-2 py-1 text-sm font-medium text-black">
@@ -407,11 +406,6 @@ export default function Cart() {
                 <div className={`flex items-center gap-1 ${currentStep === 'delivery' ? 'text-green-400' : 'text-gray-400'}`}>
                   <span className={`w-2 h-2 rounded-full ${getItemsNeedingDeliveryInfo().length === 0 ? 'bg-green-400' : 'bg-gray-600'}`}></span>
                   Adresse
-                </div>
-                <ArrowRight className="w-3 h-3 text-gray-600" />
-                <div className={`flex items-center gap-1 ${currentStep === 'clientType' ? 'text-green-400' : 'text-gray-400'}`}>
-                  <span className={`w-2 h-2 rounded-full ${clientType ? 'bg-green-400' : 'bg-gray-600'}`}></span>
-                  Type
                 </div>
                 <ArrowRight className="w-3 h-3 text-gray-600" />
                 <div className={`flex items-center gap-1 ${currentStep === 'review' ? 'text-green-400' : 'text-gray-400'}`}>
@@ -667,66 +661,7 @@ export default function Cart() {
                   </div>
                 )}
 
-                {/* Étape 5: Type de client */}
-                {currentStep === 'clientType' && (
-                  <div className="space-y-6">
-                    <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
-                      👤 Indiquez si vous êtes un nouveau client ou un client confirmé
-                    </div>
-                    
-                    <div className="space-y-3">
-                      <button
-                        onClick={() => setClientType('nouveau')}
-                        className={`w-full p-4 rounded-lg border-2 transition-all ${
-                          clientType === 'nouveau'
-                            ? 'border-green-500 bg-green-500/20 text-white'
-                            : 'border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                            clientType === 'nouveau' ? 'border-green-500 bg-green-500' : 'border-gray-500'
-                          }`}>
-                            {clientType === 'nouveau' && <span className="text-white text-xs">✓</span>}
-                          </div>
-                          <div className="flex-1 text-left">
-                            <p className="font-medium text-lg">🆕 Je suis nouveau laitier</p>
-                            <p className="text-sm text-gray-400 mt-1">Première commande ou client occasionnel</p>
-                          </div>
-                        </div>
-                      </button>
-                      
-                      <button
-                        onClick={() => setClientType('confirme')}
-                        className={`w-full p-4 rounded-lg border-2 transition-all ${
-                          clientType === 'confirme'
-                            ? 'border-green-500 bg-green-500/20 text-white'
-                            : 'border-gray-600 bg-gray-800/50 text-gray-300 hover:border-gray-500'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3">
-                          <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center ${
-                            clientType === 'confirme' ? 'border-green-500 bg-green-500' : 'border-gray-500'
-                          }`}>
-                            {clientType === 'confirme' && <span className="text-white text-xs">✓</span>}
-                          </div>
-                          <div className="flex-1 text-left">
-                            <p className="font-medium text-lg">☑️ Je suis laitier confirmé</p>
-                            <p className="text-sm text-gray-400 mt-1">Client régulier avec historique de commandes</p>
-                          </div>
-                        </div>
-                      </button>
-                    </div>
-                    
-                    {clientType && (
-                      <div className="text-sm text-green-400 bg-green-500/10 p-3 rounded-lg border border-green-500/20">
-                        ✓ Type de client sélectionné : {clientType === 'nouveau' ? '🆕 Nouveau laitier' : '☑️ Laitier confirmé'}
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Étape 6: Récapitulatif */}
+                {/* Étape 5: Récapitulatif */}
                 {currentStep === 'review' && (
                   <div className="space-y-4">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
@@ -916,7 +851,7 @@ export default function Cart() {
                       onClick={() => {
                         const itemsNeedingDeliveryInfo = getItemsNeedingDeliveryInfo();
                         if (itemsNeedingDeliveryInfo.length === 0) {
-                          setCurrentStep('clientType');
+                          setCurrentStep('review');
                         } else {
                           toast.error('Veuillez renseigner toutes les adresses de livraison');
                         }
@@ -924,40 +859,7 @@ export default function Cart() {
                       disabled={getItemsNeedingDeliveryInfo().length > 0}
                       className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Continuer
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
-
-                {currentStep === 'clientType' && (
-                  <div className="flex gap-3">
-                    <button
-                      onClick={() => {
-                        const hasDelivery = items.some(item => item.service === 'livraison');
-                        if (hasDelivery) {
-                          setCurrentStep('delivery');
-                        } else {
-                          setCurrentStep('schedule');
-                        }
-                      }}
-                      className="flex-1 rounded-lg bg-gray-700 py-3 font-medium text-white hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      Retour
-                    </button>
-                    <button
-                      onClick={() => {
-                        if (clientType) {
-                          setCurrentStep('review');
-                        } else {
-                          toast.error('Veuillez sélectionner votre type de client');
-                        }
-                      }}
-                      disabled={!clientType}
-                      className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Finaliser
+                      FINALISER
                       <ArrowRight className="w-4 h-4" />
                     </button>
                   </div>
