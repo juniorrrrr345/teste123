@@ -668,30 +668,18 @@ export default function Cart() {
                       Vérifiez votre commande avant envoi
                     </div>
                     
-                    {/* Récapitulatif du type de client */}
-                    {clientType && (
-                      <div className="text-sm bg-purple-500/10 border border-purple-500/20 p-3 rounded-lg flex items-center gap-2">
-                        <span className="text-lg">👤</span>
-                        <div className="flex-1">
-                          <div className="font-medium text-purple-300">Type de client :</div>
-                          <div className="text-purple-200 mt-1">
-                            {clientType === 'nouveau' ? '🆕 Nouveau laitier' : '☑️ Laitier confirmé'}
-                          </div>
+                    <div className="text-sm bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg space-y-3">
+                      <div className="space-y-2">
+                        <div className="font-medium text-green-400">SI TU ES NOUVEAU LAITIER 🆕</div>
+                        <div className="text-gray-300 text-xs pl-2">
+                          - Clique sur « Passer ma première commande » et laisse toi guider par Lala Standardiste 👩‍💻
                         </div>
                       </div>
-                    )}
-                    
-                    <div className="text-sm text-blue-400 bg-blue-500/10 border border-blue-500/20 p-3 rounded-lg flex items-start gap-2">
-                      <span className="text-lg">📱</span>
-                      <div>
-                        <div className="font-medium">Comment ça marche :</div>
-                        <div className="text-xs opacity-90 mt-1">
-                          • Copiez le message avec le bouton ci-dessous<br/>
-                          • Collez-le dans Telegram et envoyez<br/>
-                          • Votre commande sera dirigée vers le bon canal<br/>
-                          {(serviceLinks.nouveau_laitier || serviceLinks.laitier_confirme) && (
-                            <>• Canal dédié selon votre type (nouveau/confirmé)</>
-                          )}
+                      
+                      <div className="border-t border-blue-500/20 pt-3 space-y-2">
+                        <div className="font-medium text-green-400">SI TU ES LAITIER CONFIRMÉ ☑️</div>
+                        <div className="text-gray-300 text-xs pl-2">
+                          - Clique sur « Copier mon Recap' commande » et Envois ce message directement à ton standard de commande habituel
                         </div>
                       </div>
                     </div>
