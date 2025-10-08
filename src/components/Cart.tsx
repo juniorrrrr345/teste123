@@ -889,10 +889,10 @@ export default function Cart() {
                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                               </svg>
-                              📋 Copier le message {serviceIcon}
+                              Copier mon Recap' commande 📝
                             </button>
                             
-                            {/* Bouton envoyer vers Telegram */}
+                            {/* Bouton première commande */}
                             <button
                               onClick={() => handleSendOrderByService(service)}
                               disabled={!isCartReadyForOrder()}
@@ -901,7 +901,7 @@ export default function Cart() {
                               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
                                 <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.66-.52-.38L8.74 13.5l-4.4-1.39c-.96-.3-.96-1.22.07-1.57L22.61 3.6c.84-.35 1.63.34 1.28 1.28l-6.94 18.2c-.35.82-1.27.52-1.57-.07l-1.89-4.48c-.18-.42-.61-.68-1.07-.68-.46 0-.89.26-1.07.68l-1.89 4.48c-.3.59-1.22.89-1.57.07z"/>
                               </svg>
-                              {serviceIcon} Ouvrir Telegram
+                              Passer ma première commande 👩‍💻
                             </button>
                           </div>
                         );
@@ -934,15 +934,15 @@ export default function Cart() {
                                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                                     </svg>
-                                    📋 Copier
+                                    Copier mon Recap' commande 📝
                                   </button>
                                   
-                                  {/* Bouton envoyer */}
+                                  {/* Bouton première commande */}
                                   <button
                                     onClick={() => handleSendOrderByService(service)}
                                     className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-2 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
                                   >
-                                    {serviceIcon} Ouvrir Telegram
+                                    Passer ma première commande 👩‍💻
                                   </button>
                                 </div>
                               );
