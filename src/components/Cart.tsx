@@ -111,40 +111,36 @@ export default function Cart() {
       });
   }, []);
   
-  // Fonction pour envoyer une commande pour un service spécifique
-  const handleSendOrderByService = async (targetService: 'livraison' | 'envoi' | 'meetup') => {
-    // Filtrer les articles pour ce service
-    const serviceItems = items.filter(item => item.service === targetService);
-    
-    if (serviceItems.length === 0) {
-      toast.error(`Aucun article sélectionné pour ${targetService}`);
+  // Fonction pour envoyer la commande
+  const handleSendOrderByService = async () => {
+    if (!service) {
+      toast.error('Veuillez sélectionner un service');
       return;
     }
     
-    // Calculer le total pour ce service
-    const serviceTotal = serviceItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    // Calculer le total
+    const totalPrice = getTotalPrice();
     
-    // Construire le message pour ce service spécifique
-    const serviceIcon = targetService === 'livraison' ? '🚚' : targetService === 'envoi' ? '📦' : '📍';
-    const serviceName = targetService === 'livraison' ? 'LIVRAISON À DOMICILE' : targetService === 'envoi' ? 'ENVOI POSTAL' : 'POINT DE RENCONTRE';
+    // Construire le message
+    const serviceIcon = service === 'livraison' ? '🚚' : service === 'envoi' ? '📦' : '📍';
+    const serviceName = service === 'livraison' ? 'LIVRAISON À DOMICILE' : service === 'envoi' ? 'ENVOI POSTAL' : 'POINT DE RENCONTRE';
     
-    // Format avec emojis et structure spécifique
     let message = `${serviceIcon} COMMANDE ${serviceName}:\n\n`;
     
     // Si c'est une livraison, afficher l'adresse en premier
-    if (targetService === 'livraison' && serviceItems.length > 0 && serviceItems[0].deliveryAddress) {
-      message += `${serviceItems[0].deliveryAddress}\n`;
-      message += `${serviceItems[0].deliveryPostalCode}\n`;
-      message += `${serviceItems[0].deliveryCity}\n`;
-      if (serviceItems[0].schedule) {
-        message += `Horaire demandé: ${serviceItems[0].schedule}\n`;
+    if (service === 'livraison' && deliveryAddress) {
+      message += `${deliveryAddress}\n`;
+      message += `${deliveryPostalCode}\n`;
+      message += `${deliveryCity}\n`;
+      if (schedule) {
+        message += `Horaire demandé: ${schedule}\n`;
       }
       message += `\n`;
     }
     
-    serviceItems.forEach((item, index) => {
+    items.forEach((item, index) => {
       // Déterminer l'emoji selon le type de produit
-      let productEmoji = '🌿'; // Par défaut
+      let productEmoji = '🌿';
       const productLower = item.productName.toLowerCase();
       if (productLower.includes('mint') || productLower.includes('triangle')) {
         productEmoji = '🌵';
@@ -157,28 +153,27 @@ export default function Cart() {
       message += `${index + 1}. ${item.productName.toUpperCase()} ${productEmoji}\n`;
       message += `• Quantité: ${item.quantity}x ${item.weight}\n`;
       
-      if (item.schedule && targetService !== 'livraison') {
-        message += `• ${item.schedule}\n`;
+      if (schedule && service !== 'livraison') {
+        message += `• ${schedule}\n`;
       }
       
       message += '\n';
     });
     
-    message += `💰 TOTAL ${serviceTotal.toFixed(2)}€\n\n`;
+    message += `💰 TOTAL ${totalPrice.toFixed(2)}€\n\n`;
     
-    if (targetService === 'livraison') {
+    if (service === 'livraison') {
       message += `Les frais de routes seront indiqué par le standard\n\n`;
     }
     
     message += `Commande générée automatiquement depuis le site web`;
     
     // Choisir le bon lien selon le service
-    let chosenLink = orderLink; // Fallback par défaut
+    let chosenLink = orderLink;
     
-    // Priorité: Lien selon le service
-    if (serviceLinks[targetService]) {
-      chosenLink = serviceLinks[targetService];
-      console.log(`📱 Utilisation du lien spécifique pour ${targetService}:`, chosenLink);
+    if (serviceLinks[service]) {
+      chosenLink = serviceLinks[service];
+      console.log(`📱 Utilisation du lien spécifique pour ${service}:`, chosenLink);
     } else {
       console.log(`📱 Pas de lien configuré, utilisation du lien principal`);
     }
@@ -233,25 +228,29 @@ export default function Cart() {
   };
 
   // Fonction pour copier le message dans le presse-papiers
-  const copyOrderMessage = async (targetService: 'livraison' | 'envoi' | 'meetup') => {
-    const serviceItems = items.filter(item => item.service === targetService);
-    const serviceTotal = serviceItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    const serviceIcon = targetService === 'livraison' ? '🚚' : targetService === 'envoi' ? '📦' : '📍';
-    const serviceName = targetService === 'livraison' ? 'LIVRAISON À DOMICILE' : targetService === 'envoi' ? 'ENVOI POSTAL' : 'POINT DE RENCONTRE';
+  const copyOrderMessage = async () => {
+    if (!service) {
+      toast.error('Veuillez sélectionner un service');
+      return false;
+    }
+    
+    const totalPrice = getTotalPrice();
+    const serviceIcon = service === 'livraison' ? '🚚' : service === 'envoi' ? '📦' : '📍';
+    const serviceName = service === 'livraison' ? 'LIVRAISON À DOMICILE' : service === 'envoi' ? 'ENVOI POSTAL' : 'POINT DE RENCONTRE';
     
     let message = `${serviceIcon} COMMANDE ${serviceName}:\n\n`;
     
-    if (targetService === 'livraison' && serviceItems.length > 0 && serviceItems[0].deliveryAddress) {
-      message += `${serviceItems[0].deliveryAddress}\n`;
-      message += `${serviceItems[0].deliveryPostalCode}\n`;
-      message += `${serviceItems[0].deliveryCity}\n`;
-      if (serviceItems[0].schedule) {
-        message += `Horaire demandé: ${serviceItems[0].schedule}\n`;
+    if (service === 'livraison' && deliveryAddress) {
+      message += `${deliveryAddress}\n`;
+      message += `${deliveryPostalCode}\n`;
+      message += `${deliveryCity}\n`;
+      if (schedule) {
+        message += `Horaire demandé: ${schedule}\n`;
       }
       message += `\n`;
     }
     
-    serviceItems.forEach((item, index) => {
+    items.forEach((item, index) => {
       let productEmoji = '🌿';
       const productLower = item.productName.toLowerCase();
       if (productLower.includes('mint') || productLower.includes('triangle')) {
@@ -265,16 +264,16 @@ export default function Cart() {
       message += `${index + 1}. ${item.productName.toUpperCase()} ${productEmoji}\n`;
       message += `• Quantité: ${item.quantity}x ${item.weight}\n`;
       
-      if (item.schedule && targetService !== 'livraison') {
-        message += `• ${item.schedule}\n`;
+      if (schedule && service !== 'livraison') {
+        message += `• ${schedule}\n`;
       }
       
       message += '\n';
     });
     
-    message += `💰 TOTAL ${serviceTotal.toFixed(2)}€\n\n`;
+    message += `💰 TOTAL ${totalPrice.toFixed(2)}€\n\n`;
     
-    if (targetService === 'livraison') {
+    if (service === 'livraison') {
       message += `Les frais de routes seront indiqué par le standard\n\n`;
     }
     
@@ -291,43 +290,6 @@ export default function Cart() {
     }
   };
 
-  // Fonction pour envoyer toute la commande (comportement original)
-  const handleSendCompleteOrder = async () => {
-    if (items.length === 0) {
-      toast.error('Votre panier est vide');
-      return;
-    }
-    
-    if (!isCartReadyForOrder()) {
-      toast.error('Veuillez compléter toutes les informations de livraison');
-      return;
-    }
-    
-    // Grouper par service et envoyer séparément
-    const serviceGroups = items.reduce((acc: Record<string, any[]>, item) => {
-      const key = item.service!;
-      if (!acc[key]) acc[key] = [];
-      acc[key].push(item);
-      return acc;
-    }, {});
-    
-    // Envoyer une commande pour chaque service
-    const services = Object.keys(serviceGroups) as ('livraison' | 'envoi' | 'meetup')[];
-    
-    for (const service of services) {
-      await handleSendOrderByService(service);
-      // Délai entre les envois pour éviter le spam
-      if (services.length > 1) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
-      }
-    }
-    
-    // Vider le panier après tous les envois
-    setTimeout(() => {
-      clearCart();
-      setIsOpen(false);
-    }, 2000);
-  };
   
   if (!isOpen) return null;
   
@@ -640,15 +602,15 @@ export default function Cart() {
                               <div className="flex items-center gap-2 text-sm">
                                 <span className="text-gray-400">Service:</span>
                                 <span className="text-white">
-                                  {item.service === 'livraison' ? '🚚 Livraison' : 
-                                   item.service === 'envoi' ? '📦 Envoi postal' : 
+                                  {service === 'livraison' ? '🚚 Livraison' : 
+                                   service === 'envoi' ? '📦 Envoi postal' : 
                                    '📍 Point de rencontre'}
                                 </span>
                               </div>
-                              {item.schedule && (
+                              {schedule && (
                                 <div className="flex items-center gap-2 text-sm">
                                   <span className="text-gray-400">Horaire:</span>
-                                  <span className="text-white">{item.schedule}</span>
+                                  <span className="text-white">{schedule}</span>
                                 </div>
                               )}
                             </div>
@@ -770,23 +732,12 @@ export default function Cart() {
 
                 {currentStep === 'review' && (
                   <div className="space-y-3">
-                    {/* Afficher les options d'envoi selon les services */}
-                    {(() => {
-                      const serviceGroups = items.reduce((acc: Record<string, any[]>, item) => {
-                        const key = item.service!;
-                        if (!acc[key]) acc[key] = [];
-                        acc[key].push(item);
-                        return acc;
-                      }, {});
-                      
-                      const services = Object.keys(serviceGroups) as ('livraison' | 'envoi' | 'meetup')[];
-                      
-                      if (services.length === 1) {
-                        // Un seul service : bouton simple
-                        const service = services[0];
-                        const serviceIcon = service === 'livraison' ? '🚚' : service === 'envoi' ? '📦' : '📍';
-                        const serviceName = service === 'livraison' ? 'Livraison' : service === 'envoi' ? 'Envoi' : 'Meetup';
-                        const hasConfiguredLink = serviceLinks[service];
+                    {service && (
+                      <>
+                        <div className="text-xs text-green-400 bg-green-500/10 p-2 rounded border border-green-500/20">
+                          🎯 Service : {service === 'livraison' ? '🚚 Livraison' : service === 'envoi' ? '📦 Envoi' : '📍 Meetup'}
+                          {serviceLinks[service] && ' - Canal configuré'}
+                        </div>
                         
                         return (
                           <div className="space-y-2">
