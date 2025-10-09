@@ -470,32 +470,21 @@ export default function Cart() {
                 {currentStep === 'service' && (
                   <div className="space-y-6">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
-                      Choisissez votre mode de réception :
+                      Choisissez votre mode de réception pour <strong>tous les articles</strong> :
                     </div>
                     
-                    {items.map((item) => (
-                      <div key={`service-${item.productId}-${item.weight}`} className="space-y-3">
-                        <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
-                          <img src={item.image} alt={item.productName} className="w-12 h-12 object-cover rounded" />
-                          <div className="flex-1">
-                            <p className="font-medium text-white">{item.productName}</p>
-                            <p className="text-sm text-gray-400">{item.weight}</p>
-                            {item.service && (
-                              <p className="text-xs text-green-400 mt-1">
-                                Actuellement: {item.service === 'livraison' ? '🚚 Livraison' : 
-                                               item.service === 'envoi' ? '📦 Envoi' : 
-                                               '📍 Meetup'}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        
-                        <ServiceSelector
-                          selectedService={item.service}
-                          onServiceSelect={(service) => updateService(item.productId, item.weight, service)}
-                        />
+                    <ServiceSelector
+                      selectedService={service}
+                      onServiceSelect={(selectedService) => setService(selectedService)}
+                    />
+                    
+                    {service && (
+                      <div className="text-sm text-green-400 bg-green-500/10 p-3 rounded-lg border border-green-500/20">
+                        ✓ Service sélectionné : {service === 'livraison' ? '🚚 Livraison à domicile' : 
+                                                 service === 'envoi' ? '📦 Envoi postal' : 
+                                                 '📍 Point de rencontre'}
                       </div>
-                    ))}
+                    )}
                   </div>
                 )}
 
@@ -503,46 +492,39 @@ export default function Cart() {
                 {currentStep === 'schedule' && (
                   <div className="space-y-6">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
-                      Choisissez ou modifiez vos options de livraison/envoi
+                      Choisissez votre créneau horaire/option pour <strong>toute la commande</strong>
                     </div>
                     
-                    {items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi')).map((item) => (
-                      <div key={`schedule-${item.productId}-${item.weight}`} className="space-y-3">
-                        <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
-                          <img src={item.image} alt={item.productName} className="w-12 h-12 object-cover rounded" />
-                          <div className="flex-1">
-                            <p className="font-medium text-white">{item.productName}</p>
-                            <p className="text-sm text-gray-400">{item.weight}</p>
-                            <p className="text-sm text-green-400">
-                              {item.service === 'livraison' ? '🚚 Livraison' : 
-                               item.service === 'envoi' ? '📦 Envoi postal' : 
-                               '📍 Point de rencontre'}
-                            </p>
-                            {item.schedule && (
-                              <p className="text-xs text-blue-400 mt-1">
-                                Actuellement: {item.schedule}
-                              </p>
-                            )}
-                          </div>
+                    {service && (
+                      <div className="space-y-3">
+                        <div className="text-sm text-green-400 bg-green-500/10 p-2 rounded border border-green-500/20">
+                          Service sélectionné : {service === 'livraison' ? '🚚 Livraison' : 
+                                                  service === 'envoi' ? '📦 Envoi postal' : 
+                                                  '📍 Point de rencontre'}
                         </div>
                         
                         <ScheduleSelector
-                          selectedSchedule={item.schedule}
-                          onScheduleSelect={(schedule) => updateSchedule(item.productId, item.weight, schedule)}
-                          serviceType={item.service as 'livraison' | 'meetup' | 'envoi'}
+                          selectedSchedule={schedule}
+                          onScheduleSelect={(selectedSchedule) => setSchedule(selectedSchedule)}
+                          serviceType={service as 'livraison' | 'meetup' | 'envoi'}
                           customSchedules={
-                            item.service === 'livraison' ? customSchedules.livraison : 
-                            item.service === 'meetup' ? customSchedules.meetup : 
+                            service === 'livraison' ? customSchedules.livraison : 
+                            service === 'meetup' ? customSchedules.meetup : 
                             customSchedules.envoi
                           }
                         />
+                        
+                        {schedule && (
+                          <div className="text-sm text-green-400 bg-green-500/10 p-3 rounded-lg border border-green-500/20">
+                            ✓ Horaire sélectionné : {schedule}
+                          </div>
+                        )}
                       </div>
-                    ))}
+                    )}
                     
-                    {items.filter(item => item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi')).length === 0 && (
+                    {!service && (
                       <div className="text-center text-gray-400 py-8">
-                        <p>Aucun article n'a de service nécessitant des options.</p>
-                        <p className="text-sm mt-2">Retournez à l'étape précédente pour choisir vos services.</p>
+                        <p>Retournez à l'étape précédente pour choisir votre service.</p>
                       </div>
                     )}
                   </div>
@@ -552,93 +534,62 @@ export default function Cart() {
                 {currentStep === 'delivery' && (
                   <div className="space-y-6">
                     <div className="text-sm text-gray-400 bg-gray-800/30 p-3 rounded-lg">
-                      🏠 Renseignez votre adresse pour les articles en livraison à domicile
+                      🏠 Renseignez votre adresse de livraison
                     </div>
                     
-                    {items.filter(item => item.service === 'livraison').map((item) => (
-                      <div key={`delivery-${item.productId}-${item.weight}`} className="space-y-3">
-                        <div className="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg">
-                          <img src={item.image} alt={item.productName} className="w-12 h-12 object-cover rounded" />
-                          <div className="flex-1">
-                            <p className="font-medium text-white">{item.productName}</p>
-                            <p className="text-sm text-gray-400">{item.weight}</p>
-                            <p className="text-sm text-green-400">🚚 Livraison à domicile</p>
-                          </div>
+                    {service === 'livraison' ? (
+                      <div className="bg-gray-800/30 p-4 rounded-lg space-y-3">
+                        <div>
+                          <label className="block text-sm font-medium text-gray-300 mb-2">
+                            Adresse
+                          </label>
+                          <input
+                            type="text"
+                            value={deliveryAddress || ''}
+                            onChange={(e) => setDeliveryInfo(e.target.value, deliveryPostalCode || '', deliveryCity || '')}
+                            placeholder="12 rue des tulipes"
+                            className="w-full bg-gray-700 border border-white/20 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                          />
                         </div>
                         
-                        <div className="bg-gray-800/30 p-4 rounded-lg space-y-3">
+                        <div className="grid grid-cols-2 gap-3">
                           <div>
                             <label className="block text-sm font-medium text-gray-300 mb-2">
-                              Adresse
+                              Code postal
                             </label>
                             <input
                               type="text"
-                              value={item.deliveryAddress || ''}
-                              onChange={(e) => updateDeliveryInfo(
-                                item.productId, 
-                                item.weight, 
-                                e.target.value,
-                                item.deliveryPostalCode || '',
-                                item.deliveryCity || ''
-                              )}
-                              placeholder="12 rue des tulipes"
+                              value={deliveryPostalCode || ''}
+                              onChange={(e) => setDeliveryInfo(deliveryAddress || '', e.target.value, deliveryCity || '')}
+                              placeholder="92000"
                               className="w-full bg-gray-700 border border-white/20 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
                             />
                           </div>
                           
-                          <div className="grid grid-cols-2 gap-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Code postal
-                              </label>
-                              <input
-                                type="text"
-                                value={item.deliveryPostalCode || ''}
-                                onChange={(e) => updateDeliveryInfo(
-                                  item.productId, 
-                                  item.weight,
-                                  item.deliveryAddress || '',
-                                  e.target.value,
-                                  item.deliveryCity || ''
-                                )}
-                                placeholder="92000"
-                                className="w-full bg-gray-700 border border-white/20 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                              />
-                            </div>
-                            
-                            <div>
-                              <label className="block text-sm font-medium text-gray-300 mb-2">
-                                Ville
-                              </label>
-                              <input
-                                type="text"
-                                value={item.deliveryCity || ''}
-                                onChange={(e) => updateDeliveryInfo(
-                                  item.productId, 
-                                  item.weight,
-                                  item.deliveryAddress || '',
-                                  item.deliveryPostalCode || '',
-                                  e.target.value
-                                )}
-                                placeholder="Nanterre"
-                                className="w-full bg-gray-700 border border-white/20 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
-                              />
-                            </div>
+                          <div>
+                            <label className="block text-sm font-medium text-gray-300 mb-2">
+                              Ville
+                            </label>
+                            <input
+                              type="text"
+                              value={deliveryCity || ''}
+                              onChange={(e) => setDeliveryInfo(deliveryAddress || '', deliveryPostalCode || '', e.target.value)}
+                              placeholder="Nanterre"
+                              className="w-full bg-gray-700 border border-white/20 text-white rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            />
                           </div>
-                          
-                          {item.deliveryAddress && item.deliveryPostalCode && item.deliveryCity && (
-                            <div className="text-xs text-green-400 bg-green-500/10 p-2 rounded">
-                              ✓ Adresse complète
-                            </div>
-                          )}
                         </div>
+                        
+                        {deliveryAddress && deliveryPostalCode && deliveryCity && (
+                          <div className="text-xs text-green-400 bg-green-500/10 p-2 rounded">
+                            ✓ Adresse complète
+                          </div>
+                        )}
                       </div>
-                    ))}
-                    
-                    {items.filter(item => item.service === 'livraison').length === 0 && (
+                    ) : (
                       <div className="text-center text-gray-400 py-8">
-                        <p>Aucun article avec livraison à domicile</p>
-                        <p className="text-sm mt-2">Passez à l'étape suivante</p>
+                        <p>Service sélectionné : {service === 'envoi' ? '📦 Envoi postal' : '📍 Point de rencontre'}</p>
+                        <p className="text-sm mt-2">Aucune adresse nécessaire</p>
                       </div>
                     )}
                   </div>
