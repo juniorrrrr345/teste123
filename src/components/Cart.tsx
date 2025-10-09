@@ -730,272 +730,33 @@ export default function Cart() {
                   </div>
                 )}
 
-                {currentStep === 'review' && (
+                {currentStep === 'review' && service && (
                   <div className="space-y-3">
-                    {service && (
-                      <>
-                        <div className="text-xs text-green-400 bg-green-500/10 p-2 rounded border border-green-500/20">
-                          🎯 Service : {service === 'livraison' ? '🚚 Livraison' : service === 'envoi' ? '📦 Envoi' : '📍 Meetup'}
-                          {serviceLinks[service] && ' - Canal configuré'}
-                        </div>
-                        
-                        return (
-                          <div className="space-y-2">
-                            {hasConfiguredLink && (
-                              <div className="text-xs text-green-400 bg-green-500/10 p-2 rounded border border-green-500/20">
-                                🎯 Direction: Canal {serviceName}
-                              </div>
-                            )}
-                            
-                            {/* Bouton copier message */}
-                            <button
-                              onClick={() => copyOrderMessage(service)}
-                              className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2"
-                            >
-                              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                              </svg>
-                              Copier mon Recap' commande 📝
-                            </button>
-                            
-                            {/* Bouton première commande */}
-                            <button
-                              onClick={async () => {
-                                const passerCommandeLink = serviceLinks.telegram_passer_commande || orderLink;
-                                if (!passerCommandeLink || passerCommandeLink === '#') {
-                                  toast.error('Aucun lien configuré pour passer commande');
-                                  return;
-                                }
-                                
-                                // Construire le message de commande complet
-                                const serviceItems = items.filter(item => item.service === service);
-                                const serviceTotal = serviceItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                                const serviceIcon = service === 'livraison' ? '🚚' : service === 'envoi' ? '📦' : '📍';
-                                const serviceName = service === 'livraison' ? 'LIVRAISON À DOMICILE' : service === 'envoi' ? 'ENVOI POSTAL' : 'POINT DE RENCONTRE';
-                                
-                                let message = `${serviceIcon} COMMANDE ${serviceName}:\n\n`;
-                                
-                                if (service === 'livraison' && serviceItems.length > 0 && serviceItems[0].deliveryAddress) {
-                                  message += `${serviceItems[0].deliveryAddress}\n`;
-                                  message += `${serviceItems[0].deliveryPostalCode}\n`;
-                                  message += `${serviceItems[0].deliveryCity}\n`;
-                                  if (serviceItems[0].schedule) {
-                                    message += `Horaire demandé: ${serviceItems[0].schedule}\n`;
-                                  }
-                                  message += `\n`;
-                                }
-                                
-                                serviceItems.forEach((item, index) => {
-                                  let productEmoji = '🌿';
-                                  const productLower = item.productName.toLowerCase();
-                                  if (productLower.includes('mint') || productLower.includes('triangle')) {
-                                    productEmoji = '🌵';
-                                  } else if (productLower.includes('tropic') || productLower.includes('smooth')) {
-                                    productEmoji = '🌴';
-                                  } else if (productLower.includes('chocolate') || productLower.includes('dubai')) {
-                                    productEmoji = '🌍';
-                                  }
-                                  
-                                  message += `${index + 1}. ${item.productName.toUpperCase()} ${productEmoji}\n`;
-                                  message += `• Quantité: ${item.quantity}x ${item.weight}\n`;
-                                  
-                                  if (item.schedule && service !== 'livraison') {
-                                    message += `• ${item.schedule}\n`;
-                                  }
-                                  
-                                  message += '\n';
-                                });
-                                
-                                message += `💰 TOTAL ${serviceTotal.toFixed(2)}€\n\n`;
-                                
-                                if (service === 'livraison') {
-                                  message += `Les frais de routes seront indiqué par le standard\n\n`;
-                                }
-                                
-                                message += `Commande générée automatiquement depuis le site web`;
-                                
-                                // Encoder le message
-                                const encodedMessage = encodeURIComponent(message);
-                                
-                                // Construire l'URL avec le message pré-rempli
-                                let finalUrl = passerCommandeLink;
-                                if (passerCommandeLink.includes('t.me')) {
-                                  if (passerCommandeLink.includes('/+')) {
-                                    // Lien d'invitation : copier dans le presse-papiers
-                                    try {
-                                      await navigator.clipboard.writeText(message);
-                                      toast.success('📋 Message copié ! Collez-le dans Telegram après avoir rejoint');
-                                    } catch (err) {
-                                      console.log('Clipboard non disponible');
-                                    }
-                                  } else {
-                                    // Lien direct : ajouter le message
-                                    const separator = passerCommandeLink.includes('?') ? '&' : '?';
-                                    finalUrl = `${passerCommandeLink}${separator}text=${encodedMessage}`;
-                                  }
-                                } else {
-                                  // Autre lien : essayer d'ajouter le message
-                                  const separator = passerCommandeLink.includes('?') ? '&' : '?';
-                                  finalUrl = `${passerCommandeLink}${separator}text=${encodedMessage}`;
-                                }
-                                
-                                window.open(finalUrl, '_blank');
-                                toast.success('👩‍💻 Redirection vers le canal de commande !');
-                              }}
-                              className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-3 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
-                            >
-                              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.66-.52-.38L8.74 13.5l-4.4-1.39c-.96-.3-.96-1.22.07-1.57L22.61 3.6c.84-.35 1.63.34 1.28 1.28l-6.94 18.2c-.35.82-1.27.52-1.57-.07l-1.89-4.48c-.18-.42-.61-.68-1.07-.68-.46 0-.89.26-1.07.68l-1.89 4.48c-.3.59-1.22.89-1.57.07z"/>
-                              </svg>
-                              Passer ma première commande 👩‍💻
-                            </button>
-                          </div>
-                        );
-                      } else {
-                        // Plusieurs services : boutons séparés + option globale
-                        return (
-                          <div className="space-y-3">
-                            <div className="text-sm text-blue-400 bg-blue-500/10 p-3 rounded border border-blue-500/20">
-                              <p className="font-medium mb-2">📋 Plusieurs services détectés :</p>
-                              <p className="text-xs">Vous pouvez envoyer par service séparé ou tout ensemble</p>
-                            </div>
-                            
-                            {/* Boutons par service */}
-                            {services.map(service => {
-                              const serviceItems = serviceGroups[service];
-                              const serviceIcon = service === 'livraison' ? '🚚' : service === 'envoi' ? '📦' : '📍';
-                              const serviceName = service === 'livraison' ? 'Livraison' : service === 'envoi' ? 'Envoi' : 'Meetup';
-                              const serviceTotal = serviceItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                              const hasConfiguredLink = serviceLinks[service];
-                              
-                              return (
-                                <div key={service} className="space-y-2">
-                                  <div className="text-xs text-gray-400">{serviceIcon} {serviceName} • {serviceTotal.toFixed(2)}€ • {serviceItems.length} article{serviceItems.length > 1 ? 's' : ''}</div>
-                                  
-                                  {/* Bouton copier */}
-                                  <button
-                                    onClick={() => copyOrderMessage(service)}
-                                    className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-2 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2"
-                                  >
-                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                                    </svg>
-                                    Copier mon Recap' commande 📝
-                                  </button>
-                                  
-                                  {/* Bouton première commande */}
-                                  <button
-                                    onClick={async () => {
-                                      const passerCommandeLink = serviceLinks.telegram_passer_commande || orderLink;
-                                      if (!passerCommandeLink || passerCommandeLink === '#') {
-                                        toast.error('Aucun lien configuré pour passer commande');
-                                        return;
-                                      }
-                                      
-                                      // Construire le message de commande complet pour ce service
-                                      const serviceTotal = serviceItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-                                      
-                                      let message = `${serviceIcon} COMMANDE ${serviceName}:\n\n`;
-                                      
-                                      if (service === 'livraison' && serviceItems.length > 0 && serviceItems[0].deliveryAddress) {
-                                        message += `${serviceItems[0].deliveryAddress}\n`;
-                                        message += `${serviceItems[0].deliveryPostalCode}\n`;
-                                        message += `${serviceItems[0].deliveryCity}\n`;
-                                        if (serviceItems[0].schedule) {
-                                          message += `Horaire demandé: ${serviceItems[0].schedule}\n`;
-                                        }
-                                        message += `\n`;
-                                      }
-                                      
-                                      serviceItems.forEach((item, index) => {
-                                        let productEmoji = '🌿';
-                                        const productLower = item.productName.toLowerCase();
-                                        if (productLower.includes('mint') || productLower.includes('triangle')) {
-                                          productEmoji = '🌵';
-                                        } else if (productLower.includes('tropic') || productLower.includes('smooth')) {
-                                          productEmoji = '🌴';
-                                        } else if (productLower.includes('chocolate') || productLower.includes('dubai')) {
-                                          productEmoji = '🌍';
-                                        }
-                                        
-                                        message += `${index + 1}. ${item.productName.toUpperCase()} ${productEmoji}\n`;
-                                        message += `• Quantité: ${item.quantity}x ${item.weight}\n`;
-                                        
-                                        if (item.schedule && service !== 'livraison') {
-                                          message += `• ${item.schedule}\n`;
-                                        }
-                                        
-                                        message += '\n';
-                                      });
-                                      
-                                      message += `💰 TOTAL ${serviceTotal.toFixed(2)}€\n\n`;
-                                      
-                                      if (service === 'livraison') {
-                                        message += `Les frais de routes seront indiqué par le standard\n\n`;
-                                      }
-                                      
-                                      message += `Commande générée automatiquement depuis le site web`;
-                                      
-                                      // Encoder le message
-                                      const encodedMessage = encodeURIComponent(message);
-                                      
-                                      // Construire l'URL avec le message pré-rempli
-                                      let finalUrl = passerCommandeLink;
-                                      if (passerCommandeLink.includes('t.me')) {
-                                        if (passerCommandeLink.includes('/+')) {
-                                          // Lien d'invitation : copier dans le presse-papiers
-                                          try {
-                                            await navigator.clipboard.writeText(message);
-                                            toast.success('📋 Message copié ! Collez-le dans Telegram après avoir rejoint');
-                                          } catch (err) {
-                                            console.log('Clipboard non disponible');
-                                          }
-                                        } else {
-                                          // Lien direct : ajouter le message
-                                          const separator = passerCommandeLink.includes('?') ? '&' : '?';
-                                          finalUrl = `${passerCommandeLink}${separator}text=${encodedMessage}`;
-                                        }
-                                      } else {
-                                        // Autre lien : essayer d'ajouter le message
-                                        const separator = passerCommandeLink.includes('?') ? '&' : '?';
-                                        finalUrl = `${passerCommandeLink}${separator}text=${encodedMessage}`;
-                                      }
-                                      
-                                      window.open(finalUrl, '_blank');
-                                      toast.success('👩‍💻 Redirection vers le canal de commande !');
-                                    }}
-                                    className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-2 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
-                                  >
-                                    Passer ma première commande 👩‍💻
-                                  </button>
-                                </div>
-                              );
-                            })}
-                            
-                            {/* Bouton pour tout envoyer */}
-                            <div className="pt-2 border-t border-gray-600">
-                              <button
-                                onClick={handleSendCompleteOrder}
-                                disabled={!isCartReadyForOrder()}
-                                className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-3 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                              >
-                                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                                  <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.66-.52-.38L8.74 13.5l-4.4-1.39c-.96-.3-.96-1.22.07-1.57L22.61 3.6c.84-.35 1.63.34 1.28 1.28l-6.94 18.2c-.35.82-1.27.52-1.57-.07l-1.89-4.48c-.18-.42-.61-.68-1.07-.68-.46 0-.89.26-1.07.68l-1.89 4.48c-.3.59-1.22.89-1.57.07z"/>
-                                </svg>
-                                📱 Envoyer TOUS les services
-                              </button>
-                            </div>
-                          </div>
-                        );
-                      }
-                    })()}
+                    {/* Bouton copier message */}
+                    <button
+                      onClick={copyOrderMessage}
+                      className="w-full rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      Copier mon Recap' commande 📝
+                    </button>
+                    
+                    {/* Bouton première commande */}
+                    <button
+                      onClick={handleSendOrderByService}
+                      className="w-full rounded-lg bg-gradient-to-r from-green-500 to-green-600 py-3 font-medium text-white hover:from-green-600 hover:to-green-700 transition-all flex items-center justify-center gap-2"
+                    >
+                      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.66-.52-.38L8.74 13.5l-4.4-1.39c-.96-.3-.96-1.22.07-1.57L22.61 3.6c.84-.35 1.63.34 1.28 1.28l-6.94 18.2c-.35.82-1.27.52-1.57-.07l-1.89-4.48c-.18-.42-.61-.68-1.07-.68-.46 0-.89.26-1.07.68l-1.89 4.48c-.3.59-1.22.89-1.57.07z"/>
+                      </svg>
+                      Passer ma première commande 👩‍💻
+                    </button>
                     
                     <div className="flex gap-3">
                       <button
-                        onClick={() => {
-                          // Retour logique : review → schedule → service → cart
-                          setCurrentStep('schedule');
-                        }}
+                        onClick={() => setCurrentStep('schedule')}
                         className="flex-1 rounded-lg bg-gray-700 py-3 font-medium text-white hover:bg-gray-600 transition-colors flex items-center justify-center gap-2"
                       >
                         <ArrowLeft className="w-4 h-4" />
