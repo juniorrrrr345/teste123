@@ -377,17 +377,17 @@ export default function Cart() {
                 </div>
                 <ArrowRight className="w-3 h-3 text-gray-600" />
                 <div className={`flex items-center gap-1 ${currentStep === 'service' ? 'text-green-400' : 'text-gray-400'}`}>
-                  <span className={`w-2 h-2 rounded-full ${getItemsNeedingService().length === 0 ? 'bg-green-400' : 'bg-gray-600'}`}></span>
+                  <span className={`w-2 h-2 rounded-full ${service ? 'bg-green-400' : 'bg-gray-600'}`}></span>
                   Service
                 </div>
                 <ArrowRight className="w-3 h-3 text-gray-600" />
                 <div className={`flex items-center gap-1 ${currentStep === 'schedule' ? 'text-green-400' : 'text-gray-400'}`}>
-                  <span className={`w-2 h-2 rounded-full ${getItemsNeedingSchedule().length === 0 ? 'bg-green-400' : 'bg-gray-600'}`}></span>
+                  <span className={`w-2 h-2 rounded-full ${schedule ? 'bg-green-400' : 'bg-gray-600'}`}></span>
                   Horaire
                 </div>
                 <ArrowRight className="w-3 h-3 text-gray-600" />
                 <div className={`flex items-center gap-1 ${currentStep === 'delivery' ? 'text-green-400' : 'text-gray-400'}`}>
-                  <span className={`w-2 h-2 rounded-full ${getItemsNeedingDeliveryInfo().length === 0 ? 'bg-green-400' : 'bg-gray-600'}`}></span>
+                  <span className={`w-2 h-2 rounded-full ${(service !== 'livraison' || (deliveryAddress && deliveryPostalCode && deliveryCity)) ? 'bg-green-400' : 'bg-gray-600'}`}></span>
                   Adresse
                 </div>
                 <ArrowRight className="w-3 h-3 text-gray-600" />
@@ -696,22 +696,13 @@ export default function Cart() {
                     </button>
                     <button
                       onClick={() => {
-                        const itemsNeedingService = getItemsNeedingService();
-                        if (itemsNeedingService.length === 0) {
-                          // Tous les articles ont un service, vérifier si on a besoin d'options/horaires
-                          const itemsNeedingSchedule = items.filter(item => 
-                            item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi') && !item.schedule
-                          );
-                          if (itemsNeedingSchedule.length > 0) {
-                            setCurrentStep('schedule');
-                          } else {
-                            setCurrentStep('review');
-                          }
+                        if (!service) {
+                          toast.error('Veuillez choisir un service');
                         } else {
-                          toast.error('Veuillez choisir un service pour tous les articles');
+                          setCurrentStep('schedule');
                         }
                       }}
-                      disabled={getItemsNeedingService().length > 0}
+                      disabled={!service}
                       className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Continuer
@@ -734,24 +725,15 @@ export default function Cart() {
                     </button>
                     <button
                       onClick={() => {
-                        const itemsNeedingSchedule = items.filter(item => 
-                          item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi') && !item.schedule
-                        );
-                        if (itemsNeedingSchedule.length === 0) {
-                          // Vérifier s'il y a des articles avec livraison
-                          const hasDelivery = items.some(item => item.service === 'livraison');
-                          if (hasDelivery) {
-                            setCurrentStep('delivery');
-                          } else {
-                            setCurrentStep('review');
-                          }
+                        if (!schedule) {
+                          toast.error('Veuillez choisir un horaire');
+                        } else if (service === 'livraison') {
+                          setCurrentStep('delivery');
                         } else {
-                          toast.error('Veuillez choisir des options pour tous les articles nécessaires');
+                          setCurrentStep('review');
                         }
                       }}
-                      disabled={items.filter(item => 
-                        item.service && (item.service === 'livraison' || item.service === 'meetup' || item.service === 'envoi') && !item.schedule
-                      ).length > 0}
+                      disabled={!schedule}
                       className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       Continuer
@@ -771,14 +753,13 @@ export default function Cart() {
                     </button>
                     <button
                       onClick={() => {
-                        const itemsNeedingDeliveryInfo = getItemsNeedingDeliveryInfo();
-                        if (itemsNeedingDeliveryInfo.length === 0) {
-                          setCurrentStep('review');
+                        if (service === 'livraison' && (!deliveryAddress || !deliveryPostalCode || !deliveryCity)) {
+                          toast.error('Veuillez renseigner toutes les informations d\'adresse');
                         } else {
-                          toast.error('Veuillez renseigner toutes les adresses de livraison');
+                          setCurrentStep('review');
                         }
                       }}
-                      disabled={getItemsNeedingDeliveryInfo().length > 0}
+                      disabled={service === 'livraison' && (!deliveryAddress || !deliveryPostalCode || !deliveryCity)}
                       className="flex-1 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 py-3 font-medium text-white hover:from-blue-600 hover:to-blue-700 transition-all flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       FINALISER
