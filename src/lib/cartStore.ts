@@ -10,12 +10,6 @@ export interface CartItem {
   quantity: number;
   originalPrice: number;
   discount: number;
-  service?: 'livraison' | 'envoi' | 'meetup';
-  schedule?: string;
-  // Champs pour la livraison à domicile
-  deliveryAddress?: string;
-  deliveryPostalCode?: string;
-  deliveryCity?: string;
 }
 
 export interface CartMetadata {
@@ -33,21 +27,25 @@ export interface DeliveryService {
 interface CartStore {
   items: CartItem[];
   isOpen: boolean;
+  // Informations globales pour tout le panier
+  service?: 'livraison' | 'envoi' | 'meetup';
+  schedule?: string;
+  deliveryAddress?: string;
+  deliveryPostalCode?: string;
+  deliveryCity?: string;
   clientType?: 'nouveau' | 'confirme';
+  
   addItem: (item: Omit<CartItem, 'quantity'>) => void;
   removeItem: (productId: string, weight: string) => void;
   updateQuantity: (productId: string, weight: string, quantity: number) => void;
-  updateService: (productId: string, weight: string, service: 'livraison' | 'envoi' | 'meetup') => void;
-  updateSchedule: (productId: string, weight: string, schedule: string) => void;
-  updateDeliveryInfo: (productId: string, weight: string, address: string, postalCode: string, city: string) => void;
+  setService: (service: 'livraison' | 'envoi' | 'meetup') => void;
+  setSchedule: (schedule: string) => void;
+  setDeliveryInfo: (address: string, postalCode: string, city: string) => void;
   setClientType: (type: 'nouveau' | 'confirme') => void;
   clearCart: () => void;
   getTotalPrice: () => number;
   getTotalItems: () => number;
   setIsOpen: (isOpen: boolean) => void;
-  getItemsNeedingService: () => CartItem[];
-  getItemsNeedingSchedule: () => CartItem[];
-  getItemsNeedingDeliveryInfo: () => CartItem[];
   isCartReadyForOrder: () => boolean;
 }
 
@@ -56,6 +54,11 @@ export const useCartStore = create<CartStore>()(
     (set, get) => ({
       items: [],
       isOpen: false,
+      service: undefined,
+      schedule: undefined,
+      deliveryAddress: undefined,
+      deliveryPostalCode: undefined,
+      deliveryCity: undefined,
       clientType: undefined,
       
       addItem: (item) => set((state) => {
@@ -96,7 +99,15 @@ export const useCartStore = create<CartStore>()(
         return { items: newItems };
       }),
       
-      clearCart: () => set({ items: [] }),
+      clearCart: () => set({ 
+        items: [], 
+        service: undefined, 
+        schedule: undefined, 
+        deliveryAddress: undefined,
+        deliveryPostalCode: undefined,
+        deliveryCity: undefined,
+        clientType: undefined
+      }),
       
       getTotalPrice: () => {
         const items = get().items;
@@ -108,73 +119,38 @@ export const useCartStore = create<CartStore>()(
         return items.reduce((total, item) => total + item.quantity, 0);
       },
       
-      updateService: (productId, weight, service) => set((state) => {
-        const newItems = state.items.map((item) =>
-          item.productId === productId && item.weight === weight
-            ? { ...item, service }
-            : item
-        );
-        return { items: newItems };
-      }),
+      setService: (service) => set({ service }),
       
-      updateSchedule: (productId, weight, schedule) => set((state) => {
-        const newItems = state.items.map((item) =>
-          item.productId === productId && item.weight === weight
-            ? { ...item, schedule }
-            : item
-        );
-        return { items: newItems };
-      }),
+      setSchedule: (schedule) => set({ schedule }),
       
-      updateDeliveryInfo: (productId, weight, address, postalCode, city) => set((state) => {
-        const newItems = state.items.map((item) =>
-          item.productId === productId && item.weight === weight
-            ? { ...item, deliveryAddress: address, deliveryPostalCode: postalCode, deliveryCity: city }
-            : item
-        );
-        return { items: newItems };
+      setDeliveryInfo: (address, postalCode, city) => set({ 
+        deliveryAddress: address, 
+        deliveryPostalCode: postalCode, 
+        deliveryCity: city 
       }),
       
       setClientType: (type) => set({ clientType: type }),
       
-      getItemsNeedingService: () => {
-        const items = get().items;
-        return items.filter(item => !item.service);
-      },
-      
-      getItemsNeedingSchedule: () => {
-        const items = get().items;
-        return items.filter(item => item.service && !item.schedule);
-      },
-      
-      getItemsNeedingDeliveryInfo: () => {
-        const items = get().items;
-        return items.filter(item => 
-          item.service === 'livraison' && 
-          (!item.deliveryAddress || !item.deliveryPostalCode || !item.deliveryCity)
-        );
-      },
-      
       isCartReadyForOrder: () => {
-        const items = get().items;
-        const clientType = get().clientType;
+        const state = get();
         
-        // Vérifier que le type de client est choisi
-        if (!clientType) return false;
+        // Vérifier qu'il y a des articles
+        if (state.items.length === 0) return false;
         
-        return items.length > 0 && items.every(item => {
-          // Chaque item doit avoir un service
-          if (!item.service) return false;
-          // Tous les services nécessitent maintenant une option/horaire
-          if (!item.schedule) return false;
-          // Si c'est une livraison, vérifier les informations d'adresse
-          if (item.service === 'livraison') {
-            if (!item.deliveryAddress || !item.deliveryPostalCode || !item.deliveryCity) {
-              return false;
-            }
+        // Vérifier qu'un service est sélectionné
+        if (!state.service) return false;
+        
+        // Vérifier qu'un horaire est sélectionné
+        if (!state.schedule) return false;
+        
+        // Si c'est une livraison, vérifier l'adresse
+        if (state.service === 'livraison') {
+          if (!state.deliveryAddress || !state.deliveryPostalCode || !state.deliveryCity) {
+            return false;
           }
-          return true;
-        });
+        }
+        
+        return true;
       },
       
       setIsOpen: (isOpen) => set({ isOpen })

@@ -17,12 +17,14 @@ export default function Cart() {
     removeItem, 
     clearCart, 
     getTotalPrice,
-    updateService,
-    updateSchedule,
-    updateDeliveryInfo,
-    getItemsNeedingService,
-    getItemsNeedingSchedule,
-    getItemsNeedingDeliveryInfo,
+    service,
+    schedule,
+    deliveryAddress,
+    deliveryPostalCode,
+    deliveryCity,
+    setService,
+    setSchedule,
+    setDeliveryInfo,
     isCartReadyForOrder,
     clientType,
     setClientType
@@ -168,12 +170,7 @@ export default function Cart() {
       message += `Les frais de routes seront indiqué par le standard\n\n`;
     }
     
-    message += `Commande générée automatiquement depuis le site web\n\n`;
-    
-    // Ajouter la question pour le type de client
-    message += `❓ Êtes-vous nouveau laitier ?\n`;
-    message += `   □ Oui, je suis nouveau\n`;
-    message += `   □ Non, je suis client confirmé`;
+    message += `Commande générée automatiquement depuis le site web`;
     
     // Choisir le bon lien selon le service
     let chosenLink = orderLink; // Fallback par défaut
@@ -281,12 +278,7 @@ export default function Cart() {
       message += `Les frais de routes seront indiqué par le standard\n\n`;
     }
     
-    message += `Commande générée automatiquement depuis le site web\n\n`;
-    
-    // Ajouter la question pour le type de client
-    message += `❓ Êtes-vous nouveau laitier ?\n`;
-    message += `   □ Oui, je suis nouveau\n`;
-    message += `   □ Non, je suis client confirmé`;
+    message += `Commande générée automatiquement depuis le site web`;
     
     try {
       await navigator.clipboard.writeText(message);
@@ -937,10 +929,7 @@ export default function Cart() {
                                   message += `Les frais de routes seront indiqué par le standard\n\n`;
                                 }
                                 
-                                message += `Commande générée automatiquement depuis le site web\n\n`;
-                                message += `❓ Êtes-vous nouveau laitier ?\n`;
-                                message += `   □ Oui, je suis nouveau\n`;
-                                message += `   □ Non, je suis client confirmé`;
+                                message += `Commande générée automatiquement depuis le site web`;
                                 
                                 // Encoder le message
                                 const encodedMessage = encodeURIComponent(message);
@@ -1062,10 +1051,7 @@ export default function Cart() {
                                         message += `Les frais de routes seront indiqué par le standard\n\n`;
                                       }
                                       
-                                      message += `Commande générée automatiquement depuis le site web\n\n`;
-                                      message += `❓ Êtes-vous nouveau laitier ?\n`;
-                                      message += `   □ Oui, je suis nouveau\n`;
-                                      message += `   □ Non, je suis client confirmé`;
+                                      message += `Commande générée automatiquement depuis le site web`;
                                       
                                       // Encoder le message
                                       const encodedMessage = encodeURIComponent(message);
