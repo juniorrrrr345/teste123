@@ -8,6 +8,7 @@ generator client {
 datasource db {
   provider = "sqlite"
   url      = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -15,7 +16,7 @@ model User {
   email     String   @unique
   password  String
   name      String?
-  role      Role     @default(USER)
+  role      String   @default("USER")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -81,9 +82,4 @@ model Information {
   updatedAt DateTime @updatedAt
 
   @@map("informations")
-}
-
-enum Role {
-  USER
-  ADMIN
 }

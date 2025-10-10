@@ -4,18 +4,19 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "env": {
-    "DATABASE_URL": "@database_url",
-    "NEXTAUTH_URL": "@nextauth_url",
-    "NEXTAUTH_SECRET": "@nextauth_secret",
-    "ADMIN_EMAIL": "@admin_email",
-    "ADMIN_PASSWORD": "@admin_password",
-    "CLOUDFLARE_ACCOUNT_ID": "@cloudflare_account_id",
-    "CLOUDFLARE_DATABASE_ID": "@cloudflare_database_id",
-    "CLOUDFLARE_API_TOKEN": "@cloudflare_api_token",
-    "CLOUDFLARE_R2_ACCESS_KEY_ID": "@cloudflare_r2_access_key_id",
-    "CLOUDFLARE_R2_SECRET_ACCESS_KEY": "@cloudflare_r2_secret_access_key",
-    "CLOUDFLARE_R2_BUCKET_NAME": "@cloudflare_r2_bucket_name",
-    "CLOUDFLARE_R2_PUBLIC_URL": "@cloudflare_r2_public_url"
+    "DATABASE_URL": "https://5ee52135-17f2-43ee-80a8-c20fcaee99d5.workers.dev",
+    "DIRECT_URL": "https://5ee52135-17f2-43ee-80a8-c20fcaee99d5.workers.dev",
+    "NEXTAUTH_URL": "https://your-domain.vercel.app",
+    "NEXTAUTH_SECRET": "your-production-secret-key",
+    "ADMIN_EMAIL": "admin@cbdshop.com",
+    "ADMIN_PASSWORD": "your-secure-admin-password",
+    "CLOUDFLARE_ACCOUNT_ID": "7979421604bd07b3bd34d3ed96222512",
+    "CLOUDFLARE_DATABASE_ID": "5ee52135-17f2-43ee-80a8-c20fcaee99d5",
+    "CLOUDFLARE_API_TOKEN": "ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW",
+    "CLOUDFLARE_R2_ACCESS_KEY_ID": "82WsPNjX-j0UqZIGAny8b0uEehcHd0X3zMKNIKIN",
+    "CLOUDFLARE_R2_SECRET_ACCESS_KEY": "28230e200a3b71e5374e569f8a297eba9aa3fe2e1097fdf26e5d9e340ded709d",
+    "CLOUDFLARE_R2_BUCKET_NAME": "boutique-images",
+    "CLOUDFLARE_R2_PUBLIC_URL": "https://pub-b38679a01a274648827751df94818418.r2.dev"
   },
   "functions": {
     "src/app/api/**/*.ts": {

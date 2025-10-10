@@ -1,6 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
+import { PlusIcon, PencilIcon, TrashIcon, TagIcon } from '@heroicons/react/24/outline'
 
 async function getCategories() {
   try {
@@ -38,7 +38,7 @@ export default async function CategoriesPage() {
       {categories.length > 0 ? (
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
           <ul className="divide-y divide-gray-200">
-            {categories.map((category) => (
+            {categories.map((category: any) => (
               <li key={category.id}>
                 <div className="px-4 py-4 flex items-center justify-between">
                   <div className="flex items-center">
