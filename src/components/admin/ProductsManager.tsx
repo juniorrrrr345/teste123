@@ -1,12 +1,11 @@
 'use client';
 import { useState, useEffect } from 'react';
 import MediaUploader from './MediaUploader';
-import { d1Admin, Product, Category, Farm } from '@/lib/d1-admin';
+import { d1Admin, Product, Category } from '@/lib/d1-admin';
 
 export default function ProductsManager() {
   const [products, setProducts] = useState<Product[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
-  const [farms, setFarms] = useState<Farm[]>([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -16,7 +15,6 @@ export default function ProductsManager() {
     price: 0,
     prices: '[]',
     category_id: undefined,
-    farm_id: undefined,
     image_url: '',
     video_url: '',
     images: '[]',
@@ -37,27 +35,23 @@ export default function ProductsManager() {
       setLoading(true);
       console.log('Chargement des données...');
       
-      const [productsData, categoriesData, farmsData] = await Promise.all([
+      const [productsData, categoriesData] = await Promise.all([
         d1Admin.getProducts(),
-        d1Admin.getCategories(),
-        d1Admin.getFarms()
+        d1Admin.getCategories()
       ]);
       
       console.log('Données chargées:', {
         products: productsData.length,
-        categories: categoriesData.length,
-        farms: farmsData.length
+        categories: categoriesData.length
       });
       
       setProducts(productsData);
       setCategories(categoriesData);
-      setFarms(farmsData);
       
     } catch (error) {
       console.error('Erreur lors du chargement:', error);
       setProducts([]);
       setCategories([]);
-      setFarms([]);
     } finally {
       setLoading(false);
     }
@@ -87,7 +81,6 @@ export default function ProductsManager() {
       price: 0,
       prices: '[]',
       category_id: undefined,
-      farm_id: undefined,
       image_url: '',
       video_url: '',
       images: '[]',
@@ -122,7 +115,6 @@ export default function ProductsManager() {
         price: formData.price || 0,
         prices: formData.prices || '[]',
         category_id: formData.category_id || null,
-        farm_id: formData.farm_id || null,
         image_url: formData.image_url || '',
         video_url: formData.video_url || '',
         images: formData.images || '[]',

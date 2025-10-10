@@ -1,6 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
-import { d1Admin, Setting } from '@/lib/d1-admin';
+import { Setting } from '@/lib/d1-admin';
 
 export default function SettingsManager() {
   const [settings, setSettings] = useState<Setting>({
@@ -31,10 +31,27 @@ export default function SettingsManager() {
       setLoading(true);
       console.log('⚙️ Chargement des paramètres...');
       
-      const settingsData = await d1Admin.getSettings();
-      if (settingsData) {
+      const response = await fetch('/api/cloudflare/settings');
+      if (response.ok) {
+        const settingsData = await response.json();
         console.log('⚙️ Paramètres chargés:', settingsData);
-        setSettings(settingsData);
+        
+        // Mapper les données de l'API vers le format attendu par le composant
+        setSettings({
+          id: 1,
+          shop_name: settingsData.shop_name || settingsData.shopTitle || 'LA NATION DU LAIT',
+          admin_password: settingsData.admin_password || 'admin123',
+          background_image: settingsData.background_image || settingsData.backgroundImage || '',
+          background_opacity: settingsData.background_opacity || settingsData.backgroundOpacity || 20,
+          background_blur: settingsData.background_blur || settingsData.backgroundBlur || 5,
+          theme_color: settingsData.theme_color || settingsData.titleStyle || '#000000',
+          contact_info: settingsData.contact_info || settingsData.contactContent || '',
+          shop_description: settingsData.shop_description || settingsData.infoContent || '',
+          loading_enabled: settingsData.loading_enabled !== undefined ? settingsData.loading_enabled : true,
+          loading_duration: settingsData.loading_duration || 3000,
+          created_at: settingsData.created_at || '',
+          updated_at: settingsData.updated_at || ''
+        });
       } else {
         console.log('⚙️ Aucun paramètre trouvé, utilisation des valeurs par défaut');
       }
@@ -56,12 +73,36 @@ export default function SettingsManager() {
       setMessage('');
       console.log('🔄 Sauvegarde des paramètres...', settings);
       
-      const result = await d1Admin.updateSettings(settings);
-      console.log('✅ Paramètres sauvegardés:', result);
+      const response = await fetch('/api/cloudflare/settings', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          shop_name: settings.shop_name,
+          admin_password: settings.admin_password,
+          background_image: settings.background_image,
+          background_opacity: settings.background_opacity,
+          background_blur: settings.background_blur,
+          theme_color: settings.theme_color,
+          contact_info: settings.contact_info,
+          shop_description: settings.shop_description,
+          loading_enabled: settings.loading_enabled,
+          loading_duration: settings.loading_duration
+        })
+      });
       
-      // Message de succès
-      setMessage('✅ Paramètres sauvegardés avec succès ! Les changements sont visibles immédiatement');
-      setTimeout(() => setMessage(''), 5000);
+      if (response.ok) {
+        const result = await response.json();
+        console.log('✅ Paramètres sauvegardés:', result);
+        
+        // Message de succès
+        setMessage('✅ Paramètres sauvegardés avec succès ! Les changements sont visibles immédiatement');
+        setTimeout(() => setMessage(''), 5000);
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Erreur HTTP: ${response.status}`);
+      }
       
     } catch (error) {
       console.error('❌ Erreur lors de la sauvegarde:', error);
