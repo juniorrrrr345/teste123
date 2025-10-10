@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import ImageUpload from './ImageUpload'
 
 interface CategoryFormProps {
   category?: {
@@ -92,19 +93,12 @@ export default function CategoryForm({ category }: CategoryFormProps) {
             />
           </div>
 
-          <div>
-            <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-              URL de l'image
-            </label>
-            <input
-              type="url"
-              name="image"
-              id="image"
-              value={formData.image}
-              onChange={handleChange}
-              className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
-            />
-          </div>
+          <ImageUpload
+            value={formData.image}
+            onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+            onRemove={() => setFormData(prev => ({ ...prev, image: '' }))}
+            label="Image de la catégorie"
+          />
 
           <div className="flex items-center">
             <input

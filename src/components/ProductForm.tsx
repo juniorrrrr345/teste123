@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
+import ImageUpload from './ImageUpload'
 
 interface Farm {
   id: string
@@ -202,19 +203,12 @@ export default function ProductForm({ product }: ProductFormProps) {
           </div>
 
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
-            <div>
-              <label htmlFor="image" className="block text-sm font-medium text-gray-700">
-                URL de l'image
-              </label>
-              <input
-                type="url"
-                name="image"
-                id="image"
-                value={formData.image}
-                onChange={handleChange}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
-              />
-            </div>
+            <ImageUpload
+              value={formData.image}
+              onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+              onRemove={() => setFormData(prev => ({ ...prev, image: '' }))}
+              label="Image du produit"
+            />
 
             <div>
               <label htmlFor="video" className="block text-sm font-medium text-gray-700">
@@ -227,6 +221,7 @@ export default function ProductForm({ product }: ProductFormProps) {
                 value={formData.video}
                 onChange={handleChange}
                 className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-green-500 focus:border-green-500 sm:text-sm"
+                placeholder="https://example.com/video.mp4"
               />
             </div>
           </div>

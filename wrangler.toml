@@ -1,0 +1,11 @@
+name = "cbd-shop"
+main = "src/app/api/[[...route]].ts"
+compatibility_date = "2024-01-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "cbd-shop"
+database_id = "5ee52135-17f2-43ee-80a8-c20fcaee99d5"
+
+[vars]
+CLOUDFLARE_R2_PUBLIC_URL = "https://pub-b38679a01a274648827751df94818418.r2.dev"

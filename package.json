@@ -9,7 +9,9 @@
     "lint": "next lint",
     "db:generate": "prisma generate",
     "db:push": "prisma db push",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "deploy:cloudflare": "node scripts/deploy-cloudflare.js",
+    "db:migrate": "wrangler d1 execute $CLOUDFLARE_DATABASE_ID --file=./scripts/cloudflare-migration.sql"
   },
   "dependencies": {
     "@headlessui/react": "^1.7.17",

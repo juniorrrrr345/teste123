@@ -5,7 +5,7 @@ const prisma = new PrismaClient()
 
 async function main() {
   // Créer l'utilisateur admin
-  const hashedPassword = await bcrypt.hash('admin123', 12)
+  const hashedPassword = await bcrypt.hash('votre_nouveau_mot_de_passe', 12)
   
   const admin = await prisma.user.upsert({
     where: { email: 'admin@cbdshop.com' },
