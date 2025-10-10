@@ -16,7 +16,7 @@ model User {
   email     String   @unique
   password  String
   name      String?
-  role      Role     @default(USER)
+  role      String   @default("USER")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -82,9 +82,4 @@ model Information {
   updatedAt DateTime @updatedAt
 
   @@map("informations")
-}
-
-enum Role {
-  USER
-  ADMIN
 }

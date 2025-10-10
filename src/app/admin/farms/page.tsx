@@ -1,7 +1,6 @@
 import { prisma } from '@/lib/prisma'
 import Link from 'next/link'
-import { PlusIcon, PencilIcon, TrashIcon } from '@heroicons/react/24/outline'
-import FarmForm from '@/components/FarmForm'
+import { PlusIcon, PencilIcon, TrashIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
 
 async function getFarms() {
   try {
@@ -39,7 +38,7 @@ export default async function FarmsPage() {
       {farms.length > 0 ? (
         <div className="bg-white shadow overflow-hidden sm:rounded-md">
           <ul className="divide-y divide-gray-200">
-            {farms.map((farm) => (
+            {farms.map((farm: any) => (
               <li key={farm.id}>
                 <div className="px-4 py-4 flex items-center justify-between">
                   <div className="flex items-center">

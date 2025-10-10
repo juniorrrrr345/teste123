@@ -31,7 +31,7 @@ export default async function FarmsPage() {
 
         {farms.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {farms.map((farm) => (
+            {farms.map((farm: any) => (
               <div key={farm.id} className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
                 <div className="relative h-64">
                   {farm.image ? (

@@ -41,7 +41,7 @@ export default async function Home() {
 
           <Suspense fallback={<div className="text-center">Chargement des produits...</div>}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-              {products.map((product, index) => (
+              {products.map((product: any, index: number) => (
                 <div key={product.id} className={`${index % 2 === 0 ? 'md:justify-self-end' : 'md:justify-self-start'}`}>
                   <ProductCard product={product} />
                 </div>
