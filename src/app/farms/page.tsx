@@ -1,12 +1,9 @@
-import { prisma } from '@/lib/prisma'
+import { d1Simple } from '@/lib/d1-simple'
 import Image from 'next/image'
 
 async function getFarms() {
   try {
-    const farms = await prisma.farm.findMany({
-      where: { isActive: true },
-      orderBy: { createdAt: 'desc' },
-    })
+    const farms = await d1Simple.getFarms()
     return farms
   } catch (error) {
     console.error('Erreur lors de la récupération des fermes:', error)

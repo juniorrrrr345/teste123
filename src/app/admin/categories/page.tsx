@@ -1,12 +1,10 @@
-import { prisma } from '@/lib/prisma'
+import { d1Simple } from '@/lib/d1-simple'
 import Link from 'next/link'
 import { PlusIcon, PencilIcon, TrashIcon, TagIcon } from '@heroicons/react/24/outline'
 
 async function getCategories() {
   try {
-    const categories = await prisma.category.findMany({
-      orderBy: { createdAt: 'desc' },
-    })
+    const categories = await d1Simple.getCategories()
     return categories
   } catch (error) {
     console.error('Erreur lors de la récupération des catégories:', error)

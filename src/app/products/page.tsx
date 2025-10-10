@@ -1,17 +1,10 @@
-import { prisma } from '@/lib/prisma'
+import { d1Simple } from '@/lib/d1-simple'
 import ProductCard from '@/components/ProductCard'
 import { Suspense } from 'react'
 
 async function getProducts() {
   try {
-    const products = await prisma.product.findMany({
-      where: { isActive: true },
-      include: {
-        farm: true,
-        category: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    })
+    const products = await d1Simple.getProducts()
     return products
   } catch (error) {
     console.error('Erreur lors de la récupération des produits:', error)

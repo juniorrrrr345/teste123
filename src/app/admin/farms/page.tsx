@@ -1,12 +1,10 @@
-import { prisma } from '@/lib/prisma'
+import { d1Simple } from '@/lib/d1-simple'
 import Link from 'next/link'
 import { PlusIcon, PencilIcon, TrashIcon, BuildingOfficeIcon } from '@heroicons/react/24/outline'
 
 async function getFarms() {
   try {
-    const farms = await prisma.farm.findMany({
-      orderBy: { createdAt: 'desc' },
-    })
+    const farms = await d1Simple.getFarms()
     return farms
   } catch (error) {
     console.error('Erreur lors de la récupération des fermes:', error)

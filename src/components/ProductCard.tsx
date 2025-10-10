@@ -12,12 +12,12 @@ interface Product {
   price: number
   image?: string | null
   video?: string | null
-  farm: {
+  farm?: {
     name: string
-  }
-  category: {
+  } | null
+  category?: {
     name: string
-  }
+  } | null
 }
 
 interface ProductCardProps {
@@ -141,7 +141,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             {/* Category Badge */}
             <div className="absolute top-4 left-4">
               <span className="bg-white/90 backdrop-blur-sm text-gray-800 px-3 py-1 rounded-full text-xs font-medium">
-                {product.category.name}
+                {product.category?.name || 'Non catégorisé'}
               </span>
             </div>
           </div>
@@ -153,7 +153,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         {/* Farm Name */}
         <div className="flex items-center mb-2">
           <span className="text-xs text-gray-500 font-medium">
-            🌱 {product.farm.name}
+            🌱 {product.farm?.name || 'Ferme inconnue'}
           </span>
         </div>
 

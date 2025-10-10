@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma'
+import { d1Simple } from '@/lib/d1-simple'
 import { 
   CubeIcon, 
   BuildingOfficeIcon, 
@@ -8,14 +8,18 @@ import {
 
 async function getStats() {
   try {
-    const [products, farms, categories, informations] = await Promise.all([
-      prisma.product.count(),
-      prisma.farm.count(),
-      prisma.category.count(),
-      prisma.information.count(),
+    const [products, farms, categories] = await Promise.all([
+      d1Simple.getProducts(),
+      d1Simple.getFarms(),
+      d1Simple.getCategories(),
     ])
 
-    return { products, farms, categories, informations }
+    return { 
+      products: products.length, 
+      farms: farms.length, 
+      categories: categories.length, 
+      informations: 0 // Pas d'informations dans le nouveau système
+    }
   } catch (error) {
     console.error('Erreur lors de la récupération des statistiques:', error)
     return { products: 0, farms: 0, categories: 0, informations: 0 }
@@ -24,15 +28,8 @@ async function getStats() {
 
 async function getRecentProducts() {
   try {
-    const products = await prisma.product.findMany({
-      take: 5,
-      orderBy: { createdAt: 'desc' },
-      include: {
-        farm: true,
-        category: true,
-      },
-    })
-    return products
+    const products = await d1Simple.getProducts()
+    return products.slice(0, 5) // Limiter à 5 produits
   } catch (error) {
     console.error('Erreur lors de la récupération des produits récents:', error)
     return []
@@ -144,12 +141,12 @@ export default async function AdminDashboard() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">
-                          {product.farm.name}
+                          {product.farm?.name || 'Ferme inconnue'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="text-sm text-gray-500">
-                          {product.category.name}
+                          {product.category?.name || 'Non catégorisé'}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
