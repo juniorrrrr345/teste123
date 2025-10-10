@@ -1,20 +1,12 @@
-import { prisma } from '@/lib/prisma'
+import { d1Simple } from '@/lib/d1-simple'
 import ProductCard from '@/components/ProductCard'
 import Hero from '@/components/Hero'
 import { Suspense } from 'react'
 
 async function getProducts() {
   try {
-    const products = await prisma.product.findMany({
-      where: { isActive: true },
-      include: {
-        farm: true,
-        category: true,
-      },
-      orderBy: { createdAt: 'desc' },
-      take: 6, // Augmenté pour un meilleur affichage
-    })
-    return products
+    const products = await d1Simple.getProducts()
+    return products.slice(0, 6) // Limiter à 6 produits
   } catch (error) {
     console.error('Erreur lors de la récupération des produits:', error)
     return []

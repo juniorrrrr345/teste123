@@ -1,13 +1,10 @@
-import { prisma } from '@/lib/prisma'
+import { d1Simple } from '@/lib/d1-simple'
 import { notFound } from 'next/navigation'
 
 async function getInformations() {
   try {
-    const informations = await prisma.information.findMany({
-      where: { isActive: true },
-      orderBy: { type: 'asc' }
-    })
-    return informations
+    // Pour l'instant, retourner un tableau vide car les informations ne sont pas encore implémentées dans d1Simple
+    return []
   } catch (error) {
     console.error('Erreur lors de la récupération des informations:', error)
     return []

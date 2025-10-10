@@ -1,16 +1,10 @@
-import { prisma } from '@/lib/prisma'
+import { d1Simple } from '@/lib/d1-simple'
 import Link from 'next/link'
 import { PlusIcon, PencilIcon, TrashIcon, CubeIcon } from '@heroicons/react/24/outline'
 
 async function getProducts() {
   try {
-    const products = await prisma.product.findMany({
-      include: {
-        farm: true,
-        category: true,
-      },
-      orderBy: { createdAt: 'desc' },
-    })
+    const products = await d1Simple.getProducts()
     return products
   } catch (error) {
     console.error('Erreur lors de la récupération des produits:', error)
@@ -100,12 +94,12 @@ export default async function ProductsPage() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {product.farm.name}
+                        {product.farm?.name || 'Ferme inconnue'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {product.category.name}
+                        {product.category?.name || 'Non catégorisé'}
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
