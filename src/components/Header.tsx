@@ -97,33 +97,31 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full z-40 bg-black/40 backdrop-blur-md safe-area-padding">
+    <header className="fixed top-0 w-full z-40 glass-effect safe-area-padding">
       {/* N'afficher que si les données sont chargées */}
       {isLoaded && settings && (
         <>
-          {/* Texte défilant SEULEMENT - depuis l'admin */}
+          {/* Texte défilant modernisé */}
           {settings.scrollingText && settings.scrollingText.trim() && (
-            <div className="bg-black/30 backdrop-blur-sm text-white py-0.5 overflow-hidden relative border-b border-white/10">
+            <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 backdrop-blur-sm text-white py-2 overflow-hidden relative border-b border-white/20">
               <div className="animate-marquee whitespace-nowrap inline-block">
-                <span className="text-xs font-bold tracking-wide px-4 text-white drop-shadow-md">
-                  {settings.scrollingText}
+                <span className="text-sm font-bold tracking-wide px-4 text-white drop-shadow-lg">
+                  ✨ {settings.scrollingText} ✨
                 </span>
               </div>
             </div>
           )}
           
-          {/* PAS de bandeau contact/WhatsApp dans le header */}
-          
-          {/* Logo boutique avec bouton panier - responsive optimisé */}
-          <div className="bg-black/30 backdrop-blur-md py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 text-center border-b border-white/10 relative">
-            {/* Bouton panier en position absolue */}
+          {/* Header principal modernisé */}
+          <div className="py-3 px-4 text-center relative">
+            {/* Bouton panier modernisé */}
             <button
               onClick={() => setIsOpen(true)}
-              className="absolute right-3 sm:right-4 md:right-6 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-2 sm:p-3 rounded-lg transition-all duration-200 flex items-center gap-2 border border-white/30"
+              className="absolute right-4 top-1/2 -translate-y-1/2 button-modern p-3 flex items-center gap-2 hover:scale-110 transition-all duration-300"
             >
-              <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
+              <ShoppingCart className="w-6 h-6" />
               {totalItems > 0 && (
-                <span className="bg-green-500 text-black text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
+                <span className="badge-modern min-w-[24px] h-6 flex items-center justify-center animate-bounce">
                   {totalItems}
                 </span>
               )}
@@ -131,18 +129,23 @@ export default function Header() {
             
             <div className="flex flex-col items-center justify-center">
               {settings.backgroundImage ? (
-                <img 
-                  src={settings.backgroundImage} 
-                  alt="LANATION DU LAIT" 
-                  className="h-12 sm:h-16 md:h-20 w-auto rounded-lg"
-                  style={{ filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' }}
-                />
+                <div className="relative">
+                  <img 
+                    src={settings.backgroundImage} 
+                    alt="LANATION DU LAIT" 
+                    className="h-16 w-auto rounded-2xl animate-float"
+                    style={{ filter: 'drop-shadow(0 0 20px rgba(99, 102, 241, 0.3))' }}
+                  />
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-indigo-500/20 to-transparent"></div>
+                </div>
               ) : (
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
-                  LANATION DU LAIT
-                </h1>
+                <div className="relative">
+                  <h1 className="text-3xl font-black gradient-text animate-fadeIn">
+                    {settings.shopTitle || 'LANATION DU LAIT'}
+                  </h1>
+                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-lg blur-sm -z-10"></div>
+                </div>
               )}
-
             </div>
           </div>
         </>
