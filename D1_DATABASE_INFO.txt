@@ -1,0 +1,5 @@
+# Informations de la base de données D1 créée
+Database Name: LANATIONDULAIT_DUPLICATE
+Database UUID: 610c6a4b-4ba8-497c-9046-ed6f81c1a522
+Account ID: 7979421604bd07b3bd34d3ed96222512
+Created: Fri Oct 10 08:09:53 PM UTC 2025
