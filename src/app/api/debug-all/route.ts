@@ -20,7 +20,7 @@ export async function GET() {
     
     const debugInfo = {
       timestamp: new Date().toISOString(),
-      database_id: '6df2df23-06af-4494-ba0f-30b2061c1def',
+      database_id: '5ee52135-17f2-43ee-80a8-c20fcaee99d5',
       counts: {
         products: products.length,
         categories: categories.length,

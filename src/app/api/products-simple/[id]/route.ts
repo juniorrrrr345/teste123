@@ -4,7 +4,7 @@ import { NextRequest } from 'next/server';
 // Configuration Cloudflare (même que dans les autres fichiers)
 const getCloudflareConfig = () => ({
   ACCOUNT_ID: process.env.CLOUDFLARE_ACCOUNT_ID || '7979421604bd07b3bd34d3ed96222512',
-  DATABASE_ID: process.env.CLOUDFLARE_DATABASE_ID || '6df2df23-06af-4494-ba0f-30b2061c1def',
+  DATABASE_ID: process.env.CLOUDFLARE_DATABASE_ID || '5ee52135-17f2-43ee-80a8-c20fcaee99d5',
   API_TOKEN: process.env.CLOUDFLARE_API_TOKEN || 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
 });
 
