@@ -4,7 +4,7 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "env": {
-    "DATABASE_URL": "https://5ee52135-17f2-43ee-80a8-c20fcaee99d5.your-subdomain.workers.dev",
+    "DATABASE_URL": "https://5ee52135-17f2-43ee-80a8-c20fcaee99d5.workers.dev",
     "NEXTAUTH_URL": "https://your-domain.vercel.app",
     "NEXTAUTH_SECRET": "your-production-secret-key",
     "ADMIN_EMAIL": "admin@cbdshop.com",
