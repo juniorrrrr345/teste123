@@ -24,10 +24,18 @@ async function executeSqlOnD1(sql: string, params: any[] = []) {
 
 export async function GET() {
   try {
-    const data = await executeSqlOnD1('SELECT id, name, icon, color, created_at FROM categories ORDER BY name ASC');
+    const data = await executeSqlOnD1('SELECT id, name, description, image as icon, isActive FROM categories WHERE isActive = 1 ORDER BY name ASC');
     
     if (data.success && data.result?.[0]?.results) {
-      return NextResponse.json(data.result[0].results);
+      const categories = data.result[0].results.map((cat: any) => ({
+        id: cat.id,
+        name: cat.name,
+        description: cat.description || '',
+        icon: cat.icon || '🏷️',
+        color: '#3B82F6', // Couleur par défaut
+        created_at: cat.createdAt
+      }));
+      return NextResponse.json(categories);
     } else {
       return NextResponse.json([]);
     }
@@ -41,13 +49,22 @@ export async function POST(request: Request) {
   try {
     const { name, icon, color } = await request.json();
     
+    const id = `cat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     const data = await executeSqlOnD1(
-      'INSERT INTO categories (name, icon, color, created_at) VALUES (?, ?, ?, datetime("now")) RETURNING *',
-      [name, icon || '📦', color || '#22C55E']
+      'INSERT INTO categories (id, name, description, image, isActive, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [id, name, '', icon || '📦', 1, new Date().toISOString(), new Date().toISOString()]
     );
     
-    if (data.success && data.result?.[0]?.results?.[0]) {
-      return NextResponse.json(data.result[0].results[0]);
+    if (data.success) {
+      return NextResponse.json({
+        id: id,
+        name: name,
+        description: '',
+        icon: icon || '📦',
+        color: color || '#22C55E',
+        created_at: new Date().toISOString()
+      });
     } else {
       throw new Error('Échec création catégorie');
     }

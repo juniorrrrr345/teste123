@@ -16,7 +16,7 @@ export async function GET() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        sql: 'SELECT * FROM social_links WHERE is_available = 1 ORDER BY created_at ASC'
+        sql: 'SELECT * FROM social_links WHERE is_available = 1 OR is_available IS NULL ORDER BY createdAt ASC'
       })
     });
     
@@ -28,7 +28,7 @@ export async function GET() {
       const socialLinks = data.result[0].results.map((link: any) => ({
         ...link,
         _id: link.id, // Frontend s'attend à _id
-        name: link.platform // Frontend s'attend à name
+        name: link.name || link.platform // Frontend s'attend à name
       }));
       console.log('🌐 Liens sociaux récupérés:', socialLinks.length);
       return NextResponse.json(socialLinks);
@@ -45,11 +45,11 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { platform, url, icon = '🔗', is_available = true } = body;
+    const { platform, name, url, icon = '🔗', is_available = true } = body;
 
-    if (!platform || !url) {
+    if ((!platform && !name) || !url) {
       return NextResponse.json(
-        { error: 'La plateforme et l\'URL sont requis' },
+        { error: 'La plateforme (ou nom) et l\'URL sont requis' },
         { status: 400 }
       );
     }
@@ -60,6 +60,8 @@ export async function POST(request: Request) {
     
     const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
     
+    const id = `social_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     const response = await fetch(baseUrl, {
       method: 'POST',
       headers: {
@@ -67,8 +69,8 @@ export async function POST(request: Request) {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        sql: 'INSERT INTO social_links (platform, url, icon, is_available) VALUES (?, ?, ?, ?)',
-        params: [platform, url, icon, is_available ? 1 : 0]
+        sql: 'INSERT INTO social_links (id, name, platform, url, icon, is_available, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+        params: [id, name || platform, platform || name, url, icon, is_available ? 1 : 0, new Date().toISOString(), new Date().toISOString()]
       })
     });
     

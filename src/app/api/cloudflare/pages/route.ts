@@ -7,7 +7,7 @@ const CLOUDFLARE_CONFIG = {
   apiToken: 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
 };
 
-async function executeSqlOnD1(sql, params = []) {
+async function executeSqlOnD1(sql: string, params: any[] = []) {
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_CONFIG.accountId}/d1/database/${CLOUDFLARE_CONFIG.databaseId}/query`;
   
   const response = await fetch(url, {
@@ -29,7 +29,7 @@ async function executeSqlOnD1(sql, params = []) {
 // GET - Récupérer toutes les pages
 export async function GET() {
   try {
-    const result = await executeSqlOnD1('SELECT * FROM pages ORDER BY created_at DESC');
+    const result = await executeSqlOnD1('SELECT * FROM pages WHERE is_active = 1 ORDER BY createdAt DESC');
     
     if (result.result?.[0]?.results) {
       console.log(`📄 Pages récupérées: ${result.result[0].results.length}`);
@@ -59,9 +59,11 @@ export async function POST(request: Request) {
       );
     }
 
+    const id = `page_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    
     await executeSqlOnD1(
-      'INSERT INTO pages (slug, title, content, is_active) VALUES (?, ?, ?, ?)',
-      [slug, title, content, is_active ? 1 : 0]
+      'INSERT INTO pages (id, slug, title, content, is_active, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [id, slug, title, content, is_active ? 1 : 0, new Date().toISOString(), new Date().toISOString()]
     );
 
     console.log('✅ Page créée avec succès');

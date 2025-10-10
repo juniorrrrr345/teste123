@@ -24,7 +24,7 @@ async function executeSqlOnD1(sql: string, params: any[] = []) {
 
 export async function GET() {
   try {
-    const data = await executeSqlOnD1('SELECT id, name, description, location, contact, created_at FROM farms ORDER BY name ASC');
+    const data = await executeSqlOnD1('SELECT id, name, description, location, isActive FROM farms WHERE isActive = 1 ORDER BY name ASC');
     
     if (data.success && data.result?.[0]?.results) {
       return NextResponse.json(data.result[0].results);
@@ -39,11 +39,13 @@ export async function GET() {
 
 export async function POST(request: Request) {
   try {
-    const { name, description, location, contact } = await request.json();
+    const { name, description, location } = await request.json();
+    
+    const id = `farm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
     
     const data = await executeSqlOnD1(
-      'INSERT INTO farms (name, description, location, contact, created_at) VALUES (?, ?, ?, ?, datetime("now")) RETURNING *',
-      [name, description || 'Farm LANATIONDULAIT', location || 'Non spécifié', contact || 'contact@oglegacy.com']
+      'INSERT INTO farms (id, name, description, location, isActive, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [id, name, description || 'Farm LANATIONDULAIT', location || 'Non spécifié', 1, new Date().toISOString(), new Date().toISOString()]
     );
     
     if (data.success && data.result?.[0]?.results?.[0]) {

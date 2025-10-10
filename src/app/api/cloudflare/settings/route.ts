@@ -31,7 +31,7 @@ export async function GET() {
   try {
     console.log('🔍 GET settings LANATIONDULAIT...');
     
-    const result = await executeSqlOnD1('SELECT * FROM settings WHERE id = 1');
+    const result = await executeSqlOnD1('SELECT * FROM settings WHERE id = ?', ['1']);
     
     if (result.result?.[0]?.results?.length) {
       const settings = result.result[0].results[0];
@@ -180,7 +180,7 @@ export async function PUT(request: NextRequest) {
     });
 
     // Vérifier si un enregistrement existe
-    const checkResult = await executeSqlOnD1('SELECT id FROM settings WHERE id = 1');
+    const checkResult = await executeSqlOnD1('SELECT id FROM settings WHERE id = ?', ['1']);
     
     if (checkResult.result?.[0]?.results?.length) {
       // UPDATE
@@ -202,7 +202,7 @@ export async function PUT(request: NextRequest) {
           livraison_schedules = ?,
           meetup_schedules = ?,
           envoi_schedules = ?
-        WHERE id = 1
+        WHERE id = ?
       `, [
         finalBackgroundImage,
         finalBackgroundOpacity,
@@ -219,7 +219,8 @@ export async function PUT(request: NextRequest) {
         finalTelegramMeetup,
         finalLivraisonSchedules,
         finalMeetupSchedules,
-        finalEnvoiSchedules
+        finalEnvoiSchedules,
+        '1'
       ]);
     } else {
       // INSERT
@@ -253,7 +254,7 @@ export async function PUT(request: NextRequest) {
     }
 
     // Récupérer les paramètres mis à jour
-    const result = await executeSqlOnD1('SELECT * FROM settings WHERE id = 1');
+    const result = await executeSqlOnD1('SELECT * FROM settings WHERE id = ?', ['1']);
     const settings = result.result[0].results[0];
     
     console.log('✅ Settings LANATIONDULAIT mis à jour:', settings);
