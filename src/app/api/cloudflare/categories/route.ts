@@ -48,11 +48,16 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     
-    const sql = `INSERT INTO categories (name, icon, color) VALUES (?, ?, ?)`;
+    const id = `cat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const sql = `INSERT INTO categories (id, name, description, image, isActive, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)`;
     const values = [
+      id,
       body.name,
+      body.description || '',
       body.icon || '🏷️',
-      body.color || '#3B82F6'
+      1,
+      new Date().toISOString(),
+      new Date().toISOString()
     ];
     
     const data = await executeSqlOnD1(sql, values);

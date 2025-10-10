@@ -1,9 +1,9 @@
 'use client';
 import { useState } from 'react';
-import ProductsManager from './ProductsManager';
+import ProductsManagerSimple from './ProductsManagerSimple';
 import CategoriesManager from './CategoriesManager';
 import FarmsManager from './FarmsManager';
-import OrdersManager from './OrdersManager';
+import OrdersManagerSimple from './OrdersManagerSimple';
 import SocialLinksManager from './SocialLinksManager';
 import SettingsManager from './SettingsManager';
 import PagesManager from './PagesManager';
@@ -34,13 +34,13 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
   const renderActiveSection = () => {
     switch (activeSection) {
       case 'products':
-        return <ProductsManager />;
+        return <ProductsManagerSimple />;
       case 'categories':
         return <CategoriesManager />;
       case 'farms':
         return <FarmsManager />;
       case 'orders':
-        return <OrdersManager />;
+        return <OrdersManagerSimple />;
       case 'settings':
         return <SettingsManager />;
       case 'servicelinks':
@@ -50,7 +50,7 @@ export default function AdminDashboard({ onLogout }: AdminDashboardProps) {
       case 'social':
         return <SocialLinksManager />;
       default:
-        return <ProductsManager />;
+        return <ProductsManagerSimple />;
     }
   };
 

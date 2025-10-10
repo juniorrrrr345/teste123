@@ -60,11 +60,11 @@ export async function PUT(
   try {
     const id = parseInt(params.id);
     const body = await request.json();
-    const { name, description, location, contact } = body;
-
+    const { name, description, location } = body;
+    
     await executeSqlOnD1(
-      'UPDATE farms SET name = ?, description = ?, location = ?, contact = ? WHERE id = ?',
-      [name, description || '', location || '', contact || '', id]
+      'UPDATE farms SET name = ?, description = ?, location = ?, updatedAt = ? WHERE id = ?',
+      [name, description || '', location || '', new Date().toISOString(), id]
     );
 
     // Récupérer la farm mise à jour

@@ -18,16 +18,15 @@ export async function GET() {
       body: JSON.stringify({
         sql: `
           SELECT 
-            p.id, p.name, p.description, p.price, p.prices, 
-            p.image_url, p.video_url, p.stock, p.is_available,
+            p.id, p.name, p.description, p.price, 
+            p.image as image_url, p.video as video_url, p.stock, p.isActive as is_available,
             c.name as category_name,
-            c.icon as category_icon,
-            p.category_id, p.features, p.tags
+            c.image as category_icon,
+            p.categoryId as category_id
           FROM products p
-          LEFT JOIN categories c ON p.category_id = c.id
-          
-          WHERE (p.is_available = 1 OR p.is_available = 'true' OR p.is_available IS NULL)
-          ORDER BY p.created_at DESC
+          LEFT JOIN categories c ON p.categoryId = c.id
+          WHERE p.isActive = 1
+          ORDER BY p.createdAt DESC
         `
       })
     });
@@ -38,20 +37,6 @@ export async function GET() {
     
     if (data.success && data.result?.[0]?.results) {
       const products = data.result[0].results.map((product: any) => {
-        let prices = {};
-        let features = [];
-        let tags = [];
-        
-        try {
-          prices = JSON.parse(product.prices || '{}');
-          features = JSON.parse(product.features || '[]');
-          tags = JSON.parse(product.tags || '[]');
-        } catch (e) {
-          prices = {};
-          features = [];
-          tags = [];
-        }
-        
         return {
           id: product.id,
           name: product.name,
@@ -61,12 +46,12 @@ export async function GET() {
           category_id: product.category_id,
           image_url: product.image_url || '',
           video_url: product.video_url || '',
-          prices: prices,
+          prices: {}, // Pas de colonne prices dans le schéma actuel
           price: product.price || 0,
           stock: product.stock || 0,
-          is_available: product.is_available !== false,
-          features: features,
-          tags: tags
+          is_available: product.is_available === 1 || product.is_available === true,
+          features: [], // Pas de colonne features dans le schéma actuel
+          tags: [] // Pas de colonne tags dans le schéma actuel
         };
       });
       
