@@ -30,7 +30,7 @@ export async function GET(request: NextRequest) {
         p.id, p.name, p.description, p.price, 
         p.image as image_url, p.video as video_url, p.stock, p.isActive as is_available,
         c.name as category,
-        c.image as category_icon,
+        c.icon as category_icon,
         p.categoryId as category_id
       FROM products p
       LEFT JOIN categories c ON p.categoryId = c.id
