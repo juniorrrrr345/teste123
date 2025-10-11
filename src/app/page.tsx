@@ -286,6 +286,53 @@ export default function HomePage() {
                 
                 <main className="pt-3 pb-24 sm:pb-28 px-3 sm:px-4 lg:px-6 xl:px-8 max-w-7xl mx-auto">
 
+                {/* Section promotions en vedette */}
+                {(() => {
+                  const promoProducts = filteredProducts.filter(product => 
+                    product.promotions && Object.values(product.promotions).some(promo => promo > 0)
+                  );
+                  
+                  if (promoProducts.length > 0 && selectedCategory === 'Toutes les catégories') {
+                    return (
+                      <div className="mb-8">
+                        {/* Titre des promotions */}
+                        <div className="text-center mb-6">
+                          <h2 className="text-2xl sm:text-3xl font-bold promo-text-gradient promo-bounce mb-2">
+                            🔥 PROMOTIONS EXCLUSIVES 🔥
+                          </h2>
+                          <p className="text-gray-600 text-sm promo-float">
+                            Offres limitées - Ne ratez pas ces bonnes affaires !
+                          </p>
+                        </div>
+                        
+                        {/* Grille des promotions */}
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-8">
+                          {promoProducts.slice(0, 3).map((product, index) => (
+                            <div 
+                              key={product._id}
+                              className="animate-fade-in-up"
+                              style={{ animationDelay: `${index * 0.2}s` }}
+                            >
+                              <ProductCard
+                                product={product}
+                                onClick={() => setSelectedProduct(product)}
+                              />
+                            </div>
+                          ))}
+                        </div>
+                        
+                        {/* Séparateur élégant */}
+                        <div className="flex items-center justify-center mb-8">
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                          <div className="mx-4 text-gray-400 text-sm font-medium">Tous les produits</div>
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                        </div>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
                 {/* Affichage des produits moderne */}
                 {filteredProducts.length === 0 && products.length > 0 ? (
                   <div className="text-center py-12">
