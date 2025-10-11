@@ -221,31 +221,31 @@ export default function HomePage() {
           <div className="min-h-screen flex items-center justify-center p-4">
             <div className="text-center card-modern p-8 sm:p-12 max-w-lg mx-auto animate-fade-in-up">
 
-              {/* Titre principal moderne */}
-              <div className="text-4xl sm:text-5xl md:text-6xl font-bold mb-12 leading-tight text-center">
-                <div className="gradient-text-primary">LA NATION</div>
-                <div className="gradient-text-accent">DU LAIT</div>
+              {/* Titre principal noir et blanc */}
+              <div className="text-4xl sm:text-5xl md:text-6xl font-black mb-12 leading-tight text-center">
+                <div className="bw-title">LA NATION</div>
+                <div className="bw-title">DU LAIT</div>
               </div>
               
-              {/* Barre de chargement moderne */}
+              {/* Barre de chargement noir et blanc */}
               <div className="w-80 max-w-full mx-auto mb-8">
-                <div className="h-3 bg-neutral-200 rounded-full overflow-hidden shadow-soft">
-                  <div className="h-full gradient-primary rounded-full animate-loading-bar relative">
+                <div className="h-3 bg-gray-200 rounded-full overflow-hidden shadow-soft">
+                  <div className="h-full bg-gradient-to-r from-black via-gray-600 to-black rounded-full animate-loading-bar relative">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
                   </div>
                 </div>
-                <div className="mt-3 text-sm text-primary-600 font-medium animate-pulse">Chargement du menu...</div>
+                <div className="mt-3 text-sm bw-text-accent font-bold animate-pulse">Chargement du menu...</div>
               </div>
               
-              {/* Animation de particules modernes */}
+              {/* Animation de particules noir et blanc */}
               <div className="flex justify-center gap-3 mb-8">
-                <div className="w-3 h-3 bg-primary-400 rounded-full animate-bounce shadow-glow" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-3 h-3 bg-accent-gold rounded-full animate-bounce shadow-glow-gold" style={{ animationDelay: '200ms' }}></div>
-                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce shadow-glow" style={{ animationDelay: '400ms' }}></div>
+                <div className="w-3 h-3 bg-black rounded-full animate-bounce shadow-lg" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-3 h-3 bg-yellow-500 rounded-full animate-bounce shadow-lg" style={{ animationDelay: '200ms' }}></div>
+                <div className="w-3 h-3 bg-gray-600 rounded-full animate-bounce shadow-lg" style={{ animationDelay: '400ms' }}></div>
               </div>
               
-              {/* Footer moderne */}
-              <div className="text-neutral-600 text-sm font-medium">
+              {/* Footer noir et blanc */}
+              <div className="bw-text-secondary text-sm font-bold">
                 <p>LANATIONDULAIT</p>
               </div>
             </div>
@@ -295,12 +295,12 @@ export default function HomePage() {
                   if (promoProducts.length > 0 && selectedCategory === 'Toutes les catégories') {
                     return (
                       <div className="mb-8">
-                        {/* Titre des promotions */}
+                        {/* Titre des promotions noir et blanc */}
                         <div className="text-center mb-6">
-                          <h2 className="text-2xl sm:text-3xl font-bold promo-text-gradient promo-bounce mb-2">
+                          <h2 className="text-2xl sm:text-3xl font-black bw-title promo-bounce mb-2">
                             🔥 PROMOTIONS EXCLUSIVES 🔥
                           </h2>
-                          <p className="text-gray-600 text-sm promo-float">
+                          <p className="bw-text-secondary text-sm promo-float">
                             Offres limitées - Ne ratez pas ces bonnes affaires !
                           </p>
                         </div>
@@ -321,11 +321,11 @@ export default function HomePage() {
                           ))}
                         </div>
                         
-                        {/* Séparateur élégant */}
+                        {/* Séparateur élégant noir et blanc */}
                         <div className="flex items-center justify-center mb-8">
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
-                          <div className="mx-4 text-gray-400 text-sm font-medium">Tous les produits</div>
-                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-300 to-transparent"></div>
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
+                          <div className="mx-4 bw-text-muted text-sm font-bold">Tous les produits</div>
+                          <div className="flex-1 h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent"></div>
                         </div>
                       </div>
                     );
@@ -333,12 +333,12 @@ export default function HomePage() {
                   return null;
                 })()}
 
-                {/* Affichage des produits moderne */}
+                {/* Affichage des produits noir et blanc */}
                 {filteredProducts.length === 0 && products.length > 0 ? (
                   <div className="text-center py-12">
-                    <div className="card-modern p-8 max-w-md mx-auto">
+                    <div className="bw-container p-8 max-w-md mx-auto">
                       <div className="text-6xl mb-4">🔍</div>
-                      <p className="text-neutral-600 text-lg font-medium">
+                      <p className="bw-text-secondary text-lg font-bold">
                         Aucun produit ne correspond à vos critères de recherche
                       </p>
                     </div>
