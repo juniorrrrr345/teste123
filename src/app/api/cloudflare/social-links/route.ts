@@ -16,13 +16,23 @@ export async function GET() {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        sql: 'SELECT * FROM social_links WHERE is_available = 1 ORDER BY created_at ASC'
+        sql: 'SELECT * FROM social_links WHERE is_available = 1 ORDER BY created_at ASC',
+        params: []
       })
     });
     
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('D1 Error Response:', errorText);
+      throw new Error(`HTTP ${response.status}`);
+    }
     
     const data = await response.json();
+    
+    if (!data.success) {
+      console.error('D1 API Error:', data);
+      throw new Error(`D1 API Error: ${data.errors?.[0]?.message || 'Unknown error'}`);
+    }
     
     if (data.success && data.result?.[0]?.results) {
       const socialLinks = data.result[0].results.map((link: any) => ({
