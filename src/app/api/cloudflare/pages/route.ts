@@ -7,7 +7,7 @@ const CLOUDFLARE_CONFIG = {
   apiToken: 'ijkVhaXCw6LSddIMIMxwPL5CDAWznxip5x9I1bNW'
 };
 
-async function executeSqlOnD1(sql, params = []) {
+async function executeSqlOnD1(sql: string, params: any[] = []) {
   const url = `https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_CONFIG.accountId}/d1/database/${CLOUDFLARE_CONFIG.databaseId}/query`;
   
   const response = await fetch(url, {
@@ -20,10 +20,19 @@ async function executeSqlOnD1(sql, params = []) {
   });
   
   if (!response.ok) {
+    const errorText = await response.text();
+    console.error('D1 Error Response:', errorText);
     throw new Error(`D1 Error: ${response.status} ${response.statusText}`);
   }
   
-  return await response.json();
+  const data = await response.json();
+  
+  if (!data.success) {
+    console.error('D1 API Error:', data);
+    throw new Error(`D1 API Error: ${data.errors?.[0]?.message || 'Unknown error'}`);
+  }
+  
+  return data;
 }
 
 // GET - Récupérer toutes les pages

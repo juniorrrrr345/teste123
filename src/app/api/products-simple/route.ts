@@ -28,13 +28,23 @@ export async function GET() {
           
           WHERE (p.is_available = 1 OR p.is_available = 'true' OR p.is_available IS NULL)
           ORDER BY p.created_at DESC
-        `
+        `,
+        params: []
       })
     });
     
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('D1 Error Response:', errorText);
+      throw new Error(`HTTP ${response.status}`);
+    }
     
     const data = await response.json();
+    
+    if (!data.success) {
+      console.error('D1 API Error:', data);
+      throw new Error(`D1 API Error: ${data.errors?.[0]?.message || 'Unknown error'}`);
+    }
     
     if (data.success && data.result?.[0]?.results) {
       const products = data.result[0].results.map((product: any) => {

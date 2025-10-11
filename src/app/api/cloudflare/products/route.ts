@@ -16,9 +16,19 @@ async function executeSqlOnD1(sql: string, params: any[] = []) {
     body: JSON.stringify({ sql, params })
   });
   
-  if (!response.ok) throw new Error(`HTTP ${response.status}`);
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('D1 Error Response:', errorText);
+    throw new Error(`HTTP ${response.status}`);
+  }
   
   const data = await response.json();
+  
+  if (!data.success) {
+    console.error('D1 API Error:', data);
+    throw new Error(`D1 API Error: ${data.errors?.[0]?.message || 'Unknown error'}`);
+  }
+  
   return data;
 }
 
