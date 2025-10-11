@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
-import InfoPage from '@/components/InfoPage';
+import ModernInfoPage from '@/components/ModernInfoPage';
 
 export default function InfoPageClient() {
   const [content, setContent] = useState('Chargement du contenu...');
@@ -45,7 +45,7 @@ export default function InfoPageClient() {
       <div className="global-overlay"></div>
       <div className="content-layer">
         <Header />
-        <InfoPage content={content} />
+        <ModernInfoPage content={content} title="À Propos" icon="ℹ️" />
         <BottomNav />
       </div>
     </div>

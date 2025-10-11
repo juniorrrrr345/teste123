@@ -97,31 +97,31 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-lg safe-area-padding shadow-soft border-b border-neutral-200/50">
+    <header className="fixed top-0 w-full z-40 bg-white/95 backdrop-blur-lg safe-area-padding shadow-soft border-b-2 border-gray-300">
       {/* N'afficher que si les données sont chargées */}
       {isLoaded && settings && (
         <>
-          {/* Texte défilant moderne */}
+          {/* Texte défilant noir et blanc */}
           {settings.scrollingText && settings.scrollingText.trim() && (
-            <div className="bg-gradient-to-r from-primary-50 to-accent-gold-light py-2 overflow-hidden relative border-b border-primary-200/30">
+            <div className="bg-gradient-to-r from-gray-100 to-gray-200 py-2 overflow-hidden relative border-b-2 border-gray-300">
               <div className="animate-marquee whitespace-nowrap inline-block">
-                <span className="text-sm font-semibold tracking-wide px-4 text-primary-700">
+                <span className="text-sm font-bold tracking-wide px-4 bw-text-primary">
                   {settings.scrollingText}
                 </span>
               </div>
             </div>
           )}
           
-          {/* Header principal moderne */}
-          <div className="bg-white/90 backdrop-blur-lg py-3 sm:py-4 md:py-5 px-4 sm:px-6 md:px-8 text-center border-b border-neutral-200/30 relative">
-            {/* Bouton panier moderne */}
+          {/* Header principal noir et blanc */}
+          <div className="bg-white/95 backdrop-blur-lg py-3 sm:py-4 md:py-5 px-4 sm:px-6 md:px-8 text-center border-b-2 border-gray-300 relative">
+            {/* Bouton panier noir et blanc */}
             <button
               onClick={() => setIsOpen(true)}
-              className="absolute right-4 sm:right-6 md:right-8 top-1/2 -translate-y-1/2 btn-modern flex items-center gap-2 p-3 rounded-xl shadow-soft hover:shadow-medium transition-all duration-200"
+              className="absolute right-4 sm:right-6 md:right-8 top-1/2 -translate-y-1/2 bw-button flex items-center gap-2 p-3 rounded-xl shadow-soft hover:shadow-medium transition-all duration-200"
             >
               <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
               {totalItems > 0 && (
-                <span className="bg-accent-gold text-white text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center shadow-sm">
+                <span className="bg-yellow-500 text-black text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center shadow-sm">
                   {totalItems}
                 </span>
               )}
@@ -132,10 +132,10 @@ export default function Header() {
                 <img 
                   src={settings.backgroundImage} 
                   alt="LANATION DU LAIT" 
-                  className="h-14 sm:h-18 md:h-20 w-auto rounded-xl shadow-soft"
+                  className="h-14 sm:h-18 md:h-20 w-auto rounded-xl shadow-soft border-2 border-gray-300"
                 />
               ) : (
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold gradient-text-primary">
+                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black bw-title">
                   LANATION DU LAIT
                 </h1>
               )}

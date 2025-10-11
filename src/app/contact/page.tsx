@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import Header from '@/components/Header';
 import BottomNav from '@/components/BottomNav';
-import InfoPage from '@/components/InfoPage';
+import ModernContactPage from '@/components/ModernContactPage';
 
 export default function ContactPageClient() {
   const [content, setContent] = useState('Chargement du contenu...');
@@ -45,7 +45,7 @@ export default function ContactPageClient() {
       <div className="global-overlay"></div>
       <div className="content-layer">
         <Header />
-        <InfoPage content={content} />
+        <ModernContactPage content={content} />
         <BottomNav />
       </div>
     </div>

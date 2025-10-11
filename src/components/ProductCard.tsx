@@ -32,7 +32,7 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
   return (
     <div 
       onClick={() => onClick(product)}
-      className={`${hasPromotions ? 'promo-card promo-glow promo-pulse' : 'card-modern hover-lift'} cursor-pointer group touch-manipulation w-full overflow-hidden`}
+      className={`${hasPromotions ? 'promo-card promo-glow promo-pulse' : 'bw-product-card bw-hover-lift'} cursor-pointer group touch-manipulation w-full overflow-hidden`}
     >
       {/* Container image avec badge moderne */}
       <div className="relative aspect-square overflow-hidden">
@@ -48,8 +48,8 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
           </div>
         )}
         
-        {/* Badge catégorie moderne */}
-        <div className={`absolute top-3 left-3 ${hasPromotions ? 'bg-black/95 text-white' : 'bg-white/95 text-primary-700'} backdrop-blur-sm text-xs font-semibold px-2 py-1 rounded-lg shadow-soft max-w-[80%] truncate border ${hasPromotions ? 'border-yellow-400/50' : 'border-primary-200/50'}`}>
+        {/* Badge catégorie noir et blanc */}
+        <div className={`absolute top-3 left-3 ${hasPromotions ? 'bg-black/95 text-white' : 'bw-category-badge'} backdrop-blur-sm text-xs font-semibold px-2 py-1 rounded-lg shadow-soft max-w-[80%] truncate border ${hasPromotions ? 'border-yellow-400/50' : 'border-gray-400'}`}>
           {product.category.replace(/\s*📦\s*/g, '').trim()}
         </div>
         
@@ -73,27 +73,27 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         <div className={`absolute inset-0 ${hasPromotions ? 'bg-gradient-to-t from-yellow-400/20 to-transparent' : 'bg-gradient-to-t from-primary-600/20 to-transparent'} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
       </div>
       
-      {/* Informations produit modernes */}
-      <div className="p-4">
-        <h3 className={`${hasPromotions ? 'promo-text-gradient' : 'text-neutral-800'} font-semibold text-sm mb-2 leading-tight break-words line-clamp-2`}>
-          {product.name}
-        </h3>
-        
-        {/* Description du produit avec support Markdown */}
-        {product.description && (
-          <div className={`${hasPromotions ? 'text-gray-600' : 'text-neutral-600'} text-xs mt-2 line-clamp-2 leading-relaxed`}>
-            {renderMarkdownToJSX(parseMarkdown(product.description))}
+        {/* Informations produit noir et blanc */}
+        <div className="p-4">
+          <h3 className={`${hasPromotions ? 'promo-text-gradient' : 'bw-text-primary'} font-semibold text-sm mb-2 leading-tight break-words line-clamp-2`}>
+            {product.name}
+          </h3>
+          
+          {/* Description du produit avec support Markdown */}
+          {product.description && (
+            <div className={`${hasPromotions ? 'text-gray-600' : 'bw-text-secondary'} text-xs mt-2 line-clamp-2 leading-relaxed`}>
+              {renderMarkdownToJSX(parseMarkdown(product.description))}
+            </div>
+          )}
+          
+          {/* Prix ou indicateur de prix */}
+          <div className="mt-3 flex items-center justify-between">
+            <div className={`${hasPromotions ? 'promo-text-accent' : 'bw-text-accent'} font-semibold text-sm`}>
+              {hasPromotions ? 'PROMO !' : 'Voir les prix'}
+            </div>
+            <div className={`w-2 h-2 ${hasPromotions ? 'bg-yellow-400' : 'bg-yellow-500'} rounded-full`}></div>
           </div>
-        )}
-        
-        {/* Prix ou indicateur de prix */}
-        <div className="mt-3 flex items-center justify-between">
-          <div className={`${hasPromotions ? 'promo-text-accent' : 'text-primary-600'} font-semibold text-sm`}>
-            {hasPromotions ? 'PROMO !' : 'Voir les prix'}
-          </div>
-          <div className={`w-2 h-2 ${hasPromotions ? 'bg-yellow-400' : 'bg-accent-gold'} rounded-full`}></div>
         </div>
-      </div>
     </div>
   );
 }
