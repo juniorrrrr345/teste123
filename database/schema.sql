@@ -46,9 +46,11 @@ CREATE TABLE IF NOT EXISTS products (
     name TEXT NOT NULL,
     description TEXT DEFAULT '',
     price REAL NOT NULL DEFAULT 0,
+    prices TEXT DEFAULT '{}', -- JSON object des prix par poids/quantité
     category_id INTEGER,
     farm_id INTEGER,
     image_url TEXT DEFAULT '',
+    video_url TEXT DEFAULT '', -- URL de la vidéo du produit
     images TEXT DEFAULT '[]', -- JSON array des URLs d'images
     stock INTEGER DEFAULT 0,
     is_available BOOLEAN DEFAULT true,
