@@ -212,41 +212,40 @@ export default function HomePage() {
     }
   };
 
-  // Écran de chargement avec fond de thème de la boutique
+  // Écran de chargement moderne
   if (loading) {
     return (
-      <div className="main-container loading-container">
+      <div className="main-container">
         <div className="global-overlay"></div>
         <div className="content-layer">
-          <div className="min-h-screen loading-screen flex items-center justify-center p-4">
-            <div className="text-center bg-black/60 backdrop-blur-md rounded-3xl p-8 sm:p-12 max-w-lg mx-auto border border-white/20">
+          <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="text-center card-modern p-8 sm:p-12 max-w-lg mx-auto animate-fade-in-up">
 
-              
-              {/* Titre principal sans logo (deux lignes) */}
-              <div className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-12 tracking-wider drop-shadow-[0_0_30px_rgba(255,255,255,0.8)] animate-pulse leading-tight text-center">
-                <div>LA NATION</div>
-                <div>DU LAIT</div>
+              {/* Titre principal moderne */}
+              <div className="text-4xl sm:text-5xl md:text-6xl font-bold mb-12 leading-tight text-center">
+                <div className="gradient-text-primary">LA NATION</div>
+                <div className="gradient-text-accent">DU LAIT</div>
               </div>
               
-              {/* Nouvelle barre de chargement style néon */}
+              {/* Barre de chargement moderne */}
               <div className="w-80 max-w-full mx-auto mb-8">
-                <div className="h-4 bg-black/50 rounded-full overflow-hidden border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-                  <div className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg animate-loading-bar relative">
+                <div className="h-3 bg-neutral-200 rounded-full overflow-hidden shadow-soft">
+                  <div className="h-full gradient-primary rounded-full animate-loading-bar relative">
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
                   </div>
                 </div>
-                <div className="mt-2 text-sm text-blue-300 font-medium drop-shadow-md animate-pulse">Chargement Du Menu..</div>
+                <div className="mt-3 text-sm text-primary-600 font-medium animate-pulse">Chargement du menu...</div>
               </div>
               
-              {/* Animation de particules style diamant */}
+              {/* Animation de particules modernes */}
               <div className="flex justify-center gap-3 mb-8">
-                <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce shadow-[0_0_10px_rgba(96,165,250,0.8)]" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(168,85,247,0.8)]" style={{ animationDelay: '200ms' }}></div>
-                <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(236,72,153,0.8)]" style={{ animationDelay: '400ms' }}></div>
+                <div className="w-3 h-3 bg-primary-400 rounded-full animate-bounce shadow-glow" style={{ animationDelay: '0ms' }}></div>
+                <div className="w-3 h-3 bg-accent-gold rounded-full animate-bounce shadow-glow-gold" style={{ animationDelay: '200ms' }}></div>
+                <div className="w-3 h-3 bg-primary-500 rounded-full animate-bounce shadow-glow" style={{ animationDelay: '400ms' }}></div>
               </div>
               
-              {/* Footer */}
-              <div className="text-white text-sm font-medium drop-shadow-md">
+              {/* Footer moderne */}
+              <div className="text-neutral-600 text-sm font-medium">
                 <p>LANATIONDULAIT</p>
               </div>
             </div>
@@ -287,21 +286,29 @@ export default function HomePage() {
                 
                 <main className="pt-3 pb-24 sm:pb-28 px-3 sm:px-4 lg:px-6 xl:px-8 max-w-7xl mx-auto">
 
-                {/* Affichage des produits */}
+                {/* Affichage des produits moderne */}
                 {filteredProducts.length === 0 && products.length > 0 ? (
-                  <div className="text-center py-8 sm:py-12">
-                    <p className="text-white/60 text-base sm:text-lg">
-                      Aucun produit ne correspond à vos critères de recherche
-                    </p>
+                  <div className="text-center py-12">
+                    <div className="card-modern p-8 max-w-md mx-auto">
+                      <div className="text-6xl mb-4">🔍</div>
+                      <p className="text-neutral-600 text-lg font-medium">
+                        Aucun produit ne correspond à vos critères de recherche
+                      </p>
+                    </div>
                   </div>
                 ) : filteredProducts.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-                    {filteredProducts.map((product) => (
-                      <ProductCard
+                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
+                    {filteredProducts.map((product, index) => (
+                      <div 
                         key={product._id}
-                        product={product}
-                        onClick={() => setSelectedProduct(product)}
-                      />
+                        className="animate-fade-in-up"
+                        style={{ animationDelay: `${index * 0.1}s` }}
+                      >
+                        <ProductCard
+                          product={product}
+                          onClick={() => setSelectedProduct(product)}
+                        />
+                      </div>
                     ))}
                   </div>
                 ) : null}
