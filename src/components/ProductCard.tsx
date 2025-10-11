@@ -25,10 +25,14 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onClick }: ProductCardProps) {
+  // Vérifier s'il y a des promotions actives
+  const hasPromotions = product.promotions && Object.values(product.promotions).some(promo => promo > 0);
+  const maxDiscount = hasPromotions ? Math.max(...Object.values(product.promotions || {})) : 0;
+
   return (
     <div 
       onClick={() => onClick(product)}
-      className="card-modern hover-lift cursor-pointer group touch-manipulation w-full overflow-hidden"
+      className={`${hasPromotions ? 'promo-card promo-glow promo-pulse' : 'card-modern hover-lift'} cursor-pointer group touch-manipulation w-full overflow-hidden`}
     >
       {/* Container image avec badge moderne */}
       <div className="relative aspect-square overflow-hidden">
@@ -45,13 +49,20 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         )}
         
         {/* Badge catégorie moderne */}
-        <div className="absolute top-3 left-3 bg-white/95 backdrop-blur-sm text-primary-700 text-xs font-semibold px-2 py-1 rounded-lg shadow-soft max-w-[80%] truncate border border-primary-200/50">
+        <div className={`absolute top-3 left-3 ${hasPromotions ? 'bg-black/95 text-white' : 'bg-white/95 text-primary-700'} backdrop-blur-sm text-xs font-semibold px-2 py-1 rounded-lg shadow-soft max-w-[80%] truncate border ${hasPromotions ? 'border-yellow-400/50' : 'border-primary-200/50'}`}>
           {product.category.replace(/\s*📦\s*/g, '').trim()}
         </div>
         
+        {/* Badge de promotion */}
+        {hasPromotions && (
+          <div className="absolute top-3 right-3 promo-badge promo-badge-sparkle promo-countdown">
+            -{maxDiscount}%
+          </div>
+        )}
+        
         {/* Indicateur vidéo moderne */}
         {product.video_url && (
-          <div className="absolute top-3 right-3 bg-primary-500 text-white p-2 rounded-full shadow-soft">
+          <div className={`absolute ${hasPromotions ? 'top-12 right-3' : 'top-3 right-3'} ${hasPromotions ? 'bg-yellow-400 text-black' : 'bg-primary-500 text-white'} p-2 rounded-full shadow-soft`}>
             <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
               <path d="M2 6a2 2 0 012-2h6l2 2h6a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6zM14.553 7.106A1 1 0 0014 8v4a1 1 0 00.553.894l2 1A1 1 0 0018 13V7a1 1 0 00-1.447-.894l-2 1z" />
             </svg>
@@ -59,28 +70,28 @@ export default function ProductCard({ product, onClick }: ProductCardProps) {
         )}
         
         {/* Overlay gradient moderne au survol */}
-        <div className="absolute inset-0 bg-gradient-to-t from-primary-600/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+        <div className={`absolute inset-0 ${hasPromotions ? 'bg-gradient-to-t from-yellow-400/20 to-transparent' : 'bg-gradient-to-t from-primary-600/20 to-transparent'} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
       </div>
       
       {/* Informations produit modernes */}
       <div className="p-4">
-        <h3 className="text-neutral-800 font-semibold text-sm mb-2 leading-tight break-words line-clamp-2">
+        <h3 className={`${hasPromotions ? 'promo-text-gradient' : 'text-neutral-800'} font-semibold text-sm mb-2 leading-tight break-words line-clamp-2`}>
           {product.name}
         </h3>
         
         {/* Description du produit avec support Markdown */}
         {product.description && (
-          <div className="text-neutral-600 text-xs mt-2 line-clamp-2 leading-relaxed">
+          <div className={`${hasPromotions ? 'text-gray-600' : 'text-neutral-600'} text-xs mt-2 line-clamp-2 leading-relaxed`}>
             {renderMarkdownToJSX(parseMarkdown(product.description))}
           </div>
         )}
         
         {/* Prix ou indicateur de prix */}
         <div className="mt-3 flex items-center justify-between">
-          <div className="text-primary-600 font-semibold text-sm">
-            Voir les prix
+          <div className={`${hasPromotions ? 'promo-text-accent' : 'text-primary-600'} font-semibold text-sm`}>
+            {hasPromotions ? 'PROMO !' : 'Voir les prix'}
           </div>
-          <div className="w-2 h-2 bg-accent-gold rounded-full"></div>
+          <div className={`w-2 h-2 ${hasPromotions ? 'bg-yellow-400' : 'bg-accent-gold'} rounded-full`}></div>
         </div>
       </div>
     </div>

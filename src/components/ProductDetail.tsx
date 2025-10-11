@@ -144,30 +144,36 @@ export default function ProductDetail({ product, onClose }: ProductDetailProps) 
                 <span className="mr-2">💰</span>
                 Tarifs disponibles :
               </h3>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {priceList.map(({ weight, originalPrice, finalPrice, discount }, idx) => (
-                  <div key={idx} className="bg-gray-800 border border-white/10 rounded-lg p-3 flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium text-white">{weight}</span>
+                  <div key={idx} className={`${discount > 0 ? 'promo-container' : 'bg-gray-800 border border-white/10'} rounded-lg p-4 flex items-center justify-between`}>
+                    <div className="flex items-center gap-3">
+                      <span className={`font-medium ${discount > 0 ? 'promo-text' : 'text-white'}`}>{weight}</span>
                       {discount > 0 && (
-                        <span className="bg-green-500/20 text-green-400 px-1.5 py-0.5 rounded text-xs font-bold">
+                        <span className="promo-badge">
                           -{discount}%
                         </span>
                       )}
                     </div>
-                    <div className="flex items-center gap-2">
-                      <div className="text-right">
-                        {discount > 0 && (
-                          <span className="text-gray-500 line-through text-xs block">{originalPrice}€</span>
+                    <div className="flex items-center gap-3">
+                      <div className={`${discount > 0 ? 'promo-price-container' : 'text-right'}`}>
+                        {discount > 0 ? (
+                          <>
+                            <div className="promo-price-original">{originalPrice}€</div>
+                            <div className="promo-price-final">{finalPrice.toFixed(2)}€</div>
+                          </>
+                        ) : (
+                          <span className="font-bold text-white text-lg">{finalPrice.toFixed(2)}€</span>
                         )}
-                        <span className="font-bold text-white">{finalPrice.toFixed(2)}€</span>
                       </div>
                       <button
                         onClick={() => handleAddToCart(weight, finalPrice, originalPrice, discount)}
-                        className="bg-green-600 hover:bg-green-700 active:bg-green-800 text-white px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 text-sm"
+                        className={`${discount > 0 ? 'promo-buy-button promo-buy-button-pulse' : 'bg-green-600 hover:bg-green-700 active:bg-green-800 text-white'} px-4 py-2 rounded-lg transition-colors flex items-center gap-1.5 text-sm font-semibold`}
                       >
                         <ShoppingCart className="w-4 h-4" />
-                        <span className="hidden sm:inline">Ajouter</span>
+                        <span className="hidden sm:inline">
+                          {discount > 0 ? 'ACHETER' : 'Ajouter'}
+                        </span>
                       </button>
                     </div>
                   </div>
