@@ -2,19 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Variables CSS pour le thème Cyberpunk Neon */
+/* Variables CSS pour le thème Minimaliste Élégant */
 :root {
-  --neon-green: #00ff88;
-  --neon-cyan: #00ffff;
-  --neon-magenta: #ff00ff;
-  --neon-blue: #0080ff;
-  --dark-bg: #0a0a0a;
-  --darker-bg: #050505;
-  --card-bg: rgba(0, 0, 0, 0.8);
-  --neon-glow: 0 0 20px currentColor;
-  --neon-glow-strong: 0 0 40px currentColor;
-  --cyber-border: 1px solid var(--neon-green);
-  --cyber-shadow: 0 0 30px rgba(0, 255, 136, 0.3);
+  --rose-poudre: #f8e8e8;
+  --rose-doux: #f4c2c2;
+  --rose-accent: #e8a4a4;
+  --blanc-pur: #fefefe;
+  --gris-clair: #f5f5f5;
+  --gris-moyen: #e0e0e0;
+  --gris-fonce: #8e8e8e;
+  --noir-doux: #2c2c2c;
+  --shadow-doux: 0 4px 20px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+  --border-doux: 1px solid var(--gris-moyen);
+  --border-rose: 1px solid var(--rose-accent);
 }
 
 /* Empêcher le glissement indésirable sur mobile */
