@@ -97,52 +97,54 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full z-40 bg-black/40 backdrop-blur-md safe-area-padding">
+    <header className="fixed top-0 w-full z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 safe-area-padding">
       {/* N'afficher que si les données sont chargées */}
       {isLoaded && settings && (
         <>
-          {/* Texte défilant SEULEMENT - depuis l'admin */}
+          {/* Texte défilant moderne */}
           {settings.scrollingText && settings.scrollingText.trim() && (
-            <div className="bg-black/30 backdrop-blur-sm text-white py-0.5 overflow-hidden relative border-b border-white/10">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 overflow-hidden relative">
               <div className="animate-marquee whitespace-nowrap inline-block">
-                <span className="text-xs font-bold tracking-wide px-4 text-white drop-shadow-md">
-                  {settings.scrollingText}
+                <span className="text-sm font-semibold px-4">
+                  ✨ {settings.scrollingText} ✨
                 </span>
               </div>
             </div>
           )}
           
-          {/* PAS de bandeau contact/WhatsApp dans le header */}
-          
-          {/* Logo boutique avec bouton panier - responsive optimisé */}
-          <div className="bg-black/30 backdrop-blur-md py-2 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 text-center border-b border-white/10 relative">
-            {/* Bouton panier en position absolue */}
-            <button
-              onClick={() => setIsOpen(true)}
-              className="absolute right-3 sm:right-4 md:right-6 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white p-2 sm:p-3 rounded-lg transition-all duration-200 flex items-center gap-2 border border-white/30"
-            >
-              <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6" />
-              {totalItems > 0 && (
-                <span className="bg-green-500 text-black text-xs font-bold rounded-full min-w-[20px] h-5 px-1 flex items-center justify-center">
-                  {totalItems}
-                </span>
-              )}
-            </button>
-            
-            <div className="flex flex-col items-center justify-center">
-              {settings.backgroundImage ? (
-                <img 
-                  src={settings.backgroundImage} 
-                  alt="LANATION DU LAIT" 
-                  className="h-12 sm:h-16 md:h-20 w-auto rounded-lg"
-                  style={{ filter: 'drop-shadow(0 0 10px rgba(255,255,255,0.2))' }}
-                />
-              ) : (
-                <h1 className="text-2xl sm:text-3xl md:text-4xl font-black text-white">
-                  LANATION DU LAIT
-                </h1>
-              )}
-
+          {/* Header principal moderne */}
+          <div className="py-4 px-4">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              {/* Logo/Titre */}
+              <div className="flex items-center">
+                {settings.backgroundImage ? (
+                  <div className="relative">
+                    <img 
+                      src={settings.backgroundImage} 
+                      alt="LANATION DU LAIT" 
+                      className="h-12 w-auto rounded-xl shadow-md"
+                    />
+                  </div>
+                ) : (
+                  <h1 className="text-2xl font-bold gradient-text">
+                    {settings.shopTitle || 'LANATION DU LAIT'}
+                  </h1>
+                )}
+              </div>
+              
+              {/* Bouton panier moderne */}
+              <button
+                onClick={() => setIsOpen(true)}
+                className="modern-button flex items-center gap-2 relative"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                <span>Panier</span>
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 modern-badge min-w-[20px] h-5 flex items-center justify-center text-xs">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         </>

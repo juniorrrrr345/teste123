@@ -212,41 +212,46 @@ export default function HomePage() {
     }
   };
 
-  // Écran de chargement avec fond de thème de la boutique
+  // Écran de chargement moderne
   if (loading) {
     return (
-      <div className="main-container loading-container">
-        <div className="global-overlay"></div>
-        <div className="content-layer">
-          <div className="min-h-screen loading-screen flex items-center justify-center p-4">
-            <div className="text-center bg-black/60 backdrop-blur-md rounded-3xl p-8 sm:p-12 max-w-lg mx-auto border border-white/20">
-
-              
-              {/* Titre principal sans logo (deux lignes) */}
-              <div className="text-4xl sm:text-5xl md:text-6xl font-black text-white mb-12 tracking-wider drop-shadow-[0_0_30px_rgba(255,255,255,0.8)] animate-pulse leading-tight text-center">
-                <div>LA NATION</div>
-                <div>DU LAIT</div>
+      <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden" style={{ background: 'var(--bg-secondary)' }}>
+        {/* Background avec dégradé */}
+        <div className="absolute inset-0 gradient-bg opacity-5"></div>
+        
+        {/* Contenu de chargement moderne */}
+        <div className="relative z-10 text-center modern-card p-12 max-w-lg mx-auto animate-fadeIn">
+          {/* Logo moderne */}
+          <div className="w-20 h-20 mx-auto mb-8 gradient-bg rounded-2xl flex items-center justify-center animate-gentleFloat">
+            <span className="text-white font-bold text-3xl">L</span>
+          </div>
+          
+          {/* Titre moderne */}
+          <h1 className="text-4xl font-black gradient-text mb-8 animate-fadeIn">
+            LANATION DU LAIT
+          </h1>
+          
+          {/* Barre de chargement moderne */}
+          <div className="w-80 max-w-full mx-auto mb-8">
+            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-full gradient-bg rounded-full animate-pulse relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
               </div>
-              
-              {/* Nouvelle barre de chargement style néon */}
-              <div className="w-80 max-w-full mx-auto mb-8">
-                <div className="h-4 bg-black/50 rounded-full overflow-hidden border border-blue-500/30 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-                  <div className="h-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-full shadow-lg animate-loading-bar relative">
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer"></div>
-                  </div>
-                </div>
-                <div className="mt-2 text-sm text-blue-300 font-medium drop-shadow-md animate-pulse">Chargement Du Menu..</div>
-              </div>
-              
-              {/* Animation de particules style diamant */}
-              <div className="flex justify-center gap-3 mb-8">
-                <div className="w-3 h-3 bg-blue-400 rounded-full animate-bounce shadow-[0_0_10px_rgba(96,165,250,0.8)]" style={{ animationDelay: '0ms' }}></div>
-                <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(168,85,247,0.8)]" style={{ animationDelay: '200ms' }}></div>
-                <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce shadow-[0_0_10px_rgba(236,72,153,0.8)]" style={{ animationDelay: '400ms' }}></div>
-              </div>
-              
-              {/* Footer */}
-              <div className="text-white text-sm font-medium drop-shadow-md">
+            </div>
+            <div className="mt-3 text-sm text-gray-600 font-medium animate-pulse">
+              Chargement du menu...
+            </div>
+          </div>
+          
+          {/* Animation de points moderne */}
+          <div className="flex justify-center gap-2 mb-8">
+            <div className="w-3 h-3 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-3 h-3 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
+            <div className="w-3 h-3 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
+          </div>
+          
+          {/* Footer moderne */}
+          <div className="text-gray-500 text-sm font-medium">
                 <p>LANATIONDULAIT</p>
               </div>
             </div>
@@ -260,47 +265,87 @@ export default function HomePage() {
 
 
 
-  // Structure avec fond toujours visible
+  // Nouvelle structure moderne
   return (
-    <div className="main-container">
-      {/* Overlay global toujours présent */}
-      <div className="global-overlay"></div>
+    <div className="min-h-screen relative" style={{ background: 'var(--bg-secondary)' }}>
+      {/* Header moderne */}
+      <Header />
       
-      {/* Contenu principal avec navigation */}
-      <div className="content-layer">
-        <Header />
+      {/* Layout principal avec sidebar */}
+      <div className="flex">
+        {/* Sidebar pour les catégories */}
+        <div className="hidden lg:block w-64 sidebar min-h-screen pt-20">
+          <div className="p-6">
+            <h2 className="text-lg font-bold text-gray-800 mb-4">Catégories</h2>
+            <div className="space-y-2">
+              {categories.map((category) => (
+                <button
+                  key={category}
+                  onClick={() => setSelectedCategory(category)}
+                  className={`sidebar-item w-full text-left ${
+                    selectedCategory === category ? 'active' : ''
+                  }`}
+                >
+                  <span className="text-sm font-medium">
+                    {category.replace(/\s*📦\s*/g, '').trim()}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
         
-        {/* Ajouter un padding-top pour compenser le header fixe */}
-        <div className="pt-24 sm:pt-28 md:pt-32">
-            {selectedProduct ? (
-              <ProductDetail 
-                product={selectedProduct} 
-                onClose={() => setSelectedProduct(null)} 
-              />
-            ) : (
-              <div className="pt-2">
+        {/* Contenu principal */}
+        <div className="flex-1 pt-20">
+          {selectedProduct ? (
+            <ProductDetail 
+              product={selectedProduct} 
+              onClose={() => setSelectedProduct(null)} 
+            />
+          ) : (
+            <div className="animate-fadeIn">
+              {/* Mobile category filter */}
+              <div className="lg:hidden p-4">
                 <CategoryFilter
                   categories={categories}
                   selectedCategory={selectedCategory}
                   onCategoryChange={setSelectedCategory}
                 />
+              </div>
+              
+              <main className="py-6 px-4 sm:px-6 lg:px-8">
+                {/* Hero section */}
+                <div className="text-center mb-12">
+                  <h1 className="text-4xl md:text-6xl font-bold gradient-text mb-4">
+                    Découvrez nos produits
+                  </h1>
+                  <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+                    Une sélection soigneusement choisie pour vous offrir le meilleur
+                  </p>
+                </div>
                 
-                <main className="pt-3 pb-24 sm:pb-28 px-3 sm:px-4 lg:px-6 xl:px-8 max-w-7xl mx-auto">
-
-                {/* Affichage des produits */}
+                {/* Affichage des produits moderne */}
                 {filteredProducts.length === 0 && products.length > 0 ? (
-                  <div className="text-center py-8 sm:py-12">
-                    <p className="text-white/60 text-base sm:text-lg">
-                      Aucun produit ne correspond à vos critères de recherche
-                    </p>
+                  <div className="text-center py-16">
+                    <div className="modern-card p-8 max-w-md mx-auto">
+                      <div className="text-6xl mb-4">🔍</div>
+                      <h3 className="text-xl font-bold text-gray-800 mb-2">Aucun produit trouvé</h3>
+                      <p className="text-gray-600">
+                        Aucun produit ne correspond à vos critères de recherche
+                      </p>
+                    </div>
                   </div>
                 ) : filteredProducts.length > 0 ? (
-                  <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
-                    {filteredProducts.map((product) => (
-                      <ProductCard
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                    {filteredProducts.map((product, index) => (
+                      <div 
                         key={product._id}
-                        product={product}
-                        onClick={() => setSelectedProduct(product)}
+                        className="animate-fadeIn"
+                        style={{ animationDelay: `${index * 100}ms` }}
+                      >
+                        <ProductCard
+                          product={product}
+                          onClick={() => setSelectedProduct(product)}
                       />
                     ))}
                   </div>

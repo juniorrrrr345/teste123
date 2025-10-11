@@ -50,12 +50,16 @@ export async function POST(request: NextRequest) {
     
     const baseUrl = `https://api.cloudflare.com/client/v4/accounts/${ACCOUNT_ID}/d1/database/${DATABASE_ID}/query`;
     
-    const sql = `INSERT INTO farms (name, description, location, contact) VALUES (?, ?, ?, ?)`;
+    const id = `farm_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    const sql = `INSERT INTO farms (id, name, description, location, isActive, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?, ?)`;
     const values = [
+      id,
       body.name,
       body.description || '',
       body.location || '',
-      body.contact || ''
+      1,
+      new Date().toISOString(),
+      new Date().toISOString()
     ];
     
     const response = await fetch(baseUrl, {
