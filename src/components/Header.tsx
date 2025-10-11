@@ -97,60 +97,54 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full z-40 cyber-bg safe-area-padding">
+    <header className="fixed top-0 w-full z-40 bg-white/95 backdrop-blur-md border-b border-gray-200 safe-area-padding">
       {/* N'afficher que si les données sont chargées */}
       {isLoaded && settings && (
         <>
-          {/* Texte défilant cyberpunk */}
+          {/* Texte défilant moderne */}
           {settings.scrollingText && settings.scrollingText.trim() && (
-            <div className="bg-black/80 backdrop-blur-sm neon-text py-2 overflow-hidden relative border-b border-neon-green">
+            <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white py-2 overflow-hidden relative">
               <div className="animate-marquee whitespace-nowrap inline-block">
-                <span className="text-sm font-bold tracking-widest px-4 neon-text-cyan">
-                  &gt;&gt; {settings.scrollingText} &lt;&lt;
+                <span className="text-sm font-semibold px-4">
+                  ✨ {settings.scrollingText} ✨
                 </span>
               </div>
             </div>
           )}
           
-          {/* Header principal cyberpunk */}
-          <div className="py-4 px-4 text-center relative">
-            {/* Ligne de scan */}
-            <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-neon-green to-transparent animate-scanLine"></div>
-            
-            {/* Bouton panier cyberpunk */}
-            <button
-              onClick={() => setIsOpen(true)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 button-cyber p-3 flex items-center gap-2 hover:scale-110 transition-all duration-300"
-            >
-              <ShoppingCart className="w-6 h-6" />
-              {totalItems > 0 && (
-                <span className="badge-cyber min-w-[24px] h-6 flex items-center justify-center animate-neonGlow">
-                  {totalItems}
-                </span>
-              )}
-            </button>
-            
-            <div className="flex flex-col items-center justify-center">
-              {settings.backgroundImage ? (
-                <div className="relative">
-                  <img 
-                    src={settings.backgroundImage} 
-                    alt="LANATION DU LAIT" 
-                    className="h-16 w-auto rounded border-2 border-neon-green animate-cyberFloat"
-                    style={{ filter: 'drop-shadow(0 0 20px var(--neon-green))' }}
-                  />
-                  <div className="absolute inset-0 rounded border border-neon-cyan animate-neonGlow"></div>
-                </div>
-              ) : (
-                <div className="relative">
-                  <h1 className="text-3xl font-black neon-text animate-neonGlow">
+          {/* Header principal moderne */}
+          <div className="py-4 px-4">
+            <div className="max-w-7xl mx-auto flex items-center justify-between">
+              {/* Logo/Titre */}
+              <div className="flex items-center">
+                {settings.backgroundImage ? (
+                  <div className="relative">
+                    <img 
+                      src={settings.backgroundImage} 
+                      alt="LANATION DU LAIT" 
+                      className="h-12 w-auto rounded-xl shadow-md"
+                    />
+                  </div>
+                ) : (
+                  <h1 className="text-2xl font-bold gradient-text">
                     {settings.shopTitle || 'LANATION DU LAIT'}
                   </h1>
-                  <div className="absolute -inset-1 neon-text-cyan animate-neonGlow opacity-50 blur-sm -z-10">
-                    {settings.shopTitle || 'LANATION DU LAIT'}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
+              
+              {/* Bouton panier moderne */}
+              <button
+                onClick={() => setIsOpen(true)}
+                className="modern-button flex items-center gap-2 relative"
+              >
+                <ShoppingCart className="w-5 h-5" />
+                <span>Panier</span>
+                {totalItems > 0 && (
+                  <span className="absolute -top-2 -right-2 modern-badge min-w-[20px] h-5 flex items-center justify-center text-xs">
+                    {totalItems}
+                  </span>
+                )}
+              </button>
             </div>
           </div>
         </>
