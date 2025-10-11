@@ -43,15 +43,14 @@ export default function RootLayout({
         <style
           dangerouslySetInnerHTML={{
             __html: `
-              /* Background par défaut pour éviter l'écran noir */
+              /* Background moderne par défaut */
               html, body {
-                background-color: #1a1a1a !important;
-                background-image: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%) !important;
+                background: linear-gradient(135deg, #fafafa 0%, #f0f9ff 50%, #f5f5f5 100%) !important;
                 min-height: 100vh;
               }
               .main-container {
                 min-height: 100vh;
-                background-color: transparent;
+                background: linear-gradient(135deg, #fafafa 0%, #f0f9ff 50%, #f5f5f5 100%);
               }
               .global-overlay {
                 position: fixed;
@@ -59,15 +58,19 @@ export default function RootLayout({
                 left: 0;
                 right: 0;
                 bottom: 0;
-                background-color: rgba(0, 0, 0, 0.3);
-                backdrop-filter: blur(5px);
-                -webkit-backdrop-filter: blur(5px);
+                background: linear-gradient(135deg, 
+                  rgba(255, 255, 255, 0.1) 0%, 
+                  rgba(14, 165, 233, 0.05) 50%, 
+                  rgba(255, 255, 255, 0.1) 100%);
+                backdrop-filter: blur(1px);
+                -webkit-backdrop-filter: blur(1px);
                 z-index: 1;
               }
               .content-layer {
                 position: relative;
                 z-index: 2;
                 min-height: 100vh;
+                background: transparent;
               }
             `
           }}
@@ -152,9 +155,9 @@ export default function RootLayout({
                     })
                     .catch(e => console.error('Erreur chargement fond API:', e));
                   
-                  // Fond noir par défaut en attendant
-                  document.documentElement.style.backgroundColor = 'black';
-                  document.body.style.backgroundColor = 'black';
+                  // Fond moderne par défaut en attendant
+                  document.documentElement.style.background = 'linear-gradient(135deg, #fafafa 0%, #f0f9ff 50%, #f5f5f5 100%)';
+                  document.body.style.background = 'linear-gradient(135deg, #fafafa 0%, #f0f9ff 50%, #f5f5f5 100%)';
                 } catch (e) {
                   console.error('Erreur fond d\\'image:', e);
                 }
@@ -163,7 +166,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.className} antialiased`} suppressHydrationWarning style={{ backgroundColor: 'black' }}>
+      <body className={`${inter.className} antialiased`} suppressHydrationWarning style={{ background: 'linear-gradient(135deg, #fafafa 0%, #f0f9ff 50%, #f5f5f5 100%)' }}>
         <GlobalBackgroundProvider />
         <CachePreloader />
         <Toaster 
@@ -171,12 +174,16 @@ export default function RootLayout({
           toastOptions={{
             duration: 3000,
             style: {
-              background: '#333',
-              color: '#fff',
+              background: 'rgba(255, 255, 255, 0.95)',
+              color: '#262626',
+              backdropFilter: 'blur(10px)',
+              border: '1px solid rgba(255, 255, 255, 0.2)',
+              borderRadius: '12px',
+              boxShadow: '0 4px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
             },
             success: {
               iconTheme: {
-                primary: '#10b981',
+                primary: '#0ea5e9',
                 secondary: '#fff',
               },
             },
