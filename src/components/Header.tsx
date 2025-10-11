@@ -97,31 +97,34 @@ export default function Header() {
   };
 
   return (
-    <header className="fixed top-0 w-full z-40 glass-effect safe-area-padding">
+    <header className="fixed top-0 w-full z-40 cyber-bg safe-area-padding">
       {/* N'afficher que si les données sont chargées */}
       {isLoaded && settings && (
         <>
-          {/* Texte défilant modernisé */}
+          {/* Texte défilant cyberpunk */}
           {settings.scrollingText && settings.scrollingText.trim() && (
-            <div className="bg-gradient-to-r from-indigo-500/20 to-purple-500/20 backdrop-blur-sm text-white py-2 overflow-hidden relative border-b border-white/20">
+            <div className="bg-black/80 backdrop-blur-sm neon-text py-2 overflow-hidden relative border-b border-neon-green">
               <div className="animate-marquee whitespace-nowrap inline-block">
-                <span className="text-sm font-bold tracking-wide px-4 text-white drop-shadow-lg">
-                  ✨ {settings.scrollingText} ✨
+                <span className="text-sm font-bold tracking-widest px-4 neon-text-cyan">
+                  &gt;&gt; {settings.scrollingText} &lt;&lt;
                 </span>
               </div>
             </div>
           )}
           
-          {/* Header principal modernisé */}
-          <div className="py-3 px-4 text-center relative">
-            {/* Bouton panier modernisé */}
+          {/* Header principal cyberpunk */}
+          <div className="py-4 px-4 text-center relative">
+            {/* Ligne de scan */}
+            <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-neon-green to-transparent animate-scanLine"></div>
+            
+            {/* Bouton panier cyberpunk */}
             <button
               onClick={() => setIsOpen(true)}
-              className="absolute right-4 top-1/2 -translate-y-1/2 button-modern p-3 flex items-center gap-2 hover:scale-110 transition-all duration-300"
+              className="absolute right-4 top-1/2 -translate-y-1/2 button-cyber p-3 flex items-center gap-2 hover:scale-110 transition-all duration-300"
             >
               <ShoppingCart className="w-6 h-6" />
               {totalItems > 0 && (
-                <span className="badge-modern min-w-[24px] h-6 flex items-center justify-center animate-bounce">
+                <span className="badge-cyber min-w-[24px] h-6 flex items-center justify-center animate-neonGlow">
                   {totalItems}
                 </span>
               )}
@@ -133,17 +136,19 @@ export default function Header() {
                   <img 
                     src={settings.backgroundImage} 
                     alt="LANATION DU LAIT" 
-                    className="h-16 w-auto rounded-2xl animate-float"
-                    style={{ filter: 'drop-shadow(0 0 20px rgba(99, 102, 241, 0.3))' }}
+                    className="h-16 w-auto rounded border-2 border-neon-green animate-cyberFloat"
+                    style={{ filter: 'drop-shadow(0 0 20px var(--neon-green))' }}
                   />
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-t from-indigo-500/20 to-transparent"></div>
+                  <div className="absolute inset-0 rounded border border-neon-cyan animate-neonGlow"></div>
                 </div>
               ) : (
                 <div className="relative">
-                  <h1 className="text-3xl font-black gradient-text animate-fadeIn">
+                  <h1 className="text-3xl font-black neon-text animate-neonGlow">
                     {settings.shopTitle || 'LANATION DU LAIT'}
                   </h1>
-                  <div className="absolute -inset-1 bg-gradient-to-r from-indigo-500/20 to-purple-500/20 rounded-lg blur-sm -z-10"></div>
+                  <div className="absolute -inset-1 neon-text-cyan animate-neonGlow opacity-50 blur-sm -z-10">
+                    {settings.shopTitle || 'LANATION DU LAIT'}
+                  </div>
                 </div>
               )}
             </div>

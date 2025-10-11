@@ -212,47 +212,51 @@ export default function HomePage() {
     }
   };
 
-  // Écran de chargement modernisé
+  // Écran de chargement cyberpunk
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-        {/* Background animé */}
-        <div className="absolute inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 animate-pulse"></div>
-        <div className="absolute inset-0 bg-black/20"></div>
+      <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden cyber-bg">
+        {/* Background cyberpunk */}
+        <div className="absolute inset-0 bg-black"></div>
+        <div className="absolute inset-0 bg-gradient-to-br from-neon-green/10 via-transparent to-neon-cyan/10 animate-neonGlow"></div>
         
-        {/* Contenu de chargement */}
-        <div className="relative z-10 text-center card-modern p-12 max-w-lg mx-auto animate-fadeIn">
-          {/* Logo animé */}
-          <div className="w-20 h-20 mx-auto mb-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-3xl flex items-center justify-center animate-glow">
-            <span className="text-white font-bold text-3xl">L</span>
+        {/* Lignes de scan */}
+        <div className="absolute top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-neon-green to-transparent animate-scanLine"></div>
+        <div className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-neon-cyan to-transparent animate-scanLine" style={{ animationDelay: '1s' }}></div>
+        
+        {/* Contenu de chargement cyberpunk */}
+        <div className="relative z-10 text-center card-cyber p-12 max-w-lg mx-auto animate-fadeIn">
+          {/* Logo cyberpunk */}
+          <div className="w-20 h-20 mx-auto mb-8 bg-black border-2 border-neon-green rounded flex items-center justify-center animate-neonGlow">
+            <span className="neon-text font-bold text-3xl">L</span>
           </div>
           
-          {/* Titre modernisé */}
-          <h1 className="text-4xl font-black gradient-text mb-8 animate-float">
+          {/* Titre cyberpunk */}
+          <h1 className="text-4xl font-black neon-text mb-8 animate-cyberFloat">
             LANATION DU LAIT
           </h1>
           
-          {/* Barre de chargement moderne */}
+          {/* Barre de chargement cyberpunk */}
           <div className="w-80 max-w-full mx-auto mb-8">
-            <div className="h-3 bg-gray-200 rounded-full overflow-hidden">
-              <div className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full animate-pulse relative">
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer"></div>
+            <div className="h-3 bg-black border border-neon-green rounded overflow-hidden">
+              <div className="h-full bg-gradient-to-r from-neon-green to-neon-cyan rounded animate-pulse relative">
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-scanLine"></div>
               </div>
             </div>
-            <div className="mt-3 text-sm text-gray-600 font-medium animate-pulse">
-              Chargement du menu...
+            <div className="mt-3 text-sm neon-text-cyan font-medium animate-pulse">
+              [LOADING] SYSTEM INITIALIZING...
             </div>
           </div>
           
-          {/* Animation de points */}
+          {/* Animation de points cyberpunk */}
           <div className="flex justify-center gap-2 mb-8">
-            <div className="w-2 h-2 bg-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
-            <div className="w-2 h-2 bg-purple-500 rounded-full animate-bounce" style={{ animationDelay: '200ms' }}></div>
-            <div className="w-2 h-2 bg-pink-500 rounded-full animate-bounce" style={{ animationDelay: '400ms' }}></div>
+            <div className="w-2 h-2 bg-neon-green rounded-full animate-bounce animate-neonGlow" style={{ animationDelay: '0ms' }}></div>
+            <div className="w-2 h-2 bg-neon-cyan rounded-full animate-bounce animate-neonGlow" style={{ animationDelay: '200ms' }}></div>
+            <div className="w-2 h-2 bg-neon-magenta rounded-full animate-bounce animate-neonGlow" style={{ animationDelay: '400ms' }}></div>
           </div>
           
-          {/* Footer */}
-          <div className="text-gray-500 text-sm font-medium">
+          {/* Footer cyberpunk */}
+          <div className="neon-text-cyan text-sm font-medium">
                 <p>LANATIONDULAIT</p>
               </div>
             </div>
@@ -266,12 +270,16 @@ export default function HomePage() {
 
 
 
-  // Structure modernisée
+  // Structure cyberpunk
   return (
-    <div className="min-h-screen relative">
-      {/* Background gradient animé */}
-      <div className="fixed inset-0 bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 animate-pulse"></div>
-      <div className="fixed inset-0 bg-black/10"></div>
+    <div className="min-h-screen relative cyber-bg">
+      {/* Background cyberpunk */}
+      <div className="fixed inset-0 bg-black"></div>
+      <div className="fixed inset-0 bg-gradient-to-br from-neon-green/5 via-transparent to-neon-cyan/5 animate-neonGlow"></div>
+      
+      {/* Lignes de scan */}
+      <div className="fixed top-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-neon-green to-transparent animate-scanLine"></div>
+      <div className="fixed bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-neon-cyan to-transparent animate-scanLine" style={{ animationDelay: '2s' }}></div>
       
       {/* Contenu principal */}
       <div className="relative z-10">
@@ -293,14 +301,14 @@ export default function HomePage() {
               />
               
               <main className="py-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-                {/* Affichage des produits modernisé */}
+                {/* Affichage des produits cyberpunk */}
                 {filteredProducts.length === 0 && products.length > 0 ? (
                   <div className="text-center py-16">
-                    <div className="card-modern p-8 max-w-md mx-auto">
-                      <div className="text-6xl mb-4">🔍</div>
-                      <h3 className="text-xl font-bold text-gray-800 mb-2">Aucun produit trouvé</h3>
-                      <p className="text-gray-600">
-                        Aucun produit ne correspond à vos critères de recherche
+                    <div className="card-cyber p-8 max-w-md mx-auto">
+                      <div className="text-6xl mb-4 neon-text-cyan animate-cyberFloat">[ERROR]</div>
+                      <h3 className="text-xl font-bold neon-text mb-2">NO DATA FOUND</h3>
+                      <p className="neon-text-cyan">
+                        NO PRODUCTS MATCH YOUR SEARCH CRITERIA
                       </p>
                     </div>
                   </div>

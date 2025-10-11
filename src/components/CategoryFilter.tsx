@@ -28,40 +28,40 @@ export default function CategoryFilter({
   }, []);
 
   return (
-    <div className="sticky top-0 z-30 glass-effect border-b border-white/20">
+    <div className="sticky top-0 z-30 cyber-bg border-b border-neon-green">
       <div className="flex flex-col sm:flex-row gap-3 p-4 max-w-7xl mx-auto">
-        {/* Dropdown Catégories modernisé */}
+        {/* Dropdown Catégories cyberpunk */}
         <div className="relative flex-1" ref={categoryRef}>
           <button
             onClick={() => {
               setShowCategories(!showCategories);
             }}
-            className="w-full button-modern py-3 px-4 rounded-2xl text-sm font-semibold transition-all duration-300 flex items-center justify-between group hover:scale-105"
+            className="w-full button-cyber py-3 px-4 text-sm font-semibold transition-all duration-300 flex items-center justify-between group hover:scale-105"
           >
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-indigo-500/50 transition-all animate-glow">
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <div className="w-8 h-8 bg-black border border-neon-green flex items-center justify-center animate-neonGlow">
+                <svg className="w-5 h-5 neon-text" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </div>
-              <span className="truncate text-base font-bold">{selectedCategory.replace(/\s*📦\s*/g, '').trim()}</span>
+              <span className="truncate text-base font-bold neon-text">{selectedCategory.replace(/\s*📦\s*/g, '').trim()}</span>
             </div>
-            <svg className={`w-5 h-5 transition-all duration-300 flex-shrink-0 ${showCategories ? 'rotate-180 text-yellow-300' : 'text-white/70'}`} fill="currentColor" viewBox="0 0 20 20">
+            <svg className={`w-5 h-5 transition-all duration-300 flex-shrink-0 ${showCategories ? 'rotate-180 neon-text-cyan' : 'neon-text'}`} fill="currentColor" viewBox="0 0 20 20">
               <path fillRule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clipRule="evenodd" />
             </svg>
           </button>
           
           {showCategories && (
-            <div className="absolute top-full left-0 right-0 mt-3 card-modern shadow-2xl z-[9999] overflow-hidden animate-scaleIn">
-              {/* En-tête du dropdown modernisé */}
-              <div className="px-6 py-4 bg-gradient-to-r from-indigo-500/10 to-purple-500/10 border-b border-gray-200">
+            <div className="absolute top-full left-0 right-0 mt-3 card-cyber shadow-2xl z-[9999] overflow-hidden animate-scaleIn">
+              {/* En-tête du dropdown cyberpunk */}
+              <div className="px-6 py-4 bg-black border-b border-neon-green">
                 <div className="flex items-center justify-between">
-                  <span className="text-gray-800 font-bold text-lg">Catégories</span>
-                  <span className="badge-modern">{categories.length - 1}</span>
+                  <span className="neon-text font-bold text-lg">[CATEGORIES]</span>
+                  <span className="badge-cyber">{categories.length - 1}</span>
                 </div>
               </div>
               
-              {/* Liste modernisée */}
+              {/* Liste cyberpunk */}
               <div className="max-h-60 sm:max-h-64 lg:max-h-72 overflow-y-auto scrollbar-hide">
                 {categories.map((category, index) => (
                   <button
@@ -70,15 +70,15 @@ export default function CategoryFilter({
                       onCategoryChange(category);
                       setShowCategories(false);
                     }}
-                    className={`w-full text-left px-6 py-4 text-sm font-medium hover:bg-indigo-50 transition-all duration-200 border-b border-gray-100 last:border-b-0 group ${
-                      selectedCategory === category ? 'bg-indigo-100 text-indigo-800 border-l-4 border-l-indigo-500' : 'text-gray-700'
+                    className={`w-full text-left px-6 py-4 text-sm font-medium hover:bg-black/50 transition-all duration-200 border-b border-neon-green/30 last:border-b-0 group ${
+                      selectedCategory === category ? 'bg-black/50 neon-text border-l-4 border-l-neon-green' : 'neon-text-cyan'
                     }`}
                   >
                     <div className="flex items-center gap-3">
                       <span className="flex-1 font-medium group-hover:translate-x-2 transition-transform">{category.replace(/\s*📦\s*/g, '').trim()}</span>
                       {selectedCategory === category && (
-                        <div className="w-6 h-6 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full flex items-center justify-center animate-scaleIn">
-                          <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <div className="w-6 h-6 bg-black border border-neon-green flex items-center justify-center animate-neonGlow">
+                          <svg className="w-4 h-4 neon-text" fill="currentColor" viewBox="0 0 20 20">
                             <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                           </svg>
                         </div>
